@@ -20,13 +20,13 @@
     <ConfigurationType>DynamicLibrary</ConfigurationType>
     <UseOfMfc>false</UseOfMfc>
     <CharacterSet>MultiByte</CharacterSet>
-    <PlatformToolset>v120</PlatformToolset>
+    <PlatformToolset>v110</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
     <UseOfMfc>false</UseOfMfc>
     <CharacterSet>MultiByte</CharacterSet>
-    <PlatformToolset>v120</PlatformToolset>
+    <PlatformToolset>v110</PlatformToolset>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="ExtensionSettings">
@@ -45,7 +45,7 @@
     <IntDir>.\Release\</IntDir>
     <LinkIncremental>false</LinkIncremental>
     <GenerateManifest>false</GenerateManifest>
-    <IncludePath>jvm;network;Lib</IncludePath>
+    <IncludePath>D:\Projects\HelloX\HelloX_OS\kernel\lib;D:\Projects\HelloX\HelloX_OS\kernel\include\bsdstack\sys;jvm;network;Lib</IncludePath>
     <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
     <CodeAnalysisRules />
     <CodeAnalysisRuleAssemblies />
@@ -57,6 +57,7 @@
     <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
     <CodeAnalysisRules />
     <CodeAnalysisRuleAssemblies />
+    <IncludePath>D:\Projects\HelloX\HelloX_OS\kernel\include\bsdstack\sys;D:\Projects\HelloX\HelloX_OS\kernel\jvm;D:\Projects\HelloX\HelloX_OS\kernel\network;D:\Projects\HelloX\HelloX_OS\kernel\lib;D:\Projects\HelloX\HelloX_OS\kernel\include;D:\Projects\HelloX\HelloX_OS\kernel\arch\x86;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
@@ -153,6 +154,59 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="arch\x86\BIOSVGA.C" />
+    <ClCompile Include="bsdstack\dev_emu.c" />
+    <ClCompile Include="bsdstack\if.c" />
+    <ClCompile Include="bsdstack\if_clone.c" />
+    <ClCompile Include="bsdstack\if_ether.c" />
+    <ClCompile Include="bsdstack\if_ethersubr.c" />
+    <ClCompile Include="bsdstack\if_loop.c" />
+    <ClCompile Include="bsdstack\in.c" />
+    <ClCompile Include="bsdstack\inet_ntoa.c" />
+    <ClCompile Include="bsdstack\init_ipstack.c" />
+    <ClCompile Include="bsdstack\in_pcb.c" />
+    <ClCompile Include="bsdstack\in_proto.c" />
+    <ClCompile Include="bsdstack\in_rmx.c" />
+    <ClCompile Include="bsdstack\ips_config.c" />
+    <ClCompile Include="bsdstack\ips_lib.c" />
+    <ClCompile Include="bsdstack\ip_fastfwd.c" />
+    <ClCompile Include="bsdstack\ip_icmp.c" />
+    <ClCompile Include="bsdstack\ip_input.c" />
+    <ClCompile Include="bsdstack\ip_output.c" />
+    <ClCompile Include="bsdstack\kern_ass.c" />
+    <ClCompile Include="bsdstack\kern_clock.c" />
+    <ClCompile Include="bsdstack\kern_conf.c" />
+    <ClCompile Include="bsdstack\kern_event.c" />
+    <ClCompile Include="bsdstack\kern_mbuf.c" />
+    <ClCompile Include="bsdstack\kern_subr.c" />
+    <ClCompile Include="bsdstack\kern_timeout.c" />
+    <ClCompile Include="bsdstack\netisr.c" />
+    <ClCompile Include="bsdstack\packet_input.c" />
+    <ClCompile Include="bsdstack\radix.c" />
+    <ClCompile Include="bsdstack\rand.c" />
+    <ClCompile Include="bsdstack\raw_cb.c" />
+    <ClCompile Include="bsdstack\raw_ip.c" />
+    <ClCompile Include="bsdstack\raw_usrreq.c" />
+    <ClCompile Include="bsdstack\route.c" />
+    <ClCompile Include="bsdstack\rtsock.c" />
+    <ClCompile Include="bsdstack\subr_param.c" />
+    <ClCompile Include="bsdstack\subr_prf.c" />
+    <ClCompile Include="bsdstack\subr_sbuf.c" />
+    <ClCompile Include="bsdstack\tcp_hostcache.c" />
+    <ClCompile Include="bsdstack\tcp_input.c" />
+    <ClCompile Include="bsdstack\tcp_output.c" />
+    <ClCompile Include="bsdstack\tcp_sack.c" />
+    <ClCompile Include="bsdstack\tcp_subr.c" />
+    <ClCompile Include="bsdstack\tcp_syncache.c" />
+    <ClCompile Include="bsdstack\tcp_timer.c" />
+    <ClCompile Include="bsdstack\tcp_usrreq.c" />
+    <ClCompile Include="bsdstack\udp_usrreq.c" />
+    <ClCompile Include="bsdstack\uipc_domain.c" />
+    <ClCompile Include="bsdstack\uipc_mbuf.c" />
+    <ClCompile Include="bsdstack\uipc_mbuf2.c" />
+    <ClCompile Include="bsdstack\uipc_socket.c" />
+    <ClCompile Include="bsdstack\uipc_socket2.c" />
+    <ClCompile Include="bsdstack\uipc_syscall.c" />
+    <ClCompile Include="bsdstack\um_core.c" />
     <ClCompile Include="drivers\x86\com.c" />
     <ClCompile Include="drivers\x86\IDEBASE.C" />
     <ClCompile Include="drivers\x86\IDEHD.C" />
@@ -435,6 +489,9 @@
     <None Include="Authors.txt" />
     <None Include="README.md" />
     <None Include="revise.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="bsdstack\readme.txt" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

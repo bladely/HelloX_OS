@@ -81,11 +81,11 @@
     <Filter Include="Source Files\jvm\OS">
       <UniqueIdentifier>{9b2777b6-45f4-4178-871a-27eb7c63381e}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source Files\bsdip">
-      <UniqueIdentifier>{d45c3103-01e8-481b-9e83-bf10a1ee10c6}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Header Files\bsd_hdr">
       <UniqueIdentifier>{7a17f3ee-f237-47d6-8aaa-a729083628f8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\kernel\bsdstack">
+      <UniqueIdentifier>{08f7e6bb-13fc-4e07-bee5-4b37e54d4ab4}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -557,6 +557,165 @@
     <ClCompile Include="lib\stat.c">
       <Filter>Source Files\jvm</Filter>
     </ClCompile>
+    <ClCompile Include="bsdstack\dev_emu.c">
+      <Filter>Source Files\kernel\bsdstack</Filter>
+    </ClCompile>
+    <ClCompile Include="bsdstack\if.c">
+      <Filter>Source Files\kernel\bsdstack</Filter>
+    </ClCompile>
+    <ClCompile Include="bsdstack\if_clone.c">
+      <Filter>Source Files\kernel\bsdstack</Filter>
+    </ClCompile>
+    <ClCompile Include="bsdstack\if_ether.c">
+      <Filter>Source Files\kernel\bsdstack</Filter>
+    </ClCompile>
+    <ClCompile Include="bsdstack\if_ethersubr.c">
+      <Filter>Source Files\kernel\bsdstack</Filter>
+    </ClCompile>
+    <ClCompile Include="bsdstack\if_loop.c">
+      <Filter>Source Files\kernel\bsdstack</Filter>
+    </ClCompile>
+    <ClCompile Include="bsdstack\in.c">
+      <Filter>Source Files\kernel\bsdstack</Filter>
+    </ClCompile>
+    <ClCompile Include="bsdstack\in_pcb.c">
+      <Filter>Source Files\kernel\bsdstack</Filter>
+    </ClCompile>
+    <ClCompile Include="bsdstack\in_proto.c">
+      <Filter>Source Files\kernel\bsdstack</Filter>
+    </ClCompile>
+    <ClCompile Include="bsdstack\in_rmx.c">
+      <Filter>Source Files\kernel\bsdstack</Filter>
+    </ClCompile>
+    <ClCompile Include="bsdstack\inet_ntoa.c">
+      <Filter>Source Files\kernel\bsdstack</Filter>
+    </ClCompile>
+    <ClCompile Include="bsdstack\init_ipstack.c">
+      <Filter>Source Files\kernel\bsdstack</Filter>
+    </ClCompile>
+    <ClCompile Include="bsdstack\ip_fastfwd.c">
+      <Filter>Source Files\kernel\bsdstack</Filter>
+    </ClCompile>
+    <ClCompile Include="bsdstack\ip_icmp.c">
+      <Filter>Source Files\kernel\bsdstack</Filter>
+    </ClCompile>
+    <ClCompile Include="bsdstack\ip_input.c">
+      <Filter>Source Files\kernel\bsdstack</Filter>
+    </ClCompile>
+    <ClCompile Include="bsdstack\ip_output.c">
+      <Filter>Source Files\kernel\bsdstack</Filter>
+    </ClCompile>
+    <ClCompile Include="bsdstack\ips_config.c">
+      <Filter>Source Files\kernel\bsdstack</Filter>
+    </ClCompile>
+    <ClCompile Include="bsdstack\ips_lib.c">
+      <Filter>Source Files\kernel\bsdstack</Filter>
+    </ClCompile>
+    <ClCompile Include="bsdstack\kern_ass.c">
+      <Filter>Source Files\kernel\bsdstack</Filter>
+    </ClCompile>
+    <ClCompile Include="bsdstack\kern_clock.c">
+      <Filter>Source Files\kernel\bsdstack</Filter>
+    </ClCompile>
+    <ClCompile Include="bsdstack\kern_conf.c">
+      <Filter>Source Files\kernel\bsdstack</Filter>
+    </ClCompile>
+    <ClCompile Include="bsdstack\kern_event.c">
+      <Filter>Source Files\kernel\bsdstack</Filter>
+    </ClCompile>
+    <ClCompile Include="bsdstack\kern_mbuf.c">
+      <Filter>Source Files\kernel\bsdstack</Filter>
+    </ClCompile>
+    <ClCompile Include="bsdstack\kern_subr.c">
+      <Filter>Source Files\kernel\bsdstack</Filter>
+    </ClCompile>
+    <ClCompile Include="bsdstack\kern_timeout.c">
+      <Filter>Source Files\kernel\bsdstack</Filter>
+    </ClCompile>
+    <ClCompile Include="bsdstack\netisr.c">
+      <Filter>Source Files\kernel\bsdstack</Filter>
+    </ClCompile>
+    <ClCompile Include="bsdstack\packet_input.c">
+      <Filter>Source Files\kernel\bsdstack</Filter>
+    </ClCompile>
+    <ClCompile Include="bsdstack\radix.c">
+      <Filter>Source Files\kernel\bsdstack</Filter>
+    </ClCompile>
+    <ClCompile Include="bsdstack\rand.c">
+      <Filter>Source Files\kernel\bsdstack</Filter>
+    </ClCompile>
+    <ClCompile Include="bsdstack\raw_cb.c">
+      <Filter>Source Files\kernel\bsdstack</Filter>
+    </ClCompile>
+    <ClCompile Include="bsdstack\raw_ip.c">
+      <Filter>Source Files\kernel\bsdstack</Filter>
+    </ClCompile>
+    <ClCompile Include="bsdstack\raw_usrreq.c">
+      <Filter>Source Files\kernel\bsdstack</Filter>
+    </ClCompile>
+    <ClCompile Include="bsdstack\route.c">
+      <Filter>Source Files\kernel\bsdstack</Filter>
+    </ClCompile>
+    <ClCompile Include="bsdstack\rtsock.c">
+      <Filter>Source Files\kernel\bsdstack</Filter>
+    </ClCompile>
+    <ClCompile Include="bsdstack\subr_param.c">
+      <Filter>Source Files\kernel\bsdstack</Filter>
+    </ClCompile>
+    <ClCompile Include="bsdstack\subr_prf.c">
+      <Filter>Source Files\kernel\bsdstack</Filter>
+    </ClCompile>
+    <ClCompile Include="bsdstack\subr_sbuf.c">
+      <Filter>Source Files\kernel\bsdstack</Filter>
+    </ClCompile>
+    <ClCompile Include="bsdstack\tcp_hostcache.c">
+      <Filter>Source Files\kernel\bsdstack</Filter>
+    </ClCompile>
+    <ClCompile Include="bsdstack\tcp_input.c">
+      <Filter>Source Files\kernel\bsdstack</Filter>
+    </ClCompile>
+    <ClCompile Include="bsdstack\tcp_output.c">
+      <Filter>Source Files\kernel\bsdstack</Filter>
+    </ClCompile>
+    <ClCompile Include="bsdstack\tcp_sack.c">
+      <Filter>Source Files\kernel\bsdstack</Filter>
+    </ClCompile>
+    <ClCompile Include="bsdstack\tcp_subr.c">
+      <Filter>Source Files\kernel\bsdstack</Filter>
+    </ClCompile>
+    <ClCompile Include="bsdstack\tcp_syncache.c">
+      <Filter>Source Files\kernel\bsdstack</Filter>
+    </ClCompile>
+    <ClCompile Include="bsdstack\tcp_timer.c">
+      <Filter>Source Files\kernel\bsdstack</Filter>
+    </ClCompile>
+    <ClCompile Include="bsdstack\tcp_usrreq.c">
+      <Filter>Source Files\kernel\bsdstack</Filter>
+    </ClCompile>
+    <ClCompile Include="bsdstack\udp_usrreq.c">
+      <Filter>Source Files\kernel\bsdstack</Filter>
+    </ClCompile>
+    <ClCompile Include="bsdstack\uipc_domain.c">
+      <Filter>Source Files\kernel\bsdstack</Filter>
+    </ClCompile>
+    <ClCompile Include="bsdstack\uipc_mbuf.c">
+      <Filter>Source Files\kernel\bsdstack</Filter>
+    </ClCompile>
+    <ClCompile Include="bsdstack\uipc_mbuf2.c">
+      <Filter>Source Files\kernel\bsdstack</Filter>
+    </ClCompile>
+    <ClCompile Include="bsdstack\uipc_socket.c">
+      <Filter>Source Files\kernel\bsdstack</Filter>
+    </ClCompile>
+    <ClCompile Include="bsdstack\uipc_socket2.c">
+      <Filter>Source Files\kernel\bsdstack</Filter>
+    </ClCompile>
+    <ClCompile Include="bsdstack\uipc_syscall.c">
+      <Filter>Source Files\kernel\bsdstack</Filter>
+    </ClCompile>
+    <ClCompile Include="bsdstack\um_core.c">
+      <Filter>Source Files\kernel\bsdstack</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\arch\bpstruct.h">
@@ -930,5 +1089,10 @@
     <None Include="arch\x86\REALINIT.ASM">
       <Filter>Source Files\arch</Filter>
     </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="bsdstack\readme.txt">
+      <Filter>Source Files\kernel\bsdstack</Filter>
+    </Text>
   </ItemGroup>
 </Project>
