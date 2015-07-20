@@ -46,11 +46,14 @@ void DOMAIN_SET(struct domain *name)
 }
 void BISStartup()
 {
-	//IPS_CFG_IFA *ifCfg;
 	int i = 0;
+	
+	//IPS_CFG_IFA *ifCfg;
+	
 	init_param1();
 	init_param2(1000);
 	init_param3(1000);
+	
 	//OSAL_Startup();
 	if_init(NULL);
 	//ifCfg = g_ips_all.config.ifa;
@@ -64,12 +67,16 @@ void BISStartup()
 	uma_startup(NULL);
 	mbuf_init(NULL);
 	domaininit(NULL);
+	
 	//rip_init();在net_add_domain中初始化
 	//udp_init();
 	DOMAIN_SET(&inetdomain);
 	DOMAIN_SET(&routedomain);
+	
 	rts_init();
+	
 	route_init();
 	arp_init();
+	
 }
 

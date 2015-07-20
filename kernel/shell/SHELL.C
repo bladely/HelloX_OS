@@ -778,7 +778,7 @@ DWORD ShellEntryPoint(LPVOID pData)
 	WORD x, y;
 
 	StrCpy(DEF_PROMPT_STR,&s_szPrompt[0]);
-	CD_PrintString(VERSION_INFO,TRUE);
+	CD_PrintString("This is my first code",TRUE);
 	//CD_SetCursorPos(0,SHELL_INPUT_START_Y_FIRST);
 	CD_GetCursorPos(&x, &y);
 	CD_SetCursorPos(0, y + 1);

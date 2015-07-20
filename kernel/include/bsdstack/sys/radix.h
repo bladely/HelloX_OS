@@ -33,7 +33,6 @@
 #ifndef _RADIX_H_
 #define	_RADIX_H_
 
-
 /*
  * Radix search tree node layout.
  */
@@ -124,7 +123,7 @@ struct radix_node_head {
 
 #ifndef _KERNEL
 #define R_Malloc(p, t, n) (p = (t) malloc((unsigned int)(n)))
-#define R_Zalloc(p, t, n) (p = (t) calloc(1,(unsigned int)(n)))
+#define R_Zalloc(p, t, n) (p = (t) _hx_calloc(1,(unsigned int)(n)))
 #define Free(p) free((char *)p);
 #else
 #define R_Malloc(p, t, n) (p = (t) malloc((unsigned long)(n), M_RTABLE, M_NOWAIT))

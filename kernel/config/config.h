@@ -188,7 +188,10 @@
 #define __CFG_NET_ETHMGR
 
 //Include IPv4 network protocol in OS.
-#define __CFG_NET_IPv4
+//#define __CFG_NET_IPv4
+
+//Include BSD IPv4 network protocol in OS.
+#define __CFG_BSD_NET
 
 //Include IPv6 network protocol in OS.
 //#define __CFG_NET_IPv6
