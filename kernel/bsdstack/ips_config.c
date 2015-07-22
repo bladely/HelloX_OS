@@ -83,7 +83,8 @@ int set_lookbackIpAddr(int cfgId)
 	sin = (struct sockaddr_in *)&ifra.ifra_addr;
 	sin->sin_family = AF_INET;
 	sin->sin_len = sizeof(struct sockaddr_in);
-	sin->sin_addr.s_addr = inet_addr("127.0.0.1");
+	
+	sin->sin_addr.s_addr = bsd_inet_addr("127.0.0.1");
 	
 	sin = (struct sockaddr_in *)&ifra.ifra_broadaddr;
 	sin->sin_family = AF_INET;
@@ -93,9 +94,12 @@ int set_lookbackIpAddr(int cfgId)
 	sin = (struct sockaddr_in *)&ifra.ifra_mask;
 	sin->sin_family = AF_INET;
 	sin->sin_len = sizeof(struct sockaddr_in);
-	sin->sin_addr.s_addr = inet_addr("255.0.0.0");
+	
+	sin->sin_addr.s_addr = bsd_inet_addr("255.0.0.0");
+	
 	if (ioctl(cfgId, SIOCAIFADDR, &ifra) < 0) {
-		
+		_hx_printf("%s %d\n", __FUNCTION__, __LINE__);
+		return 0;
 		exit(6);
 	}
 	
@@ -152,17 +156,17 @@ int set_ipAddr(int cfgId, char *devName, char if_index, char * ipAddr)
 	sin = (struct sockaddr_in *)&ifra.ifra_addr;
 	sin->sin_family = AF_INET;
 	sin->sin_len = sizeof(struct sockaddr_in);
-	sin->sin_addr.s_addr = inet_addr(ipAddr);
+	sin->sin_addr.s_addr = bsd_inet_addr(ipAddr);
 	
 	sin = (struct sockaddr_in *)&ifra.ifra_broadaddr;
 	sin->sin_family = AF_INET;
 	sin->sin_len = sizeof(struct sockaddr_in);
-	sin->sin_addr.s_addr = (inet_addr(ipAddr) & 0x00ffffff) | 0xff000000;
+	sin->sin_addr.s_addr = (bsd_inet_addr(ipAddr) & 0x00ffffff) | 0xff000000;
 	
 	sin = (struct sockaddr_in *)&ifra.ifra_mask;
 	sin->sin_family = AF_INET;
 	sin->sin_len = sizeof(struct sockaddr_in);
-	sin->sin_addr.s_addr = inet_addr("255.255.255.0");
+	sin->sin_addr.s_addr = bsd_inet_addr("255.255.255.0");
 	if (ioctl(cfgId, SIOCAIFADDR, &ifra) < 0) {
 		
 		exit(6);
@@ -189,7 +193,7 @@ void get_ip(int cfgId, char *devName, int if_index)
 	default : 
 		{
 			struct in_addr *ipaddr = &((struct sockaddr_in *)sa)->sin_addr;
-			strcpy(netaddr,inet_ntoa(*ipaddr));
+			strcpy(netaddr,bsd_inet_ntoa(*ipaddr));
 		}
 	}
 	printf("%s ip address as %s\n", if_name, netaddr);
@@ -212,7 +216,7 @@ int get_netmask(int cfgId, char *devName, int if_index)
 	
     ptr = (struct sockaddr_in *)&ifr.ifr_ifru.ifru_addr;
     //ptr->sin_addr.s_addr = ntohl(ptr->sin_addr.s_addr);
-    printf("Netmask:%s\n",inet_ntoa(ptr->sin_addr));
+    printf("Netmask:%s\n",bsd_inet_ntoa(ptr->sin_addr));
 	
     return 0;
 }
@@ -322,7 +326,7 @@ struct sockaddr *sa;
 			strncpy(line, cp, sizeof(line) - 1);
 			line[sizeof(line) - 1] = '\0';
 		} else
-			(void) sprintf(line, "%s", inet_ntoa(in));
+			(void) sprintf(line, "%s", bsd_inet_ntoa(in));
 		break;
 		}
 		
@@ -569,7 +573,7 @@ void show_ip_route(char *ipaddr)
 	
 	so_dst.sin.sin_family = AF_INET;
 	so_dst.sin.sin_len = sizeof(struct sockaddr_in);
-	so_dst.sin.sin_addr.s_addr = inet_addr(ipaddr);
+	so_dst.sin.sin_addr.s_addr = bsd_inet_addr(ipaddr);
 	
 	so_ifp.sdl.sdl_family = AF_LINK;
 	so_ifp.sdl.sdl_len = sizeof(struct sockaddr_dl);
@@ -622,9 +626,9 @@ setifflags(int s)
 #endif		
 }
 
+#if 0
 int BISConfig(void *ips_all)
 {
-#ifdef hellox_dbg
 	int cfgId;
 	IPS_CFG_IFA *ifCfg = ips_all->config.ifa;
 	lo_clone_create(0);
@@ -635,7 +639,7 @@ int BISConfig(void *ips_all)
 	//get_ip(cfgId, "lo", 0);
 	while(ifCfg)
 	{
-		if ( inet_addr(ifCfg->ipaddr) == INADDR_NONE)
+		if ( bsd_inet_addr(ifCfg->ipaddr) == INADDR_NONE)
 			set_ipAddr(cfgId, ifCfg->ifName, ifCfg->index, IP_ADDR);
 		else
 			set_ipAddr(cfgId, ifCfg->ifName, ifCfg->index, ifCfg->ipaddr);
@@ -651,7 +655,20 @@ int BISConfig(void *ips_all)
 	add_static_route();
 	//setifflags(cfgId);
 	//routepr();
+
+	return 0;
+}
 #endif
+int BISConfig()
+{
+	int cfgId;
+	lo_clone_create(0);
+	
+	cfgId = socket(AF_INET, SOCK_DGRAM, IPPROTO_IP);
+	
+	set_lookbackIpAddr(cfgId);
+	
+	so_close(cfgId);
 	return 0;
 }
 //extern IPS_ALL g_ips_all;
@@ -1113,7 +1130,7 @@ getaddr(which, s, hpp)
 	q = strchr(s,'/');
 	if (q && which == RTA_DST) {
 		*q = '\0';
-		if ((val = inet_addr(s)) != INADDR_NONE) {
+		if ((val = bsd_inet_addr(s)) != INADDR_NONE) {
 			inet_makenetandmask(
 				htonl(val), &su->sin, strtoul(q+1, 0, 0));//LUOYU modi val --> htonl(val) 2010-10-21 for show route statistic 
 			return (0);
@@ -1121,11 +1138,11 @@ getaddr(which, s, hpp)
 		*q = '/';
 	}
 	if ((which != RTA_DST || forcenet == 0) &&
-	    inet_aton(s, &su->sin.sin_addr)) 
+	    bsd_inet_aton(s, &su->sin.sin_addr)) 
 	{
 		val = su->sin.sin_addr.s_addr;
 		if (which != RTA_DST || forcehost ||
-		    inet_ntoa(su->sin.sin_addr) != INADDR_ANY)
+		    bsd_inet_ntoa(su->sin.sin_addr) != INADDR_ANY)
 			return (1);
 		else {
 			val = ntohl(val);
@@ -1459,7 +1476,7 @@ newroute(int cfgId,
 			(void) printf(": gateway %s", gateway);
 			if (attempts > 1 && ret == 0 && af == AF_INET)
 			    (void) printf(" (%s)",
-				inet_ntoa(((struct sockaddr_in *)&route.rt_gateway)->sin_addr));
+				bsd_inet_ntoa(((struct sockaddr_in *)&route.rt_gateway)->sin_addr));
 		}
 		if (ret == 0) {
 			(void) printf("\n");

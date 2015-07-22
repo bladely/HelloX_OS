@@ -188,9 +188,9 @@ bsd_icmp_input(m, off)
 #ifdef ICMPPRINTFS
 	if (icmpprintfs) {
 		char buf[4 * sizeof "123"];
-		strcpy(buf, inet_ntoa(ip->ip_src));
+		strcpy(buf, bsd_inet_ntoa(ip->ip_src));
 		printf("bsd_icmp_input from %s to %s, len %d\n",
-		       buf, inet_ntoa(ip->ip_dst), icmplen);
+		       buf, bsd_inet_ntoa(ip->ip_dst), icmplen);
 	}
 #endif
 	if (icmplen < ICMP_MINLEN) {
@@ -365,7 +365,7 @@ bsd_icmp_input(m, off)
 
 #ifdef DEBUG_MTUDISC
 			printf("MTU for %s reduced to %d\n",
-				inet_ntoa(icmpsrc.sin_addr), mtu);
+				bsd_inet_ntoa(icmpsrc.sin_addr), mtu);
 #endif
 		}
 
@@ -497,10 +497,10 @@ reflect:
 #ifdef	ICMPPRINTFS
 		if (icmpprintfs) {
 			char buf[4 * sizeof "123"];
-			strcpy(buf, inet_ntoa(icp->icmp_ip.ip_dst));
+			strcpy(buf, bsd_inet_ntoa(icp->icmp_ip.ip_dst));
 
 			printf("redirect dst %s to %s\n",
-			       buf, inet_ntoa(icp->icmp_gwaddr));
+			       buf, bsd_inet_ntoa(icp->icmp_gwaddr));
 		}
 #endif
 		icmpsrc.sin_addr = icp->icmp_ip.ip_dst;
@@ -717,16 +717,16 @@ icmp_send(m, opts)
 	m->m_len -= hlen;
 	icp = mtod(m, struct icmp *);
 	icp->icmp_cksum = 0;
-	icp->icmp_cksum = in_cksum(m, ip->ip_len - hlen);
+	icp->icmp_cksum = bsd_in_cksum(m, ip->ip_len - hlen);
 	m->m_data -= hlen;
 	m->m_len += hlen;
 	m->m_pkthdr.rcvif = (struct ifnet *)0;
 #ifdef ICMPPRINTFS
 	if (icmpprintfs) {
 		char buf[4 * sizeof "123"];
-		strcpy(buf, inet_ntoa(ip->ip_dst));
+		strcpy(buf, bsd_inet_ntoa(ip->ip_dst));
 		printf("icmp_send dst %s src %s\n",
-		       buf, inet_ntoa(ip->ip_src));
+		       buf, bsd_inet_ntoa(ip->ip_src));
 	}
 #endif
 	(void) bsd_ip_output(m, opts, NULL, 0, NULL, NULL);

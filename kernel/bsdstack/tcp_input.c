@@ -474,7 +474,7 @@ bsd_tcp_input(m, off0)
 			bzero(ipov->ih_x1, sizeof(ipov->ih_x1));
 			ipov->ih_len = (u_short)tlen;
 			ipov->ih_len = htons(ipov->ih_len);
-			th->th_sum = in_cksum(m, len);
+			th->th_sum = bsd_in_cksum(m, len);
 		}
 		if (th->th_sum) {
 			tcpstat.tcps_rcvbadsum++;
@@ -647,8 +647,8 @@ findpcb:
 				strcat(sbuf, "]");
 #endif
 			} else {
-				strcpy(dbuf, inet_ntoa(ip->ip_dst));
-				strcpy(sbuf, inet_ntoa(ip->ip_src));
+				strcpy(dbuf, bsd_inet_ntoa(ip->ip_dst));
+				strcpy(sbuf, bsd_inet_ntoa(ip->ip_src));
 			}
 			switch (log_in_vain) {
 			case 1:
@@ -992,7 +992,7 @@ after_listen:
 						isipv6 ?
 						ip6_sprintf(&inp->inp_inc.inc6_faddr) :
 #endif
-						inet_ntoa(inp->inp_inc.inc_faddr),
+						bsd_inet_ntoa(inp->inp_inc.inc_faddr),
 						inp->inp_inc.inc_fport,
 						tp->rcv_byps / tp->rcv_pps);
 					tp = tcp_drop(tp, ECONNRESET);

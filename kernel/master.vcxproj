@@ -45,7 +45,7 @@
     <IntDir>.\Release\</IntDir>
     <LinkIncremental>false</LinkIncremental>
     <GenerateManifest>false</GenerateManifest>
-    <IncludePath>D:\Projects\HelloX\HelloX_OS\kernel\lib;D:\Projects\HelloX\HelloX_OS\kernel\include\bsdstack\sys;jvm;network;Lib</IncludePath>
+    <IncludePath>D:\projects\HelloX\HelloX_OS\kernel\include\bsdstack;D:\Projects\HelloX\HelloX_OS\kernel\lib;D:\Projects\HelloX\HelloX_OS\kernel\include\bsdstack\sys;jvm;network;Lib</IncludePath>
     <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
     <CodeAnalysisRules />
     <CodeAnalysisRuleAssemblies />
@@ -280,8 +280,6 @@
     <ClCompile Include="lib\string.c" />
     <ClCompile Include="lib\sysmem.c" />
     <ClCompile Include="lib\time.c" />
-    <ClCompile Include="network\ethernet\ethentry.c" />
-    <ClCompile Include="network\ethernet\ethif.c" />
     <ClCompile Include="shell\EXTCMD.C" />
     <ClCompile Include="shell\FDISK.C" />
     <ClCompile Include="shell\FDISK2.C" />
@@ -291,8 +289,6 @@
     <ClCompile Include="shell\HISCMD .C" />
     <ClCompile Include="shell\HYPERTRM.C" />
     <ClCompile Include="shell\IOCTRL_S.C" />
-    <ClCompile Include="shell\network.c" />
-    <ClCompile Include="shell\network2.c" />
     <ClCompile Include="shell\SHELL.C" />
     <ClCompile Include="shell\SHELL1.C" />
     <ClCompile Include="shell\SHELL_HELP.C" />
@@ -328,45 +324,14 @@
     <ClCompile Include="kernel\SYSTEM.C" />
     <ClCompile Include="kernel\TYPES.C" />
     <ClCompile Include="kernel\VMM.C" />
-    <ClCompile Include="network\api\api_lib.c" />
-    <ClCompile Include="network\api\api_msg.c" />
-    <ClCompile Include="network\core\autoip.c" />
-    <ClCompile Include="network\core\def.c" />
-    <ClCompile Include="network\core\dhcp.c" />
-    <ClCompile Include="network\core\dns.c" />
-    <ClCompile Include="network\api\err.c" />
-    <ClCompile Include="network\netif\etharp.c" />
-    <ClCompile Include="network\core\icmp.c" />
-    <ClCompile Include="network\core\igmp.c" />
-    <ClCompile Include="network\core\inet.c" />
-    <ClCompile Include="network\core\inet_chksum.c" />
-    <ClCompile Include="network\core\init.c" />
-    <ClCompile Include="network\core\ip.c" />
-    <ClCompile Include="network\core\ip_addr.c" />
-    <ClCompile Include="network\core\ip_frag.c" />
-    <ClCompile Include="network\core\mem.c" />
-    <ClCompile Include="network\core\memp.c" />
-    <ClCompile Include="network\api\netbuf.c" />
-    <ClCompile Include="network\api\netdb.c" />
-    <ClCompile Include="network\core\netif.c" />
-    <ClCompile Include="network\api\netifapi.c" />
-    <ClCompile Include="network\core\pbuf.c" />
-    <ClCompile Include="network\core\raw.c" />
-    <ClCompile Include="network\api\sockets.c" />
-    <ClCompile Include="network\core\stats.c" />
-    <ClCompile Include="network\core\sys.c" />
-    <ClCompile Include="network\arch\sys_arch.c" />
-    <ClCompile Include="network\core\tcp.c" />
-    <ClCompile Include="network\core\tcp_in.c" />
-    <ClCompile Include="network\core\tcp_out.c" />
-    <ClCompile Include="network\api\tcpip.c" />
-    <ClCompile Include="network\core\timers.c" />
-    <ClCompile Include="network\core\udp.c" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="arch\x86\BIOSVGA.H" />
     <ClInclude Include="dispaly\BIOSVGA.H" />
     <ClInclude Include="include\arch\bpstruct.h" />
+    <ClInclude Include="include\bsdstack\ethertype.h" />
+    <ClInclude Include="include\bsdstack\ips_config.h" />
+    <ClInclude Include="include\bsdstack\ip_osal.h" />
     <ClInclude Include="INCLUDE\BUFFMGR.H" />
     <ClInclude Include="include\CharDisplay.H" />
     <ClInclude Include="INCLUDE\COMMOBJ.H" />

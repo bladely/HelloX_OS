@@ -125,17 +125,19 @@ soo_ioctl(fp, cmd, data, active_cred, td)
 	struct thread *td;
 {
 	register struct socket *so;
-
+	
    so = fp;
 	/*
 	 * Interface/routing/protocol specific ioctls:
 	 * interface and routing ioctls should have a
 	 * different entry since a socket's unnecessary
 	 */
+	 
 	if (IOCGROUP(cmd) == 'i')
 		return (ifioctl(so, cmd, data, td));
 	if (IOCGROUP(cmd) == 'r')
 		return (rtioctl(cmd, data));
+	
 	return ((*so->so_proto->pr_usrreqs->pru_control)(so, cmd, data, 0, td));
 }
 
@@ -1082,6 +1084,7 @@ int ioctl(fd, com, data)
 	void *data;
 {
    struct fileops *f_ops = &socketops;
+	
 	return ((*f_ops->fo_ioctl)(fd, com, data, NULL, NULL));
 }
 

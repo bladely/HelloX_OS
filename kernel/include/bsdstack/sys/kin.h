@@ -590,8 +590,8 @@ int	 in_broadcast(struct in_addr, struct ifnet *);
 int	 in_canforward(struct in_addr);
 int	 in_localaddr(struct in_addr);
 int	 in_localip(struct in_addr);
-char	*inet_ntoa(struct in_addr); /* in libkern */
-char	*inet_ntoa_r(struct in_addr ina, char *buf); /* in libkern */
+char	*bsd_inet_ntoa(struct in_addr); /* in libkern */
+char	*bsd_inet_ntoa_r(struct in_addr ina, char *buf); /* in libkern */
 
 #define	in_hosteq(s, t)	((s).s_addr == (t).s_addr)
 #define	in_nullhost(x)	((x).s_addr == INADDR_ANY)

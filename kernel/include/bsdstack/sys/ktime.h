@@ -59,6 +59,7 @@ struct timezone {
 	int	tz_minuteswest;	/* minutes west of Greenwich */
 	int	tz_dsttime;	/* type of dst correction */
 };
+typedef long     time_t;
 struct timespec {
 	time_t	tv_sec;		/* seconds */
 	long	tv_nsec;	/* and nanoseconds */

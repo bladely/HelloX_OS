@@ -44,7 +44,7 @@ typedef struct _tagIPS_All
 }IPS_ALL;
 
 
-
+int BISConfig();
 
 
 #endif

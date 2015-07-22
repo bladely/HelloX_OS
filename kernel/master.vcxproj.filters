@@ -27,9 +27,6 @@
       <UniqueIdentifier>{2ab20da3-fb06-4503-964c-7ae0e770da37}</UniqueIdentifier>
       <Extensions>.cpp</Extensions>
     </Filter>
-    <Filter Include="Source Files\network">
-      <UniqueIdentifier>{75a7017c-537e-49b1-b808-4bc8c3deaaec}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Header Files">
       <UniqueIdentifier>{915b8425-b910-40ba-aced-7f47a9618512}</UniqueIdentifier>
       <Extensions>h;hpp;hxx;hm;inl</Extensions>
@@ -170,12 +167,6 @@
     <ClCompile Include="shell\IOCTRL_S.C">
       <Filter>Source Files\shell</Filter>
     </ClCompile>
-    <ClCompile Include="shell\network.c">
-      <Filter>Source Files\shell</Filter>
-    </ClCompile>
-    <ClCompile Include="shell\network2.c">
-      <Filter>Source Files\shell</Filter>
-    </ClCompile>
     <ClCompile Include="shell\SHELL.C">
       <Filter>Source Files\shell</Filter>
     </ClCompile>
@@ -278,108 +269,6 @@
     <ClCompile Include="kernel\VMM.C">
       <Filter>Source Files\kernel</Filter>
     </ClCompile>
-    <ClCompile Include="network\api\api_lib.c">
-      <Filter>Source Files\network</Filter>
-    </ClCompile>
-    <ClCompile Include="network\api\api_msg.c">
-      <Filter>Source Files\network</Filter>
-    </ClCompile>
-    <ClCompile Include="network\core\autoip.c">
-      <Filter>Source Files\network</Filter>
-    </ClCompile>
-    <ClCompile Include="network\core\def.c">
-      <Filter>Source Files\network</Filter>
-    </ClCompile>
-    <ClCompile Include="network\core\dhcp.c">
-      <Filter>Source Files\network</Filter>
-    </ClCompile>
-    <ClCompile Include="network\core\dns.c">
-      <Filter>Source Files\network</Filter>
-    </ClCompile>
-    <ClCompile Include="network\api\err.c">
-      <Filter>Source Files\network</Filter>
-    </ClCompile>
-    <ClCompile Include="network\netif\etharp.c">
-      <Filter>Source Files\network</Filter>
-    </ClCompile>
-    <ClCompile Include="network\core\icmp.c">
-      <Filter>Source Files\network</Filter>
-    </ClCompile>
-    <ClCompile Include="network\core\igmp.c">
-      <Filter>Source Files\network</Filter>
-    </ClCompile>
-    <ClCompile Include="network\core\inet.c">
-      <Filter>Source Files\network</Filter>
-    </ClCompile>
-    <ClCompile Include="network\core\inet_chksum.c">
-      <Filter>Source Files\network</Filter>
-    </ClCompile>
-    <ClCompile Include="network\core\init.c">
-      <Filter>Source Files\network</Filter>
-    </ClCompile>
-    <ClCompile Include="network\core\ip.c">
-      <Filter>Source Files\network</Filter>
-    </ClCompile>
-    <ClCompile Include="network\core\ip_addr.c">
-      <Filter>Source Files\network</Filter>
-    </ClCompile>
-    <ClCompile Include="network\core\ip_frag.c">
-      <Filter>Source Files\network</Filter>
-    </ClCompile>
-    <ClCompile Include="network\core\mem.c">
-      <Filter>Source Files\network</Filter>
-    </ClCompile>
-    <ClCompile Include="network\core\memp.c">
-      <Filter>Source Files\network</Filter>
-    </ClCompile>
-    <ClCompile Include="network\api\netbuf.c">
-      <Filter>Source Files\network</Filter>
-    </ClCompile>
-    <ClCompile Include="network\api\netdb.c">
-      <Filter>Source Files\network</Filter>
-    </ClCompile>
-    <ClCompile Include="network\core\netif.c">
-      <Filter>Source Files\network</Filter>
-    </ClCompile>
-    <ClCompile Include="network\api\netifapi.c">
-      <Filter>Source Files\network</Filter>
-    </ClCompile>
-    <ClCompile Include="network\core\pbuf.c">
-      <Filter>Source Files\network</Filter>
-    </ClCompile>
-    <ClCompile Include="network\core\raw.c">
-      <Filter>Source Files\network</Filter>
-    </ClCompile>
-    <ClCompile Include="network\api\sockets.c">
-      <Filter>Source Files\network</Filter>
-    </ClCompile>
-    <ClCompile Include="network\core\stats.c">
-      <Filter>Source Files\network</Filter>
-    </ClCompile>
-    <ClCompile Include="network\core\sys.c">
-      <Filter>Source Files\network</Filter>
-    </ClCompile>
-    <ClCompile Include="network\arch\sys_arch.c">
-      <Filter>Source Files\network</Filter>
-    </ClCompile>
-    <ClCompile Include="network\core\tcp.c">
-      <Filter>Source Files\network</Filter>
-    </ClCompile>
-    <ClCompile Include="network\core\tcp_in.c">
-      <Filter>Source Files\network</Filter>
-    </ClCompile>
-    <ClCompile Include="network\core\tcp_out.c">
-      <Filter>Source Files\network</Filter>
-    </ClCompile>
-    <ClCompile Include="network\api\tcpip.c">
-      <Filter>Source Files\network</Filter>
-    </ClCompile>
-    <ClCompile Include="network\core\timers.c">
-      <Filter>Source Files\network</Filter>
-    </ClCompile>
-    <ClCompile Include="network\core\udp.c">
-      <Filter>Source Files\network</Filter>
-    </ClCompile>
     <ClCompile Include="shell\HISCMD .C">
       <Filter>Source Files\shell</Filter>
     </ClCompile>
@@ -391,12 +280,6 @@
     </ClCompile>
     <ClCompile Include="arch\x86\BIOSVGA.C">
       <Filter>Source Files\arch</Filter>
-    </ClCompile>
-    <ClCompile Include="network\ethernet\ethentry.c">
-      <Filter>Source Files\network</Filter>
-    </ClCompile>
-    <ClCompile Include="network\ethernet\ethif.c">
-      <Filter>Source Files\network</Filter>
     </ClCompile>
     <ClCompile Include="lib\atox.c">
       <Filter>Source Files\lib</Filter>
@@ -1068,6 +951,15 @@
     </ClInclude>
     <ClInclude Include="lib\sys\stat.h">
       <Filter>Source Files\lib\sys</Filter>
+    </ClInclude>
+    <ClInclude Include="include\bsdstack\ethertype.h">
+      <Filter>Header Files\bsd_hdr</Filter>
+    </ClInclude>
+    <ClInclude Include="include\bsdstack\ip_osal.h">
+      <Filter>Header Files\bsd_hdr</Filter>
+    </ClInclude>
+    <ClInclude Include="include\bsdstack\ips_config.h">
+      <Filter>Header Files\bsd_hdr</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

@@ -88,21 +88,21 @@ memcmp(const void *b1, const void *b2, size_t len)
 #define	FNM_IGNORECASE	FNM_CASEFOLD
 #define	FNM_FILE_NAME	FNM_PATHNAME
 
-#define isspace(c)	((c) == ' ' || ((c) >= '\t' && (c) <= '\r'))
-#define isascii(c)	(((c) & ~0x7f) == 0)
-#define isupper(c)	((c) >= 'A' && (c) <= 'Z')
-#define islower(c)	((c) >= 'a' && (c) <= 'z')
-#define isalpha(c)	(isupper(c) || islower(c))
-#define isdigit(c)	((c) >= '0' && (c) <= '9')
-#define isxdigit(c)	(isdigit(c) \
+#define bsd_isspace(c)	((c) == ' ' || ((c) >= '\t' && (c) <= '\r'))
+#define bsd_isascii(c)	(((c) & ~0x7f) == 0)
+#define bsd_isupper(c)	((c) >= 'A' && (c) <= 'Z')
+#define bsd_islower(c)	((c) >= 'a' && (c) <= 'z')
+#define bsd_isalpha(c)	(bsd_isupper(c) || bsd_islower(c))
+#define bsd_isdigit(c)	((c) >= '0' && (c) <= '9')
+#define bsd_isxdigit(c)	(bsd_isdigit(c) \
 			  || ((c) >= 'A' && (c) <= 'F') \
 			  || ((c) >= 'a' && (c) <= 'f'))
-#define isprint(c)	((c) >= ' ' && (c) <= '~')
+#define bsd_isprint(c)	((c) >= ' ' && (c) <= '~')
 
-#define toupper(c)	((c) - 0x20 * (((c) >= 'a') && ((c) <= 'z')))
-#define tolower(c)	((c) + 0x20 * (((c) >= 'A') && ((c) <= 'Z')))
+#define bsd_toupper(c)	((c) - 0x20 * (((c) >= 'a') && ((c) <= 'z')))
+#define bsd_tolower(c)	((c) + 0x20 * (((c) >= 'A') && ((c) <= 'Z')))
 
-#define in_cksum(m, len)	in_cksum_skip(m, len, 0)
+#define bsd_in_cksum(m, len)	in_cksum_skip(m, len, 0)
 
 
 /*

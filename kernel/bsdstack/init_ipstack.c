@@ -24,12 +24,12 @@
 #include "kroute.h"
 #include "tcp_ip.h"
 #include "netisr.h"
-//#include "IPS_CONFIG.h"
+#include "ips_config.h"
 extern struct domain inetdomain;
 extern struct domain routedomain;
 extern void init_param1(void);
-extern void init_param2(void);
-extern void init_param3(void);
+extern void init_param2(long physpages);
+extern void init_param3(long kmempages);
 extern void install_dev();
 extern void uma_startup(void *bootmem);
 extern void mbuf_init(void *dummy);
@@ -78,5 +78,6 @@ void BISStartup()
 	route_init();
 	arp_init();
 	
+	BISConfig();
 }
 

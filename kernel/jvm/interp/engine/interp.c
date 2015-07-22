@@ -42,7 +42,13 @@
 
 //For ntohl routine.
 #ifndef ntohl
+#ifdef __CFG_NET_IPv4
 #define ntohl lwip_ntohl
+#endif
+#ifdef __CFG_BSD_NET
+#include "kin.h"
+#define ntohl __ntohl
+#endif
 #endif
 
 extern long lwip_ntohl(long);

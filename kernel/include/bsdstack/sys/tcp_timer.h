@@ -144,7 +144,7 @@ extern int tcp_rexmit_min;
 extern int tcp_rexmit_slop;
 extern int tcp_msl;
 extern int tcp_ttl;			/* time to live for TCP segs */
-extern int tcp_backoff[];
+extern int bsd_tcp_backoff[];
 
 struct tcptw;
 

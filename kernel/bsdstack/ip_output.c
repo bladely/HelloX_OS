@@ -415,7 +415,7 @@ passout:
 				ip->ip_off = htons(ip->ip_off);
 				ip->ip_sum = 0;
 				if (sw_csum & CSUM_DELAY_IP)
-					ip->ip_sum = in_cksum(m, hlen);
+					ip->ip_sum = bsd_in_cksum(m, hlen);
 				
 				/* Record statistics for this interface address. */
 				if (!(flags & IP_FORWARDING) && ia) {
@@ -627,7 +627,7 @@ smart_frag_failure:
 		mhip->ip_off = htons(mhip->ip_off);
 		mhip->ip_sum = 0;
 		if (sw_csum & CSUM_DELAY_IP)
-			mhip->ip_sum = in_cksum(m, mhlen);
+			mhip->ip_sum = bsd_in_cksum(m, mhlen);
 		*mnext = m;
 		mnext = &m->m_nextpkt;
 	}
@@ -648,7 +648,7 @@ smart_frag_failure:
 	ip->ip_off = htons(ip->ip_off);
 	ip->ip_sum = 0;
 	if (sw_csum & CSUM_DELAY_IP)
-		ip->ip_sum = in_cksum(m0, hlen);
+		ip->ip_sum = bsd_in_cksum(m0, hlen);
 	
 done:
 	*m_frag = m0;
@@ -1124,7 +1124,7 @@ int hlen;
 		ip->ip_len = htons(ip->ip_len);
 		ip->ip_off = htons(ip->ip_off);
 		ip->ip_sum = 0;
-		ip->ip_sum = in_cksum(copym, hlen);
+		ip->ip_sum = bsd_in_cksum(copym, hlen);
 		/*
 		* NB:
 		* It's not clear whether there are any lingering

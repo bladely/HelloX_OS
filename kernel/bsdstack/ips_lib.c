@@ -21,6 +21,34 @@
 #include <process.h>
 //#include "ips_config.h"
 extern int errno;
+
+unsigned long strtoul(const char *cp,char **endp,unsigned int base)  
+{  
+    unsigned long result = 0,value;  
+  
+    if (!base) {  
+        base = 10;  
+        if (*cp == '0') {  
+            base = 8;  
+            cp++;  
+            if ((bsd_tolower(*cp) == 'x') && bsd_isxdigit(cp[1])) {  
+                cp++;  
+                base = 16;  
+            }  
+        }  
+    } else if (base == 16) {  
+        if (cp[0] == '0' && bsd_tolower(cp[1]) == 'x')  
+            cp += 2;  
+    }  
+    while (bsd_isxdigit(*cp) &&  
+           (value = bsd_isdigit(*cp) ? *cp-'0' : bsd_tolower(*cp)-'a'+10) < base) {  
+        result = result*base + value;  
+        cp++;  
+    }  
+    if (endp)  
+        *endp = (char *)cp;  
+    return result;  
+}  
 /*
 * Check whether "cp" is a valid ascii representation
 * of an Internet address and convert to a binary address.
@@ -52,17 +80,24 @@ __inet_aton(const char *cp, struct in_addr *addr)
 	res.word = 0;
 	
 	c = *cp;
+	
 	for (;;) {
+	
 	/*
 	* Collect number up to ``.''.
 	* Values are specified as for C:
 	* 0x=hex, 0=octal, isdigit=decimal.
 		*/
-		if (!isdigit(c))
+		if (!bsd_isdigit(c))
 			goto ret_0;
+		
 		{
 			char *endp;
-			unsigned long ul = strtoul (cp, (char **) &endp, 0);
+
+			unsigned long ul;
+			
+			ul = strtoul (cp, (char **) &endp, 0);
+			
 			if (ul == ULONG_MAX && errno == ERANGE)
 				goto ret_0;
 			if (ul > 0xfffffffful)
@@ -90,7 +125,7 @@ __inet_aton(const char *cp, struct in_addr *addr)
 	/*
 	* Check for trailing characters.
 	*/
-	if (c != '\0' && (!isascii(c) || !isspace(c)))
+	if (c != '\0' && (!bsd_isascii(c) || !bsd_isspace(c)))
 		goto ret_0;
 		/*
 		* Did we get a valid digit?
@@ -106,7 +141,6 @@ __inet_aton(const char *cp, struct in_addr *addr)
 	if (addr != NULL)
 		addr->s_addr = res.word | htonl (val);
 	
-	
 	return (1);
 	
 ret_0:
@@ -119,7 +153,7 @@ ret_0:
 * The value returned is in network order.
 */
 in_addr_t
-inet_addr(const char *cp) {
+bsd_inet_addr(const char *cp) {
 	struct in_addr val;
 	
 	if (__inet_aton(cp, &val))
@@ -134,7 +168,7 @@ inet_addr(const char *cp) {
  * cannot distinguish between failure and a local broadcast address.
  */
 int
-inet_aton(const char *cp, struct in_addr *addr)
+bsd_inet_aton(const char *cp, struct in_addr *addr)
 {
 	register u_int32_t val;
 	register int base, n;
@@ -149,7 +183,7 @@ inet_aton(const char *cp, struct in_addr *addr)
 		 * Values are specified as for C:
 		 * 0x=hex, 0=octal, isdigit=decimal.
 		 */
-		if (!isdigit(c))
+		if (!bsd_isdigit(c))
 			return (0);
 		val = 0; base = 10;
 		if (c == '0') {
@@ -160,12 +194,12 @@ inet_aton(const char *cp, struct in_addr *addr)
 				base = 8;
 		}
 		for (;;) {
-			if (isascii(c) && isdigit(c)) {
+			if (bsd_isascii(c) && bsd_isdigit(c)) {
 				val = (val * base) + (c - '0');
 				c = *++cp;
-			} else if (base == 16 && isascii(c) && isxdigit(c)) {
+			} else if (base == 16 && bsd_isascii(c) && bsd_isxdigit(c)) {
 				val = (val << 4) |
-					(c + 10 - (islower(c) ? 'a' : 'A'));
+					(c + 10 - (bsd_islower(c) ? 'a' : 'A'));
 				c = *++cp;
 			} else
 				break;
@@ -187,7 +221,7 @@ inet_aton(const char *cp, struct in_addr *addr)
 	/*
 	 * Check for trailing characters.
 	 */
-	if (c != '\0' && (!isascii(c) || !isspace(c)))
+	if (c != '\0' && (!bsd_isascii(c) || !bsd_isspace(c)))
 		return (0);
 	/*
 	 * Concoct the address according to

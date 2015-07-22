@@ -1106,7 +1106,7 @@ tcp_setpersist(tp)
 	/*
 	 * Start/restart persistance timer.
 	 */
-	TCPT_RANGESET(tt, t * tcp_backoff[tp->t_rxtshift],
+	TCPT_RANGESET(tt, t * bsd_tcp_backoff[tp->t_rxtshift],
 		      TCPTV_PERSMIN, TCPTV_PERSMAX);
 	callout_reset(tp->tt_persist, tt, tcp_timer_persist, tp);
 	if (tp->t_rxtshift < TCP_MAXRXTSHIFT)

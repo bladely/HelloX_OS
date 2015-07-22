@@ -254,7 +254,7 @@ bsd_ip_input(struct mbuf *m)
 		if (hlen == sizeof(struct ip)) {
 			sum = in_cksum_hdr(ip);
 		} else {
-			sum = in_cksum(m, hlen);
+			sum = bsd_in_cksum(m, hlen);
 		}
 	}
 	if (sum) {
@@ -1148,7 +1148,7 @@ ip_dooptions(struct mbuf *m, int pass)
 					 * Acting as a router, so generate ICMP
 					 */
 nosourcerouting:
-					strcpy(buf, inet_ntoa(ip->ip_dst));
+					strcpy(buf, bsd_inet_ntoa(ip->ip_dst));
 					//log(LOG_WARNING, 
 					//    "attempted source route from %s to %s\n",
 					//    inet_ntoa(ip->ip_src), buf);

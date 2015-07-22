@@ -131,7 +131,7 @@ static struct tcp_syncache tcp_syncache;
 
 #define SYNCACHE_TIMEOUT(sc, slot) do {				\
 	sc->sc_rxtslot = (slot);					\
-	sc->sc_rxttime = ticks + TCPTV_RTOBASE * tcp_backoff[(slot)];	\
+	sc->sc_rxttime = ticks + TCPTV_RTOBASE * bsd_tcp_backoff[(slot)];	\
 	TAILQ_INSERT_TAIL(&tcp_syncache.timerq[(slot)], sc, sc_timerq);	\
 } while (0)
 

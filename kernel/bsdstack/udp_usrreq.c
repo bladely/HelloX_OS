@@ -172,7 +172,7 @@ bsd_udp_input(m, off)
 			bcopy(((struct ipovly *)ip)->ih_x1, b, 9);
 			bzero(((struct ipovly *)ip)->ih_x1, 9);
 			((struct ipovly *)ip)->ih_len = uh->uh_ulen;
-			uh->uh_sum = in_cksum(m, len + sizeof (struct ip));
+			uh->uh_sum = bsd_in_cksum(m, len + sizeof (struct ip));
 			bcopy(b, ((struct ipovly *)ip)->ih_x1, 9);
 		}
 		if (uh->uh_sum) {
@@ -300,7 +300,7 @@ bsd_udp_input(m, off)
 		if (log_in_vain) {
 			char buf[4*sizeof "123"];
 
-			strcpy(buf, inet_ntoa(ip->ip_dst));
+			strcpy(buf, bsd_inet_ntoa(ip->ip_dst));
 			//log(LOG_INFO,
 			//    "Connection attempt to UDP %s:%d from %s:%d\n",
 			//    buf, ntohs(uh->uh_dport), inet_ntoa(ip->ip_src),

@@ -185,7 +185,7 @@
 //************************************************************************
 
 //Include ethernet manager in OS.
-#define __CFG_NET_ETHMGR
+//#define __CFG_NET_ETHMGR
 
 //Include IPv4 network protocol in OS.
 //#define __CFG_NET_IPv4

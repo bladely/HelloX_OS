@@ -475,7 +475,7 @@ tcp_timer_rexmt(xtp)
 	if (tp->t_state == TCPS_SYN_SENT)
 		rexmt = TCP_REXMTVAL(tp) * tcp_syn_backoff[tp->t_rxtshift];
 	else
-		rexmt = TCP_REXMTVAL(tp) * tcp_backoff[tp->t_rxtshift];
+		rexmt = TCP_REXMTVAL(tp) * bsd_tcp_backoff[tp->t_rxtshift];
 	TCPT_RANGESET(tp->t_rxtcur, rexmt,
 		      tp->t_rttmin, TCPTV_REXMTMAX);
 	/*

@@ -71,7 +71,7 @@ typedef u_int16_t n_short;		/* short as received from the net */
 typedef u_int32_t n_long;		/* long as received from the net */
 
 typedef	u_int32_t n_time;		/* ms since 00:00 GMT, byte rev */
-typedef __int32_t time_t;
+//typedef __int32_t time_t;
 /*
  * Unusual type definitions.
  */
@@ -121,9 +121,9 @@ typedef	__int32_t		int32_t;
 struct ucred {
 	char *buf;
 };
-struct thread{
-	char *buf;
-};
+//struct thread{
+//	char *buf;
+//};
 struct mtx
 {
 	char *buf;

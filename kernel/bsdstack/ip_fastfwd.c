@@ -153,7 +153,7 @@ ip_fastforward(struct mbuf *m)
 		if (hlen == sizeof(struct ip))
 			sum = in_cksum_hdr(ip);
 		else
-			sum = in_cksum(m, hlen);
+			sum = bsd_in_cksum(m, hlen);
 	}
 	if (sum) {
 		ipstat.ips_badsum++;
