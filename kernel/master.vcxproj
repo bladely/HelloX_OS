@@ -154,12 +154,24 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="arch\x86\BIOSVGA.C" />
+    <ClCompile Include="bsdstack\busdma_machdep.c" />
     <ClCompile Include="bsdstack\dev_emu.c" />
+    <ClCompile Include="bsdstack\e1000_82540.c" />
+    <ClCompile Include="bsdstack\e1000_82541.c" />
+    <ClCompile Include="bsdstack\e1000_82542.c" />
+    <ClCompile Include="bsdstack\e1000_82543.c" />
+    <ClCompile Include="bsdstack\e1000_api.c" />
+    <ClCompile Include="bsdstack\e1000_mac.c" />
+    <ClCompile Include="bsdstack\e1000_nvm.c" />
+    <ClCompile Include="bsdstack\e1000_osdep.c" />
+    <ClCompile Include="bsdstack\e1000_phy.c" />
     <ClCompile Include="bsdstack\if.c" />
     <ClCompile Include="bsdstack\if_clone.c" />
     <ClCompile Include="bsdstack\if_ether.c" />
     <ClCompile Include="bsdstack\if_ethersubr.c" />
+    <ClCompile Include="bsdstack\if_lem.c" />
     <ClCompile Include="bsdstack\if_loop.c" />
+    <ClCompile Include="bsdstack\if_media.c" />
     <ClCompile Include="bsdstack\in.c" />
     <ClCompile Include="bsdstack\inet_ntoa.c" />
     <ClCompile Include="bsdstack\init_ipstack.c" />
@@ -179,6 +191,9 @@
     <ClCompile Include="bsdstack\kern_mbuf.c" />
     <ClCompile Include="bsdstack\kern_subr.c" />
     <ClCompile Include="bsdstack\kern_timeout.c" />
+    <ClCompile Include="bsdstack\mii.c" />
+    <ClCompile Include="bsdstack\miibus_if.c" />
+    <ClCompile Include="bsdstack\mii_physubr.c" />
     <ClCompile Include="bsdstack\netisr.c" />
     <ClCompile Include="bsdstack\packet_input.c" />
     <ClCompile Include="bsdstack\radix.c" />
@@ -188,6 +203,7 @@
     <ClCompile Include="bsdstack\raw_usrreq.c" />
     <ClCompile Include="bsdstack\route.c" />
     <ClCompile Include="bsdstack\rtsock.c" />
+    <ClCompile Include="bsdstack\subr_bus.c" />
     <ClCompile Include="bsdstack\subr_param.c" />
     <ClCompile Include="bsdstack\subr_prf.c" />
     <ClCompile Include="bsdstack\subr_sbuf.c" />

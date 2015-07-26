@@ -599,6 +599,54 @@
     <ClCompile Include="bsdstack\um_core.c">
       <Filter>Source Files\kernel\bsdstack</Filter>
     </ClCompile>
+    <ClCompile Include="bsdstack\if_media.c">
+      <Filter>Source Files\kernel\bsdstack</Filter>
+    </ClCompile>
+    <ClCompile Include="bsdstack\subr_bus.c">
+      <Filter>Source Files\kernel\bsdstack</Filter>
+    </ClCompile>
+    <ClCompile Include="bsdstack\mii.c">
+      <Filter>Source Files\kernel\bsdstack</Filter>
+    </ClCompile>
+    <ClCompile Include="bsdstack\mii_physubr.c">
+      <Filter>Source Files\kernel\bsdstack</Filter>
+    </ClCompile>
+    <ClCompile Include="bsdstack\miibus_if.c">
+      <Filter>Source Files\kernel\bsdstack</Filter>
+    </ClCompile>
+    <ClCompile Include="bsdstack\if_lem.c">
+      <Filter>Source Files\kernel\bsdstack</Filter>
+    </ClCompile>
+    <ClCompile Include="bsdstack\e1000_api.c">
+      <Filter>Source Files\kernel\bsdstack</Filter>
+    </ClCompile>
+    <ClCompile Include="bsdstack\e1000_osdep.c">
+      <Filter>Source Files\kernel\bsdstack</Filter>
+    </ClCompile>
+    <ClCompile Include="bsdstack\e1000_mac.c">
+      <Filter>Source Files\kernel\bsdstack</Filter>
+    </ClCompile>
+    <ClCompile Include="bsdstack\e1000_phy.c">
+      <Filter>Source Files\kernel\bsdstack</Filter>
+    </ClCompile>
+    <ClCompile Include="bsdstack\e1000_nvm.c">
+      <Filter>Source Files\kernel\bsdstack</Filter>
+    </ClCompile>
+    <ClCompile Include="bsdstack\e1000_82540.c">
+      <Filter>Source Files\kernel\bsdstack</Filter>
+    </ClCompile>
+    <ClCompile Include="bsdstack\e1000_82542.c">
+      <Filter>Source Files\kernel\bsdstack</Filter>
+    </ClCompile>
+    <ClCompile Include="bsdstack\e1000_82543.c">
+      <Filter>Source Files\kernel\bsdstack</Filter>
+    </ClCompile>
+    <ClCompile Include="bsdstack\e1000_82541.c">
+      <Filter>Source Files\kernel\bsdstack</Filter>
+    </ClCompile>
+    <ClCompile Include="bsdstack\busdma_machdep.c">
+      <Filter>Source Files\kernel\bsdstack</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\arch\bpstruct.h">

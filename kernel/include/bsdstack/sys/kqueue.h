@@ -276,7 +276,27 @@ struct {								\
 	TRASHIT((elm)->field.tqe_prev);					\
 	QMD_TRACE_ELEM(&(elm)->field);					\
 } while (0)
+/*
+ * Singly-linked Tail queue declarations.
+ */
+#define	STAILQ_HEAD(name, type)						\
+struct name {								\
+	struct type *stqh_first;/* first element */			\
+	struct type **stqh_last;/* addr of last next element */		\
+}
+#define	STAILQ_FIRST(head)	((head)->stqh_first)
 
+#define	STAILQ_INIT(head) do {						\
+	STAILQ_FIRST((head)) = NULL;					\
+	(head)->stqh_last = &STAILQ_FIRST((head));			\
+} while (0)
+#define	STAILQ_HEAD_INITIALIZER(head)					\
+	{ NULL, &(head).stqh_first }
+
+#define	STAILQ_ENTRY(type)						\
+struct {								\
+	struct type *stqe_next;	/* next element */			\
+}
 #include "selinfo.h"
 struct knote;
 

@@ -27,7 +27,7 @@
 //#include "ips_config.h"
 //#include "ip_osal.h"
 
-
+#if 0
 //#pragma comment(lib, "IP_HAL.lib")
 //#include "ip_hal.h"
 /* status */
@@ -117,37 +117,6 @@
 
 
 
-#define MAXMCADDR 80
-
-
-#define device_method_t		kobj_method_t
-struct kobj_method;
-typedef struct kobj_method	kobj_method_t;
-
-struct kobjop_desc {
-	unsigned int	id;		/* unique ID */
-	kobj_method_t	*deflt;		/* default implementation */
-};
-typedef struct kobjop_desc	*kobjop_desc_t;
-typedef int			(*kobjop_t)(void);
-
-struct kobj_method {
-	kobjop_desc_t	desc;
-	kobjop_t	func;
-};
-struct resource {
-	u_long	r_start;	/* index of the first entry in this resource */
-	u_long	r_end;		/* index of the last entry (inclusive) */
-	u_int	r_flags;
-	void	*r_virtual;	/* virtual address of this resource */
-	int	r_rid;		/* optional rid for this resource. */
-};
-struct device {
-	void	*softc;
-	char *name;
-	__uint32_t unit;
-};
-typedef struct device		*device_t;
 struct fxp_cb_mcs {
 	u_int16_t cb_status;
 	u_int16_t cb_command;
@@ -251,19 +220,12 @@ extern unsigned long _beginthread( void( __cdecl *start_address )( void * ), uns
 const	char *device_get_name(device_t dev);
 void	*device_get_softc(device_t dev);
 int device_get_unit(device_t dev);
-void *device_get_softc(device_t dev);
 
-extern void if_init(void *dummy);
-extern void if_check(void *dummy );
-extern void ether_ifattach(struct ifnet *ifp, const u_int8_t *llc);
-extern void ether_ifdetach(struct ifnet *ifp);
-extern int ether_ioctl(struct ifnet *ifp, int command, caddr_t data);
 
 extern int Dev_Send(int sockSend, int peerport, char *buf, int len);
 extern int Dev_Recv(int socketRecv, char *buffer);
 
-#define KOBJMETHOD(NAME, FUNC) { NULL, (kobjop_t) FUNC }
-#define	DEVMETHOD	KOBJMETHOD
+
 
 
 static device_method_t fxp_methods[] = {
@@ -278,22 +240,6 @@ static device_method_t fxp_methods[] = {
 	{ 0, 0 }
 };
 
-/*
-* A class is simply a method table and a sizeof value. When the first
-* instance of the class is created, the method table will be compiled 
-* into a form more suited to efficient method dispatch. This compiled 
-* method table is always the first field of the object.
-*/
-#define KOBJ_CLASS_FIELDS						\
-	const char	*name;		/* class name */		\
-	kobj_method_t	*methods;	/* method table */		\
-size_t		size		/* object size */		
-
-struct kobj_class {
-	KOBJ_CLASS_FIELDS;
-};
-
-typedef struct kobj_class	driver_t;
 
 static driver_t fxp_driver = {
 	"fxp",
@@ -303,38 +249,7 @@ static driver_t fxp_driver = {
 
 extern int g_HalDevSend;
 extern int g_HalDevRecv;
-/**
-* @brief A device class
-*
-* The devclass object has two main functions in the system. The first
-* is to manage the allocation of unit numbers for device instances
-* and the second is to hold the list of device drivers for a
-* particular bus type. Each devclass has a name and there cannot be
-* two devclasses with the same name. This ensures that unique unit
-* numbers are allocated to device instances.
-*
-* Drivers that support several different bus attachments (e.g. isa,
-* pci, pccard) should all use the same devclass to ensure that unit
-* numbers do not conflict.
-*
-* Each devclass may also have a parent devclass. This is used when
-* searching for device drivers to allow a form of inheritance. When
-* matching drivers with devices, first the driver list of the parent
-* device's devclass is searched. If no driver is found in that list,
-* the search continues in the parent devclass (if any).
-*/
-typedef struct devclass		*devclass_t;
-struct devclass {
-	TAILQ_ENTRY(devclass) link;
-	devclass_t	parent;		/* parent in devclass hierarchy */
-	//driver_list_t	drivers;     /* bus devclasses store drivers for bus */
-	char		*name;
-	//device_t	*devices;	/* array of devices indexed by unit */
-	int		maxunit;	/* size of devices array */
-	
-	//struct sysctl_ctx_list sysctl_ctx;
-	//struct sysctl_oid *sysctl_tree;
-};
+
 
 static devclass_t fxp_devclass;
 
@@ -409,9 +324,10 @@ fxp_probe(device_t dev)
 
 //device_t g_dev_emu = NULL;
 int g_threadHandler = 0;
+#if 0
 void install_dev(void *ifCfg)
 {
-#ifdef hellox_dbg
+
 	struct fxp_softc *softc = (struct fxp_softc*)malloc(sizeof(*softc));
 	device_t dev;
 	ifCfg->dev_p = (device_t)malloc(sizeof(*ifCfg->dev_p));
@@ -427,10 +343,29 @@ void install_dev(void *ifCfg)
 	if_check(NULL);
 	
 	//_beginthread( fxp_intr, 0, NULL );
-	g_hInterThreadId = Dev_Setup_Intr(fxp_intr, ifCfg->dev_recv_port);
+	g_hInterThreadId = Dev_Setup_Intr(fxp_intr, ifCfg->dev_recv_port);	
+}
 #endif
+void install_dev(char *ifName, uint32_t index)
+{
+
+	struct fxp_softc *softc = (struct fxp_softc*)malloc(sizeof(*softc));
+	device_t dev = (device_t)malloc(sizeof(device_t));
+	//g_dev_emu = dev;
+	//memset(dev, 0, sizeof(*device_t));
+	memset(softc, 0, sizeof(struct fxp_softc));
+	//dev->name = ifName;//(char*)ENUML_DEV_NAME;
+	//dev->unit = index;
+	//dev->softc = softc;
+	fxp_attach(dev);
+	
+	if_check(NULL);
+	
+	//_beginthread( fxp_intr, 0, NULL );
+	//g_hInterThreadId = Dev_Setup_Intr(fxp_intr, ifCfg->dev_recv_port);
 	
 }
+
 static int
 fxp_attach(device_t dev)
 {
@@ -1067,3 +1002,4 @@ device_get_softc(device_t dev)
 	return (dev->softc);
 }
 
+#endif

@@ -58,9 +58,22 @@ struct malloc_type {
 	u_long	ks_magic;	/* if it's not magic, don't touch it */
 	const char *ks_shortdesc;	/* short description */
 };
+#define	MALLOC_DEFINE(type, shortdesc, longdesc) \
+	struct malloc_type type[1]= { \
+		{ NULL, 0, 0, 0, 0, 0, M_MAGIC, shortdesc } \
+	}; 
+
+
+
 #define	MALLOC_DECLARE(type) \
 	extern struct malloc_type type[1]
 
+MALLOC_DECLARE(M_CACHE);
+MALLOC_DECLARE(M_DEVBUF);
+MALLOC_DECLARE(M_TEMP);
+
+MALLOC_DECLARE(M_IFADDR);
+MALLOC_DECLARE(M_IFMADDR);
 /*
  * Deprecated macro versions of not-quite-malloc() and free().
  */
@@ -78,10 +91,12 @@ MALLOC_DECLARE(M_IOV);
 extern struct mtx malloc_mtx;
 
 /* XXX struct malloc_type is unused for contig*(). */
+/*
 void	contigfree(void *addr, unsigned long size, struct malloc_type *type);
 void	*contigmalloc(unsigned long size, struct malloc_type *type, int flags,
 	    vm_paddr_t low, vm_paddr_t high, unsigned long alignment,
 	    unsigned long boundary);
+	    */
 void	malloc_init(void *);
 int	malloc_last_fail(void);
 void	malloc_type_allocated(struct malloc_type *type, unsigned long size);
@@ -92,5 +107,23 @@ void	malloc_uninit(void *);
 void	*reallocf(void *addr, unsigned long size, struct malloc_type *type,
 	    int flags);
 
+__inline void *
+contigmalloc(
+	unsigned long size,	/* should be size_t here and for malloc() */
+	struct malloc_type *type,
+	int flags,
+	vm_paddr_t low,
+	vm_paddr_t high,
+	unsigned long alignment,
+	unsigned long boundary)
+{
+	return malloc(size);
+}
+
+__inline void
+contigfree(void *addr, unsigned long size, struct malloc_type *type)
+{
+	free(addr);	
+}
 
 #endif /* !_SYS_MALLOC_H_ */

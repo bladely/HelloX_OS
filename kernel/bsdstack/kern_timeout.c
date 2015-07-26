@@ -1,7 +1,7 @@
 #include "ktime.h"
 #include "callout.h"
 #include "socketvar.h"
-
+#include "bus_at386.h"
 struct callout *callout;
 struct callout_list callfree;
 int callwheelsize, callwheelbits, callwheelmask;
@@ -154,7 +154,7 @@ kern_timeout_callwheel_alloc(caddr_t v)
 	     callwheelsize <<= 1, ++callwheelbits)
 		;
 	callwheelmask = callwheelsize - 1;
-   /* TMD Ê²Ã´ÆÆ¾­µä´úÂëå º¦ÎÒ²éÁËÒ»Ð¡Ê± ÕâÀïÒ»¶¨Òª×¢Òâcallout ºÍstruct calloutµÄÇø±ð*/
+   /* TMD Ê²Ã´ÆÆ¾­µä´úÂë?º¦ÎÒ²éÁËÒ»Ð¡Ê± ÕâÀïÒ»¶¨Òª×¢Òâcallout ºÍstruct calloutµÄÇø±ð*/
 	callout = (struct callout *)malloc(sizeof(struct callout) * ncallout);
 	//v = (caddr_t)(callout + ncallout);
 	callwheel = (struct callout_list *)malloc(sizeof(struct callout_list));
@@ -200,7 +200,27 @@ callout_init(c, mpsafe)
 	if (mpsafe)
 		c->c_flags |= CALLOUT_MPSAFE;
 }
+void
+untimeout(ftn, arg, handle)
+	timeout_t *ftn;
+	void *arg;
+	struct callout_handle handle;
+{
+	//struct callout_cpu *cc;
 
+	/*
+	 * Check for a handle that was initialized
+	 * by callout_handle_init, but never used
+	 * for a real timeout.
+	 */
+	if (handle.callout == NULL)
+		return;
+
+	//cc = callout_lock(handle.callout);
+	if (handle.callout->c_func == ftn && handle.callout->c_arg == arg)
+		callout_stop(handle.callout);
+	//CC_UNLOCK(cc);
+}
 /*
  * timeout --
  *	Execute a function after a specified length of time.
@@ -218,7 +238,7 @@ callout_init(c, mpsafe)
  *	identify entries for untimeout.
  */
 struct callout_handle
-timeout(ftn, arg, to_ticks)
+bsd_timeout(ftn, arg, to_ticks)
 	timeout_t *ftn;
 	void *arg;
 	int to_ticks;
@@ -232,7 +252,7 @@ timeout(ftn, arg, to_ticks)
 	new = SLIST_FIRST(&callfree);
 	if (new == NULL)
 		/* XXX Attempt to malloc first */
-		panic("timeout table full");
+		panic("bsd_timeout table full");
 	SLIST_REMOVE_HEAD(&callfree, c_links.sle);
 	
 	callout_reset(new, to_ticks, ftn, arg);
@@ -447,5 +467,142 @@ itimerfix(struct timeval *tv)
 	if (tv->tv_sec == 0 && tv->tv_usec != 0 && tv->tv_usec < tick)
 		tv->tv_usec = tick;
 	return (0);
+}
+#ifndef TIMER_FREQ
+#define TIMER_FREQ   1193182
+#endif
+u_int timer_freq = TIMER_FREQ;
+int	timer0_max_count;
+int	wall_cmos_clock;	/* wall CMOS clock assumed if != 0 */
+struct mtx clock_lock;
+#define	TIMER_REG_CNTR0	0	/* timer 0 counter port */
+#define	TIMER_REG_CNTR1	1	/* timer 1 counter port */
+#define	TIMER_REG_CNTR2	2	/* timer 2 counter port */
+#define	TIMER_REG_MODE	3	/* timer mode port */
+#define		TIMER_SEL0	0x00	/* select counter 0 */
+#define		TIMER_SEL1	0x40	/* select counter 1 */
+#define		TIMER_SEL2	0x80	/* select counter 2 */
+#define		TIMER_INTTC	0x00	/* mode 0, intr on terminal cnt */
+#define		TIMER_ONESHOT	0x02	/* mode 1, one shot */
+#define		TIMER_RATEGEN	0x04	/* mode 2, rate generator */
+#define		TIMER_SQWAVE	0x06	/* mode 3, square wave */
+#define		TIMER_SWSTROBE	0x08	/* mode 4, s/w triggered strobe */
+#define		TIMER_HWSTROBE	0x0a	/* mode 5, h/w triggered strobe */
+#define		TIMER_LATCH	0x00	/* latch counter for reading */
+#define		TIMER_LSB	0x10	/* r/w counter LSB */
+#define		TIMER_MSB	0x20	/* r/w counter MSB */
+#define		TIMER_16BIT	0x30	/* r/w counter 16 bits, LSB first */
+#define		TIMER_BCD	0x01	/* count in BCD */
+
+#define	IO_TIMER1	0x40		/* 8253 Timer #1 */
+#define	TIMER_CNTR0	(IO_TIMER1 + TIMER_REG_CNTR0)
+#define	TIMER_CNTR1	(IO_TIMER1 + TIMER_REG_CNTR1)
+#define	TIMER_CNTR2	(IO_TIMER1 + TIMER_REG_CNTR2)
+#define	TIMER_MODE	(IO_TIMER1 + TIMER_REG_MODE)
+static uint32_t
+getit(void)
+{
+	int high, low;
+
+	mtx_lock_spin(&clock_lock);
+
+	/* Select timer0 and latch counter value. */
+	outb(TIMER_MODE, TIMER_SEL0 | TIMER_LATCH);
+
+	low = inb(TIMER_CNTR0);
+	high = inb(TIMER_CNTR0);
+
+	mtx_unlock_spin(&clock_lock);
+	return ((high << 8) | low);
+}
+
+/*
+ * Wait "n" microseconds.
+ * Relies on timer 1 counting down from (timer_freq / hz)
+ * Note: timer had better have been programmed before this is first used!
+ */
+void
+DELAY(int n)
+{
+	int delta, ticks_left;
+	uint32_t tick, prev_tick;
+#ifdef DELAYDEBUG
+	int getit_calls = 1;
+	int n1;
+	static int state = 0;
+
+	if (state == 0) {
+		state = 1;
+		for (n1 = 1; n1 <= 10000000; n1 *= 10)
+			DELAY(n1);
+		state = 2;
+	}
+	if (state == 1)
+		printf("DELAY(%d)...", n);
+#endif
+	/*
+	 * Read the counter first, so that the rest of the setup overhead is
+	 * counted.  Guess the initial overhead is 20 usec (on most systems it
+	 * takes about 1.5 usec for each of the i/o's in getit().  The loop
+	 * takes about 6 usec on a 486/33 and 13 usec on a 386/20.  The
+	 * multiplications and divisions to scale the count take a while).
+	 *
+	 * However, if ddb is active then use a fake counter since reading
+	 * the i8254 counter involves acquiring a lock.  ddb must not go
+	 * locking for many reasons, but it calls here for at least atkbd
+	 * input.
+	 */
+	prev_tick = getit();
+
+	n -= 0;			/* XXX actually guess no initial overhead */
+	/*
+	 * Calculate (n * (timer_freq / 1e6)) without using floating point
+	 * and without any avoidable overflows.
+	 */
+	if (n <= 0)
+		ticks_left = 0;
+	else if (n < 256)
+		/*
+		 * Use fixed point to avoid a slow division by 1000000.
+		 * 39099 = 1193182 * 2^15 / 10^6 rounded to nearest.
+		 * 2^15 is the first power of 2 that gives exact results
+		 * for n between 0 and 256.
+		 */
+		ticks_left = ((u_int)n * 39099 + (1 << 15) - 1) >> 15;
+	else
+		/*
+		 * Don't bother using fixed point, although gcc-2.7.2
+		 * generates particularly poor code for the long long
+		 * division, since even the slow way will complete long
+		 * before the delay is up (unless we're interrupted).
+		 */
+		ticks_left = ((u_int)n * (long long)timer_freq + 999999)
+			/ 1000000;
+
+	while (ticks_left > 0) {
+		tick = getit();
+#ifdef DELAYDEBUG
+		++getit_calls;
+#endif
+		delta = tick - prev_tick;
+		prev_tick = tick;
+		if (delta < 0) {
+			/*
+			 * Guard against timer0_max_count being wrong.
+			 * This shouldn't happen in normal operation,
+			 * but it may happen if set_timer_freq() is
+			 * traced.
+			 */
+			/* delta += timer0_max_count; ??? */
+			if (delta < 0)
+				delta = 0;
+		}
+		ticks_left -= delta;
+	}
+#ifdef DELAYDEBUG
+	if (state == 1)
+		printf(" %d calls to getit() at %d usec each\n",
+		       getit_calls, (n + 5) / getit_calls);
+#endif
 }
 

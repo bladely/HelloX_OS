@@ -46,10 +46,7 @@
 #define TOCONS	0x01
 #define TOTTY	0x02
 #define TOLOG	0x04
-typedef	__int64 intmax_t;
-typedef	__uint64_t	uintmax_t;
-typedef	__uint32_t uintptr_t;
-typedef	__uint32_t	ptrdiff_t;
+
 /* Max number conversion buffer length: a u_quad_t in base 2, plus NUL byte. */
 #define MAXNBUF	(sizeof(intmax_t) * NBBY + 1)
 

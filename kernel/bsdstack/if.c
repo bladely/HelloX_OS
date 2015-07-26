@@ -1133,9 +1133,11 @@ ifioctl(struct socket *so, u_long cmd, caddr_t data, struct thread *td)
 	int error;
 	int oif_flags;
 
+
 	switch (cmd) {
 	case SIOCGIFCONF:
 	case OSIOCGIFCONF:
+			_hx_printf("%s %d\n", __FUNCTION__, __LINE__);
 		return (ifconf(cmd, data));
 	}
 	ifr = (struct ifreq *)data;
@@ -1143,6 +1145,7 @@ ifioctl(struct socket *so, u_long cmd, caddr_t data, struct thread *td)
 	switch (cmd) {
 	case SIOCIFCREATE:
 	case SIOCIFDESTROY:
+			_hx_printf("%s %d\n", __FUNCTION__, __LINE__);
 		//if ((error = cap_check_td(NULL, td, CAP_NET_ADMIN, 0)) != 0)
 		//	return (error);
 		return ((cmd == SIOCIFCREATE) ?
@@ -1152,11 +1155,11 @@ ifioctl(struct socket *so, u_long cmd, caddr_t data, struct thread *td)
 	case SIOCIFGCLONERS:
 		return (if_clone_list((struct if_clonereq *)data));
 	}
-
+	
 	ifp = ifunit(ifr->ifr_name);
 	if (ifp == 0)
 		return (ENXIO);
-
+	_hx_printf("%s %d\n", __FUNCTION__, __LINE__);
 	error = ifhwioctl(cmd, ifp, data, td);
 	if (error != ENOIOCTL)
 		return (error);
@@ -1311,6 +1314,7 @@ again:
 		max_len = ifc->ifc_len;
 		full = 1;
 	}
+	
 	sb = sbuf_new(NULL, NULL, max_len + 1, SBUF_FIXEDLEN);
 	max_len = 0;
 	valid_len = 0;

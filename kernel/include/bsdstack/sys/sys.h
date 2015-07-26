@@ -260,6 +260,26 @@ int __inline max(int a, int b)
 {
 	return a > b ? a : b;
 }
+
+typedef	__int64 intmax_t;
+typedef	__uint64_t	uintmax_t;
+typedef	__uint32_t uintptr_t;
+typedef	__uint32_t	ptrdiff_t;
+/*
+ * Bus address and size types
+ */
+#ifdef PAE
+typedef __uint64_t bus_addr_t;
+#else
+typedef __uint32_t bus_addr_t;
+#endif
+typedef __uint32_t bus_size_t;
+
+/*
+ * Access methods for bus resources and address space.
+ */
+typedef	int bus_space_tag_t;
+typedef	u_int bus_space_handle_t;
 /*
  * min()/max() macros that also do
  * strict type-checking.. See the

@@ -39,6 +39,113 @@
 
 struct ifnet;
 #endif
+#define	RF_ALLOCATED	0x0001	/* resource has been reserved */
+#define	RF_ACTIVE	0x0002	/* resource allocation has been activated */
+#define	RF_SHAREABLE	0x0004	/* resource permits contemporaneous sharing */
+#define	RF_TIMESHARE	0x0008	/* resource permits time-division sharing */
+#define	RF_WANTED	0x0010	/* somebody is waiting for this resource */
+#define	RF_FIRSTSHARE	0x0020	/* first in sharing list */
+#define	RF_PREFETCHABLE	0x0040	/* resource is prefetchable */
+#define	RF_OPTIONAL	0x0080	/* for bus_alloc_resources() */
+
+#define	RF_ALIGNMENT_SHIFT	10 /* alignment size bit starts bit 10 */
+#define	RF_ALIGNMENT_MASK	(0x003F << RF_ALIGNMENT_SHIFT)
+				/* resource address alignemnt size bit mask */
+#define	RF_ALIGNMENT_LOG2(x)	((x) << RF_ALIGNMENT_SHIFT)
+#define	RF_ALIGNMENT(x)		(((x) & RF_ALIGNMENT_MASK) >> RF_ALIGNMENT_SHIFT)
+
+enum	rman_type { RMAN_UNINIT = 0, RMAN_GAUGE, RMAN_ARRAY };
+
+/*
+ * String length exported to userspace for resource names, etc.
+ */
+#define RM_TEXTLEN	32
+
+
+#define MAXMCADDR 80
+
+
+#define device_method_t		kobj_method_t
+struct kobj_method;
+typedef struct kobj_method	kobj_method_t;
+/*
+ * Implementation of kobj.
+ */
+ /*
+* A class is simply a method table and a sizeof value. When the first
+* instance of the class is created, the method table will be compiled 
+* into a form more suited to efficient method dispatch. This compiled 
+* method table is always the first field of the object.
+*/
+#define KOBJ_CLASS_FIELDS						\
+	const char	*name;		/* class name */		\
+	kobj_method_t	*methods;	/* method table */		\
+	size_t		size		/* object size */		
+
+struct kobj_class {
+	KOBJ_CLASS_FIELDS;
+};
+typedef struct kobj_class	*kobj_class_t;
+/*
+ * The ops table is used as a cache of results from kobj_lookup_method().
+ */
+
+#define KOBJ_CACHE_SIZE	256
+ struct kobj_ops {
+	kobj_method_t	*cache[KOBJ_CACHE_SIZE];
+	kobj_class_t	cls;
+};
+ typedef struct kobj_ops		*kobj_ops_t;
+#define KOBJ_FIELDS				\
+	kobj_ops_t	ops
+
+struct kobj {
+	KOBJ_FIELDS;
+};
+struct kobjop_desc {
+	unsigned int	id;		/* unique ID */
+	kobj_method_t	*deflt;		/* default implementation */
+};
+typedef struct kobjop_desc	*kobjop_desc_t;
+typedef int			(*kobjop_t)(void);
+typedef struct kobj		*kobj_t;
+struct kobj_method {
+	kobjop_desc_t	desc;
+	kobjop_t	func;
+};
+struct resource {
+	u_long	r_start;	/* index of the first entry in this resource */
+	u_long	r_end;		/* index of the last entry (inclusive) */
+	u_int	r_flags;
+	void	*r_virtual;	/* virtual address of this resource */
+	int	r_rid;		/* optional rid for this resource. */
+};
+typedef struct kobj_class	driver_t;
+typedef struct devclass		*devclass_t;
+typedef struct device		*device_t;
+#define KOBJMETHOD(NAME, FUNC) { NULL, (kobjop_t) FUNC }
+#define	DEVMETHOD	KOBJMETHOD
+
+
+
+/*
+ * Definitions for drivers which need to keep simple lists of resources
+ * for their child devices.
+ */
+struct	resource;
+#include "kqueue.h"
+#include "socket.h"
+
+/**
+ * @brief A driver interrupt service routine
+ */
+typedef void driver_intr_t(void*);
+
+extern void if_init(void *dummy);
+extern void if_check(void *dummy );
+extern void ether_ifattach(struct ifnet *ifp, const u_int8_t *llc);
+extern void ether_ifdetach(struct ifnet *ifp);
+extern int ether_ioctl(struct ifnet *ifp, int command, caddr_t data);
 
 /*
  * Length of interface external name, including terminating '\0'.
@@ -140,19 +247,35 @@ struct if_data {
 #define	IF_Gbps(x)	(IF_Mbps((x) * 1000))	/* gigabits/sec. */
 
 /* Capabilities that interfaces can advertise. */
-#define IFCAP_RXCSUM		0x0001  /* can offload checksum on RX */
-#define IFCAP_TXCSUM		0x0002  /* can offload checksum on TX */
-#define IFCAP_NETCONS		0x0004  /* can be a network console */
-#define	IFCAP_VLAN_MTU		0x0008	/* VLAN-compatible MTU */
-#define	IFCAP_VLAN_HWTAGGING	0x0010	/* hardware VLAN tag support */
-#define	IFCAP_JUMBO_MTU		0x0020	/* 9000 byte MTU supported */
-#define	IFCAP_POLLING		0x0040	/* driver supports polling */
-
+#define	IFCAP_RXCSUM		0x00001  /* can offload checksum on RX */
+#define	IFCAP_TXCSUM		0x00002  /* can offload checksum on TX */
+#define	IFCAP_NETCONS		0x00004  /* can be a network console */
+#define	IFCAP_VLAN_MTU		0x00008	/* VLAN-compatible MTU */
+#define	IFCAP_VLAN_HWTAGGING	0x00010	/* hardware VLAN tag support */
+#define	IFCAP_JUMBO_MTU		0x00020	/* 9000 byte MTU supported */
+#define	IFCAP_POLLING		0x00040	/* driver supports polling */
+#define	IFCAP_VLAN_HWCSUM	0x00080	/* can do IFCAP_HWCSUM on VLANs */
+#define	IFCAP_TSO4		0x00100	/* can do TCP Segmentation Offload */
+#define	IFCAP_TSO6		0x00200	/* can do TCP6 Segmentation Offload */
+#define	IFCAP_LRO		0x00400	/* can do Large Receive Offload */
+#define	IFCAP_WOL_UCAST		0x00800	/* wake on any unicast frame */
+#define	IFCAP_WOL_MCAST		0x01000	/* wake on any multicast frame */
+#define	IFCAP_WOL_MAGIC		0x02000	/* wake on any Magic Packet */
+#define	IFCAP_TOE4		0x04000	/* interface can offload TCP */
+#define	IFCAP_TOE6		0x08000	/* interface can offload TCP6 */
+#define	IFCAP_VLAN_HWFILTER	0x10000 /* interface hw can filter vlan tag */
+#define	IFCAP_POLLING_NOCOUNT	0x20000 /* polling ticks cannot be fragmented */
+#define	IFCAP_VLAN_HWTSO	0x40000 /* can do IFCAP_TSO on VLANs */
+#define	IFCAP_LINKSTATE		0x80000 /* the runtime link state is dynamic */
+#define	IFCAP_NETMAP		0x100000 /* netmap mode supported/enabled */
 #define IFCAP_HWCSUM		(IFCAP_RXCSUM | IFCAP_TXCSUM)
 
 #define	IFQ_MAXLEN	50
 #define	IFNET_SLOWHZ	1		/* granularity is 1 second */
-
+#define IFCAP_HWCSUM	(IFCAP_RXCSUM | IFCAP_TXCSUM)
+#define	IFCAP_TSO	(IFCAP_TSO4 | IFCAP_TSO6)
+#define	IFCAP_WOL	(IFCAP_WOL_UCAST | IFCAP_WOL_MCAST | IFCAP_WOL_MAGIC)
+#define	IFCAP_TOE	(IFCAP_TOE4 | IFCAP_TOE6)
 /*
  * Message format for use in obtaining information about interfaces
  * from getkerninfo and the routing socket
@@ -311,12 +434,6 @@ struct if_laddrreq {
 
 #endif /* __BSD_VISIBLE */
 
-#ifdef _KERNEL
-#ifdef MALLOC_DECLARE
-MALLOC_DECLARE(M_IFADDR);
-MALLOC_DECLARE(M_IFMADDR);
-#endif
-#endif
 
 struct if_nameindex {
 	unsigned int	if_index;	/* 1, 2, ... */
@@ -331,5 +448,29 @@ unsigned int		 if_nametoindex(const char *);
 
 /* XXX - this should go away soon. */
 #include <if_var.h>
+/*
+ * The INVARIANTS-enabled mtx_assert() functionality.
+ *
+ * The constants need to be defined for INVARIANT_SUPPORT infrastructure
+ * support as _mtx_assert() itself uses them and the latter implies that
+ * _mtx_assert() must build.
+ */
+#define MA_OWNED	0x01
+#define MA_NOTOWNED	0x02
+#define MA_RECURSED	0x04
+#define MA_NOTRECURSED	0x08
+/*
+ * Mutex types and options passed to mtx_init().  MTX_QUIET can also be
+ * passed in.
+ */
+#define	MTX_DEF		0x00000000	/* DEFAULT (sleep) lock */ 
+#define MTX_SPIN	0x00000001	/* Spin lock (disables interrupts) */
+#define MTX_RECURSE	0x00000004	/* Option: lock allowed to recurse */
+#define	MTX_NOWITNESS	0x00000008	/* Don't do any witness checking. */
+#define	MTX_DUPOK	0x00000020	/* Don't log a duplicate acquire */
 
+/*
+ * Common lock type names.
+ */
+#define	MTX_NETWORK_LOCK	"network driver"
 #endif /* !_NET_IF_H_ */
