@@ -493,5 +493,97 @@ typedef struct _DESCRIPTOR_PAIR
 #define	EM_RX_UNLOCK(_sc)		mtx_unlock(&(_sc)->rx_mtx)
 #define	EM_CORE_LOCK_ASSERT(_sc)	mtx_assert(&(_sc)->core_mtx, MA_OWNED)
 #define	EM_TX_LOCK_ASSERT(_sc)		mtx_assert(&(_sc)->tx_mtx, MA_OWNED)
+/*********************************************************************
+ *  Function prototypes
+ *********************************************************************/
+int	lem_probe(device_t);
+int	lem_attach(device_t);
+int	lem_detach(device_t);
+int	lem_shutdown(device_t);
+int	lem_suspend(device_t);
+int	lem_resume(device_t);
+void	lem_start(struct ifnet *);
+void	lem_start_locked(struct ifnet *ifp);
+int	lem_ioctl(struct ifnet *, u_long, caddr_t);
+void	lem_init(void *);
+void	lem_init_locked(struct adapter *);
+void	lem_stop(void *);
+void	lem_media_status(struct ifnet *, struct ifmediareq *);
+int	lem_media_change(struct ifnet *);
+void	lem_identify_hardware(struct adapter *);
+int	lem_allocate_pci_resources(struct adapter *);
+int	lem_allocate_irq(struct adapter *adapter);
+void	lem_free_pci_resources(struct adapter *);
+void	lem_local_timer(void *);
+int	lem_hardware_init(struct adapter *);
+int	lem_setup_interface(device_t, struct adapter *);
+void	lem_setup_transmit_structures(struct adapter *);
+void	lem_initialize_transmit_unit(struct adapter *);
+int	lem_setup_receive_structures(struct adapter *);
+void	lem_initialize_receive_unit(struct adapter *);
+void	lem_enable_intr(struct adapter *);
+void	lem_disable_intr(struct adapter *);
+void	lem_free_transmit_structures(struct adapter *);
+void	lem_free_receive_structures(struct adapter *);
+void	lem_update_stats_counters(struct adapter *);
+//static void	lem_add_hw_stats(struct adapter *adapter);
+void	lem_txeof(struct adapter *);
+void	lem_tx_purge(struct adapter *);
+int	lem_allocate_receive_structures(struct adapter *);
+int	lem_allocate_transmit_structures(struct adapter *);
+bool	lem_rxeof(struct adapter *, int, int *);
+#ifndef __NO_STRICT_ALIGNMENT
+static int	lem_fixup_rx(struct adapter *);
+#endif
+void	lem_receive_checksum(struct adapter *, struct e1000_rx_desc *,
+    struct mbuf *);
+void	lem_transmit_checksum_setup(struct adapter *, struct mbuf *,
+    u32 *, u32 *);
+void	lem_set_promisc(struct adapter *);
+void	lem_disable_promisc(struct adapter *);
+void	lem_set_multi(struct adapter *);
+void	lem_update_link_status(struct adapter *);
+int	lem_get_buf(struct adapter *, int);
+void	lem_register_vlan(void *, struct ifnet *, u16);
+void	lem_unregister_vlan(void *, struct ifnet *, u16);
+void	lem_setup_vlan_hw_support(struct adapter *);
+int	lem_xmit(struct adapter *, struct mbuf **);
+void	lem_smartspeed(struct adapter *);
+int	lem_82547_fifo_workaround(struct adapter *, int);
+void	lem_82547_update_fifo_head(struct adapter *, int);
+int	lem_82547_tx_fifo_reset(struct adapter *);
+void	lem_82547_move_tail(void *);
+int	lem_dma_malloc(struct adapter *, bus_size_t,
+    struct em_dma_alloc *, int);
+void	lem_dma_free(struct adapter *, struct em_dma_alloc *);
+int	lem_sysctl_nvm_info(SYSCTL_HANDLER_ARGS);
+void	lem_print_nvm_info(struct adapter *);
+int 	lem_is_valid_ether_addr(u8 *);
+u32	lem_fill_descriptors (bus_addr_t address, u32 length,
+    PDESC_ARRAY desc_array);
+int	lem_sysctl_int_delay(SYSCTL_HANDLER_ARGS);
+void	lem_add_int_delay_sysctl(struct adapter *, const char *,
+    const char *, struct em_int_delay_info *, int, int);
+void	lem_set_flow_cntrl(struct adapter *, const char *,
+		    const char *, int *, int);
+/* Management and WOL Support */
+void	lem_init_manageability(struct adapter *);
+void	lem_release_manageability(struct adapter *);
+void     lem_get_hw_control(struct adapter *);
+void     lem_release_hw_control(struct adapter *);
+void	lem_get_wakeup(device_t);
+void     lem_enable_wakeup(device_t);
+int	lem_enable_phy_wakeup(struct adapter *);
+void	lem_led_func(void *, int);
+
+#ifdef EM_LEGACY_IRQ
+static void	lem_intr(void *);
+#else /* FAST IRQ */
+int	lem_irq_fast(void *);
+void	lem_handle_rxtx(void *context, int pending);
+void	lem_handle_link(void *context, int pending);
+void	lem_add_rx_process_limit(struct adapter *, const char *,
+		    const char *, int *, int);
+#endif /* ~EM_LEGACY_IRQ */
 
 #endif /* _LEM_H_DEFINED_ */

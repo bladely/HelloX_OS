@@ -126,7 +126,97 @@ typedef struct device		*device_t;
 #define KOBJMETHOD(NAME, FUNC) { NULL, (kobjop_t) FUNC }
 #define	DEVMETHOD	KOBJMETHOD
 
+/**
+ * @brief State of the device.
+ */
+typedef enum device_state {
+	DS_NOTPRESENT = 10,		/**< @brief not probed or probe failed */
+	DS_ALIVE = 20,			/**< @brief probe succeeded */
+	DS_ATTACHED = 30,		/**< @brief attach method called */
+	DS_BUSY = 40			/**< @brief device is open */
+} device_state_t;
+/*
+ * Used to attach drivers to devclasses.
+ */
+typedef struct driverlink *driverlink_t;
+struct driverlink {
+	kobj_class_t	driver;
+	TAILQ_ENTRY(driverlink) link;	/* list of drivers in devclass */
+};
 
+/*
+ * Forward declarations
+ */
+typedef TAILQ_HEAD(devclass_list, devclass) devclass_list_t;
+typedef TAILQ_HEAD(driver_list, driverlink) driver_list_t;
+typedef TAILQ_HEAD(device_list, device) device_list_t;
+struct devclass {
+	TAILQ_ENTRY(devclass) link;
+	devclass_t	parent;		/* parent in devclass hierarchy */
+	driver_list_t	drivers;     /* bus devclasses store drivers for bus */
+	char		*name;
+	device_t	*devices;	/* array of devices indexed by unit */
+	int		maxunit;	/* size of devices array */
+	
+	//struct sysctl_ctx_list sysctl_ctx;
+	//struct sysctl_oid *sysctl_tree;
+};
+/**
+* @brief A device class
+*
+* The devclass object has two main functions in the system. The first
+* is to manage the allocation of unit numbers for device instances
+* and the second is to hold the list of device drivers for a
+* particular bus type. Each devclass has a name and there cannot be
+* two devclasses with the same name. This ensures that unique unit
+* numbers are allocated to device instances.
+*
+* Drivers that support several different bus attachments (e.g. isa,
+* pci, pccard) should all use the same devclass to ensure that unit
+* numbers do not conflict.
+*
+* Each devclass may also have a parent devclass. This is used when
+* searching for device drivers to allow a form of inheritance. When
+* matching drivers with devices, first the driver list of the parent
+* device's devclass is searched. If no driver is found in that list,
+* the search continues in the parent devclass (if any).
+*/
+
+
+struct device {
+	char *name;
+	/*
+	 * Device hierarchy.
+	 */
+	TAILQ_ENTRY(device)	link;	/**< list of devices in parent */
+	TAILQ_ENTRY(device)	devlink; /**< global device list membership */
+	device_t	parent;		/**< parent of this device  */
+	device_list_t	children;	/**< list of child devices */
+	/*
+	 * Details of this device.
+	 */
+	driver_t	*driver;	/**< current driver */
+	devclass_t	devclass;	/**< current device class */
+	int		unit;		/**< current unit number */
+	char*		nameunit;	/**< name+unit e.g. foodev0 */
+	char*		desc;		/**< driver specific description */
+	int		busy;		/**< count of calls to device_busy() */
+	device_state_t	state;		/**< current device state  */
+	u_int32_t	devflags;	/**< api level flags for device_get_flags() */
+	u_short		flags;		/**< internal device flags  */
+#define	DF_ENABLED	1		/* device should be probed/attached */
+#define	DF_FIXEDCLASS	2		/* devclass specified at create time */
+#define	DF_WILDCARD	4		/* unit was originally wildcard */
+#define	DF_DESCMALLOCED	8		/* description was malloced */
+#define	DF_QUIET	16		/* don't print verbose attach message */
+#define	DF_DONENOMATCH	32		/* don't execute DEVICE_NOMATCH again */
+#define	DF_EXTERNALSOFTC 64		/* softc not allocated by us */
+	u_char	order;			/**< order from device_add_child_ordered() */
+	u_char	pad;
+	void	*ivars;			/**< instance variables  */
+	void	*softc;			/**< current driver's variables  */
+
+};
 
 /*
  * Definitions for drivers which need to keep simple lists of resources

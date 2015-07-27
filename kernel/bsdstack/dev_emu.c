@@ -19,14 +19,137 @@
 #include "sockio.h"
 #include "kroute.h"
 #include "if_dl.h"
-#include "if_arp.h"
+#include "if.h"
 #include "sbuf.h"
 #include "ethernet.h"
 #include "if_vlan_var.h"
 #include "if_media.h"
+#include "e1000_api.h"
+#include "if_lem.h"
+#include "pcireg.h"
+#include "pcivar.h"
+#include "mbuf.h"
+#include "ip.h"
+#include "tcp.h"
+#include "udp.h"
 //#include "ips_config.h"
 //#include "ip_osal.h"
+#ifndef __STDAFX_H__
+#include "..\INCLUDE\STDAFX.H"
+#endif
 
+#ifndef __KAPI_H__
+#include "..\INCLUDE\KAPI.H"
+#endif
+#define EM_INT_VECTOR 0xa
+//Global variables used by this module.
+static HANDLE g_hE1kIntHandler = NULL;     //Interrupt object handle,to preserve 
+                                        //the interrupt object.
+
+//Initialization routine of MOUSE.
+static BOOL InitE1000()
+{
+	struct adapter *softc = (struct adapter*)malloc(sizeof(*softc));
+ 	device_t dev = (device_t)malloc(sizeof(*dev));
+	memset(dev, 0, sizeof(*dev));
+	memset(softc, 0, sizeof(struct adapter));
+	dev->name = "em0";//(char*)ENUML_DEV_NAME;
+	dev->unit = 0;
+	dev->softc = softc;
+	if (BUS_PROBE_DEFAULT == lem_probe(dev))
+	{
+		return TRUE;
+	}
+	else
+		return FALSE;
+	
+}
+
+//Unload entry for MOUSE driver.
+static DWORD E1000Destroy(__COMMON_OBJECT* lpDriver,
+					   __COMMON_OBJECT* lpDevice,
+					   __DRCB*          lpDrcb)
+{
+	DisconnectInterrupt(g_hE1kIntHandler);  //Release key board interrupt.
+	return 0;
+}
+
+//Interrupt handler of MOUSE.
+static BOOL E1000IntHandler(LPVOID pParam,LPVOID pEsp)
+{
+	static BYTE MsgCount    = 0;
+	static WORD x           = 0;
+	static BOOL xpostive    = TRUE;   //True if x scale is postive.
+	static WORD y           = 0;
+	static BOOL ypostive    = TRUE;   //True if y scale is postive.
+	static BOOL bLDPrev     = FALSE;  //Left button previous status,TRUE if down.
+	static BOOL bRDPrev     = FALSE;  //Right button previous status,TRUE if down.
+	static BOOL bLDCurr     = FALSE;  //Current left button status,TRUE if down.
+	static BOOL bRDCurr     = FALSE;  //Current Right button status,TRUE if down.
+	static BOOL bHasLDown   = FALSE;  //Left button has down before this down status.
+	static BOOL bHasRDown   = FALSE;
+	static DWORD dwTickCount = 0;
+	__DEVICE_MESSAGE dmsg;
+	UCHAR  data;
+
+	
+	return TRUE;
+}
+//Main entry point of MOUSE driver.
+BOOL E1000DrvEntry(__DRIVER_OBJECT* lpDriverObject)
+{
+	__DEVICE_OBJECT*  lpDevObject = NULL;
+	BOOL              bResult     = FALSE;
+
+	//Initialize the mouse device.
+	if(!InitE1000())
+	{
+		goto __TERMINAL;
+	}
+	
+	g_hE1kIntHandler = ConnectInterrupt(E1000IntHandler,
+		NULL,
+		EM_INT_VECTOR);
+	if(NULL == g_hE1kIntHandler)  //Can not connect interrupt.
+	{
+		goto __TERMINAL;
+	}
+
+	//Create driver object for mouse.
+	lpDevObject = IOManager.CreateDevice((__COMMON_OBJECT*)&IOManager,
+		"\\\\.\\E1000",
+		0,
+		0,
+		0,
+		0,
+		NULL,
+		lpDriverObject);
+	if(NULL == lpDevObject)  //Failed to create device object.
+	{
+		PrintLine("E1000 Driver: Failed to create device object for E1000.");
+		goto __TERMINAL;
+	}
+
+	//Asign call back functions of driver object.
+	lpDriverObject->DeviceDestroy = E1000Destroy;
+	
+	bResult = TRUE; //Indicate the whole process is successful.
+__TERMINAL:
+	if(!bResult)  //Should release all resource allocated above.
+	{
+		if(lpDevObject)
+		{
+			IOManager.DestroyDevice((__COMMON_OBJECT*)&IOManager,
+				lpDevObject);
+		}
+		if(g_hE1kIntHandler)
+		{
+			DisconnectInterrupt(g_hE1kIntHandler);
+			g_hE1kIntHandler = NULL;  //Set to initial value.
+		}
+	}
+	return bResult;
+}
 #if 0
 //#pragma comment(lib, "IP_HAL.lib")
 //#include "ip_hal.h"

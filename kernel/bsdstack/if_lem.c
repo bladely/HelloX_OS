@@ -119,98 +119,6 @@ static char *lem_strings[] = {
 	"Intel(R) PRO/1000 Legacy Network Connection"
 };
 
-/*********************************************************************
- *  Function prototypes
- *********************************************************************/
-static int	lem_probe(device_t);
-static int	lem_attach(device_t);
-static int	lem_detach(device_t);
-static int	lem_shutdown(device_t);
-static int	lem_suspend(device_t);
-static int	lem_resume(device_t);
-static void	lem_start(struct ifnet *);
-static void	lem_start_locked(struct ifnet *ifp);
-static int	lem_ioctl(struct ifnet *, u_long, caddr_t);
-static void	lem_init(void *);
-static void	lem_init_locked(struct adapter *);
-static void	lem_stop(void *);
-static void	lem_media_status(struct ifnet *, struct ifmediareq *);
-static int	lem_media_change(struct ifnet *);
-static void	lem_identify_hardware(struct adapter *);
-static int	lem_allocate_pci_resources(struct adapter *);
-static int	lem_allocate_irq(struct adapter *adapter);
-static void	lem_free_pci_resources(struct adapter *);
-static void	lem_local_timer(void *);
-static int	lem_hardware_init(struct adapter *);
-static int	lem_setup_interface(device_t, struct adapter *);
-static void	lem_setup_transmit_structures(struct adapter *);
-static void	lem_initialize_transmit_unit(struct adapter *);
-static int	lem_setup_receive_structures(struct adapter *);
-static void	lem_initialize_receive_unit(struct adapter *);
-static void	lem_enable_intr(struct adapter *);
-static void	lem_disable_intr(struct adapter *);
-static void	lem_free_transmit_structures(struct adapter *);
-static void	lem_free_receive_structures(struct adapter *);
-static void	lem_update_stats_counters(struct adapter *);
-//static void	lem_add_hw_stats(struct adapter *adapter);
-static void	lem_txeof(struct adapter *);
-static void	lem_tx_purge(struct adapter *);
-static int	lem_allocate_receive_structures(struct adapter *);
-static int	lem_allocate_transmit_structures(struct adapter *);
-static bool	lem_rxeof(struct adapter *, int, int *);
-#ifndef __NO_STRICT_ALIGNMENT
-static int	lem_fixup_rx(struct adapter *);
-#endif
-static void	lem_receive_checksum(struct adapter *, struct e1000_rx_desc *,
-		    struct mbuf *);
-static void	lem_transmit_checksum_setup(struct adapter *, struct mbuf *,
-		    u32 *, u32 *);
-static void	lem_set_promisc(struct adapter *);
-static void	lem_disable_promisc(struct adapter *);
-static void	lem_set_multi(struct adapter *);
-static void	lem_update_link_status(struct adapter *);
-static int	lem_get_buf(struct adapter *, int);
-static void	lem_register_vlan(void *, struct ifnet *, u16);
-static void	lem_unregister_vlan(void *, struct ifnet *, u16);
-static void	lem_setup_vlan_hw_support(struct adapter *);
-static int	lem_xmit(struct adapter *, struct mbuf **);
-static void	lem_smartspeed(struct adapter *);
-static int	lem_82547_fifo_workaround(struct adapter *, int);
-static void	lem_82547_update_fifo_head(struct adapter *, int);
-static int	lem_82547_tx_fifo_reset(struct adapter *);
-static void	lem_82547_move_tail(void *);
-static int	lem_dma_malloc(struct adapter *, bus_size_t,
-		    struct em_dma_alloc *, int);
-static void	lem_dma_free(struct adapter *, struct em_dma_alloc *);
-static int	lem_sysctl_nvm_info(SYSCTL_HANDLER_ARGS);
-static void	lem_print_nvm_info(struct adapter *);
-static int 	lem_is_valid_ether_addr(u8 *);
-static u32	lem_fill_descriptors (bus_addr_t address, u32 length,
-		    PDESC_ARRAY desc_array);
-static int	lem_sysctl_int_delay(SYSCTL_HANDLER_ARGS);
-static void	lem_add_int_delay_sysctl(struct adapter *, const char *,
-		    const char *, struct em_int_delay_info *, int, int);
-static void	lem_set_flow_cntrl(struct adapter *, const char *,
-		    const char *, int *, int);
-/* Management and WOL Support */
-static void	lem_init_manageability(struct adapter *);
-static void	lem_release_manageability(struct adapter *);
-static void     lem_get_hw_control(struct adapter *);
-static void     lem_release_hw_control(struct adapter *);
-static void	lem_get_wakeup(device_t);
-static void     lem_enable_wakeup(device_t);
-static int	lem_enable_phy_wakeup(struct adapter *);
-static void	lem_led_func(void *, int);
-
-#ifdef EM_LEGACY_IRQ
-static void	lem_intr(void *);
-#else /* FAST IRQ */
-static int	lem_irq_fast(void *);
-static void	lem_handle_rxtx(void *context, int pending);
-static void	lem_handle_link(void *context, int pending);
-static void	lem_add_rx_process_limit(struct adapter *, const char *,
-		    const char *, int *, int);
-#endif /* ~EM_LEGACY_IRQ */
 
 #ifdef DEVICE_POLLING
 static poll_handler_t lem_poll;
@@ -278,7 +186,7 @@ static int global_quad_port_a = 0;
  *  return BUS_PROBE_DEFAULT on success, positive on failure
  *********************************************************************/
 
-static int
+int
 lem_probe(device_t dev)
 {
 	char		adapter_name[60];
@@ -330,7 +238,7 @@ lem_probe(device_t dev)
  *  return 0 on success, positive on failure
  *********************************************************************/
 
-static int
+ int
 lem_attach(device_t dev)
 {
 	struct adapter	*adapter;
@@ -628,7 +536,7 @@ err_pci:
  *  return 0 on success, positive on failure
  *********************************************************************/
 
-static int
+  int
 lem_detach(device_t dev)
 {
 	struct adapter	*adapter = device_get_softc(dev);
@@ -705,7 +613,7 @@ lem_detach(device_t dev)
  *
  **********************************************************************/
 
-static int
+  int
 lem_shutdown(device_t dev)
 {
 	return lem_suspend(dev);
@@ -714,7 +622,7 @@ lem_shutdown(device_t dev)
 /*
  * Suspend/resume device methods.
  */
-static int
+  int
 lem_suspend(device_t dev)
 {
 	struct adapter *adapter = device_get_softc(dev);
@@ -730,7 +638,7 @@ lem_suspend(device_t dev)
 	return bus_generic_suspend(dev);
 }
 
-static int
+  int
 lem_resume(device_t dev)
 {
 	struct adapter *adapter = device_get_softc(dev);
@@ -746,7 +654,7 @@ lem_resume(device_t dev)
 }
 
 
-static void
+  void
 lem_start_locked(struct ifnet *ifp)
 {
 	struct adapter	*adapter = ifp->if_softc;
@@ -803,7 +711,7 @@ lem_start_locked(struct ifnet *ifp)
 	return;
 }
 
-static void
+  void
 lem_start(struct ifnet *ifp)
 {
 	struct adapter *adapter = ifp->if_softc;
@@ -823,7 +731,7 @@ lem_start(struct ifnet *ifp)
  *  return 0 on success, positive on failure
  **********************************************************************/
 
-static int
+  int
 lem_ioctl(struct ifnet *ifp, u_long command, caddr_t data)
 {
 	struct adapter	*adapter = ifp->if_softc;
@@ -1009,7 +917,7 @@ lem_ioctl(struct ifnet *ifp, u_long command, caddr_t data)
  *  return 0 on success, positive on failure
  **********************************************************************/
 
-static void
+  void
 lem_init_locked(struct adapter *adapter)
 {
 	struct ifnet	*ifp = adapter->ifp;
@@ -1159,7 +1067,7 @@ lem_init_locked(struct adapter *adapter)
 	adapter->hw.phy.reset_disable = TRUE;
 }
 
-static void
+  void
 lem_init(void *arg)
 {
 	struct adapter *adapter = arg;
@@ -1176,7 +1084,7 @@ lem_init(void *arg)
  *  Legacy polling routine  
  *
  *********************************************************************/
-static int
+  int
 lem_poll(struct ifnet *ifp, enum poll_cmd cmd, int count)
 {
 	struct adapter *adapter = ifp->if_softc;
@@ -1217,7 +1125,7 @@ lem_poll(struct ifnet *ifp, enum poll_cmd cmd, int count)
  *  Legacy Interrupt Service routine  
  *
  *********************************************************************/
-static void
+  void
 lem_intr(void *arg)
 {
 	struct adapter	*adapter = arg;
@@ -1265,7 +1173,7 @@ out:
 
 #else /* EM_FAST_IRQ, then fast interrupt routines only */
 
-static void
+  void
 lem_handle_link(void *context, int pending)
 {
 	struct adapter	*adapter = context;
@@ -1285,7 +1193,7 @@ lem_handle_link(void *context, int pending)
 
 
 /* Combined RX/TX handler, used by Legacy and MSI */
-static void
+  void
 lem_handle_rxtx(void *context, int pending)
 {
 	struct adapter	*adapter = context;
@@ -1310,7 +1218,7 @@ lem_handle_rxtx(void *context, int pending)
  *  Fast Legacy/MSI Combined Interrupt Service routine  
  *
  *********************************************************************/
-static int
+  int
 lem_irq_fast(void *arg)
 {
 	struct adapter	*adapter = arg;
@@ -1358,7 +1266,7 @@ lem_irq_fast(void *arg)
  *  the interface using ifconfig.
  *
  **********************************************************************/
-static void
+  void
 lem_media_status(struct ifnet *ifp, struct ifmediareq *ifmr)
 {
 	struct adapter *adapter = ifp->if_softc;
@@ -1412,7 +1320,7 @@ lem_media_status(struct ifnet *ifp, struct ifmediareq *ifmr)
  *  media/mediopt option with ifconfig.
  *
  **********************************************************************/
-static int
+  int
 lem_media_change(struct ifnet *ifp)
 {
 	struct adapter *adapter = ifp->if_softc;
@@ -1473,7 +1381,7 @@ lem_media_change(struct ifnet *ifp)
  *  return 0 on success, positive on failure
  **********************************************************************/
 
-static int
+  int
 lem_xmit(struct adapter *adapter, struct mbuf **m_headp)
 {
 	bus_dma_segment_t	segs[EM_MAX_SCATTER];
@@ -1685,7 +1593,7 @@ lem_xmit(struct adapter *adapter, struct mbuf **m_headp)
  * in this case. We do that only when FIFO is quiescent.
  *
  **********************************************************************/
-static void
+  void
 lem_82547_move_tail(void *arg)
 {
 	struct adapter *adapter = arg;
@@ -1719,7 +1627,7 @@ lem_82547_move_tail(void *arg)
 	}	
 }
 
-static int
+  int
 lem_82547_fifo_workaround(struct adapter *adapter, int len)
 {	
 	int fifo_space, fifo_pkt_len;
@@ -1740,7 +1648,7 @@ lem_82547_fifo_workaround(struct adapter *adapter, int len)
 	return (0);
 }
 
-static void
+  void
 lem_82547_update_fifo_head(struct adapter *adapter, int len)
 {
 	int fifo_pkt_len = roundup2(len + EM_FIFO_HDR, EM_FIFO_HDR);
@@ -1753,7 +1661,7 @@ lem_82547_update_fifo_head(struct adapter *adapter, int len)
 }
 
 
-static int
+  int
 lem_82547_tx_fifo_reset(struct adapter *adapter)
 {
 	u32 tctl;
@@ -1794,7 +1702,7 @@ lem_82547_tx_fifo_reset(struct adapter *adapter)
 	}
 }
 
-static void
+  void
 lem_set_promisc(struct adapter *adapter)
 {
 	struct ifnet	*ifp = adapter->ifp;
@@ -1815,7 +1723,7 @@ lem_set_promisc(struct adapter *adapter)
 	}
 }
 
-static void
+  void
 lem_disable_promisc(struct adapter *adapter)
 {
 	u32	reg_rctl;
@@ -1836,7 +1744,7 @@ lem_disable_promisc(struct adapter *adapter)
  *
  **********************************************************************/
 
-static void
+  void
 lem_set_multi(struct adapter *adapter)
 {
 	struct ifnet	*ifp = adapter->ifp;
@@ -1907,7 +1815,7 @@ lem_set_multi(struct adapter *adapter)
  *
  **********************************************************************/
 
-static void
+  void
 lem_local_timer(void *arg)
 {
 	struct adapter	*adapter = arg;
@@ -1937,7 +1845,7 @@ hung:
 	lem_init_locked(adapter);
 }
 
-static void
+  void
 lem_update_link_status(struct adapter *adapter)
 {
 	struct e1000_hw *hw = &adapter->hw;
@@ -2005,7 +1913,7 @@ lem_update_link_status(struct adapter *adapter)
  *  and TX locks.
  **********************************************************************/
 
-static void
+  void
 lem_stop(void *arg)
 {
 	struct adapter	*adapter = arg;
@@ -2037,7 +1945,7 @@ lem_stop(void *arg)
  *  Determine hardware revision.
  *
  **********************************************************************/
-static void
+  void
 lem_identify_hardware(struct adapter *adapter)
 {
 	device_t dev = adapter->dev;
@@ -2070,7 +1978,7 @@ lem_identify_hardware(struct adapter *adapter)
 	}
 }
 
-static int
+  int
 lem_allocate_pci_resources(struct adapter *adapter)
 {
 	device_t	dev = adapter->dev;
@@ -2184,7 +2092,7 @@ lem_allocate_irq(struct adapter *adapter)
 }
 
 
-static void
+  void
 lem_free_pci_resources(struct adapter *adapter)
 {
 	device_t dev = adapter->dev;
@@ -2217,7 +2125,7 @@ lem_free_pci_resources(struct adapter *adapter)
  *  as specified by the adapter structure.
  *
  **********************************************************************/
-static int
+  int
 lem_hardware_init(struct adapter *adapter)
 {
 	device_t dev = adapter->dev;
@@ -2276,7 +2184,7 @@ lem_hardware_init(struct adapter *adapter)
  *  Setup networking device structure and register an interface.
  *
  **********************************************************************/
-static int
+  int
 lem_setup_interface(device_t dev, struct adapter *adapter)
 {
 	struct ifnet   *ifp;
@@ -2376,7 +2284,7 @@ lem_setup_interface(device_t dev, struct adapter *adapter)
  *  Workaround for SmartSpeed on 82541 and 82547 controllers
  *
  **********************************************************************/
-static void
+  void
 lem_smartspeed(struct adapter *adapter)
 {
 	u16 phy_tmp;
@@ -2435,7 +2343,7 @@ lem_smartspeed(struct adapter *adapter)
 /*
  * Manage DMA'able memory.
  */
-static void
+  void
 lem_dmamap_cb(void *arg, bus_dma_segment_t *segs, int nseg, int error)
 {
 	if (error)
@@ -2443,7 +2351,7 @@ lem_dmamap_cb(void *arg, bus_dma_segment_t *segs, int nseg, int error)
 	*(bus_addr_t *) arg = segs[0].ds_addr;
 }
 
-static int
+  int
 lem_dma_malloc(struct adapter *adapter, bus_size_t size,
         struct em_dma_alloc *dma, int mapflags)
 {
@@ -2501,7 +2409,7 @@ fail_0:
 	return (error);
 }
 
-static void
+  void
 lem_dma_free(struct adapter *adapter, struct em_dma_alloc *dma)
 {
 	if (dma->dma_tag == NULL)
@@ -2524,7 +2432,7 @@ lem_dma_free(struct adapter *adapter, struct em_dma_alloc *dma)
  *  the information needed to transmit a packet on the wire.
  *
  **********************************************************************/
-static int
+  int
 lem_allocate_transmit_structures(struct adapter *adapter)
 {
 	device_t dev = adapter->dev;
@@ -2579,7 +2487,7 @@ fail:
  *  (Re)Initialize transmit structures.
  *
  **********************************************************************/
-static void
+  void
 lem_setup_transmit_structures(struct adapter *adapter)
 {
 	struct em_buffer *tx_buffer;
@@ -2616,7 +2524,7 @@ lem_setup_transmit_structures(struct adapter *adapter)
  *  Enable transmit unit.
  *
  **********************************************************************/
-static void
+  void
 lem_initialize_transmit_unit(struct adapter *adapter)
 {
 	u32	tctl, tipg = 0;
@@ -2684,7 +2592,7 @@ lem_initialize_transmit_unit(struct adapter *adapter)
  *  Free all transmit related data structures.
  *
  **********************************************************************/
-static void
+  void
 lem_free_transmit_structures(struct adapter *adapter)
 {
 	struct em_buffer *tx_buffer;
@@ -2735,7 +2643,7 @@ lem_free_transmit_structures(struct adapter *adapter)
  *  and not setting if unnecessary, as this is reported to be a
  *  big performance win.  -jfv
  **********************************************************************/
-static void
+  void
 lem_transmit_checksum_setup(struct adapter *adapter, struct mbuf *mp,
     u32 *txd_upper, u32 *txd_lower)
 {
@@ -2887,7 +2795,7 @@ lem_transmit_checksum_setup(struct adapter *adapter, struct mbuf *mp,
  *  tx_buffer is put back on the free queue.
  *
  **********************************************************************/
-static void
+  void
 lem_txeof(struct adapter *adapter)
 {
         int first, last, done, num_avail;
@@ -2986,7 +2894,7 @@ lem_txeof(struct adapter *adapter)
  *  seens mostly with fiber adapters.
  *
  **********************************************************************/
-static void
+  void
 lem_tx_purge(struct adapter *adapter)
 {
 	if ((!adapter->link_active) && (adapter->watchdog_check)) {
@@ -3003,7 +2911,7 @@ lem_tx_purge(struct adapter *adapter)
  *  Get a buffer from system mbuf buffer pool.
  *
  **********************************************************************/
-static int
+  int
 lem_get_buf(struct adapter *adapter, int i)
 {
 	struct mbuf		*m;
@@ -3058,7 +2966,7 @@ lem_get_buf(struct adapter *adapter, int i)
  *  that we've allocated.
  *
  **********************************************************************/
-static int
+  int
 lem_allocate_receive_structures(struct adapter *adapter)
 {
 	device_t dev = adapter->dev;
@@ -3121,7 +3029,7 @@ fail:
  *  (Re)initialize receive structures.
  *
  **********************************************************************/
-static int
+  int
 lem_setup_receive_structures(struct adapter *adapter)
 {
 	struct em_buffer *rx_buffer;
@@ -3166,7 +3074,7 @@ lem_setup_receive_structures(struct adapter *adapter)
 #define MAX_INTS_PER_SEC	8000
 #define DEFAULT_ITR	     1000000000/(MAX_INTS_PER_SEC * 256)
 
-static void
+  void
 lem_initialize_receive_unit(struct adapter *adapter)
 {
 	struct ifnet	*ifp = adapter->ifp;
@@ -3279,7 +3187,7 @@ lem_initialize_receive_unit(struct adapter *adapter)
  *  Free receive related data structures.
  *
  **********************************************************************/
-static void
+  void
 lem_free_receive_structures(struct adapter *adapter)
 {
 	struct em_buffer *rx_buffer;
@@ -3336,7 +3244,7 @@ lem_free_receive_structures(struct adapter *adapter)
  *  
  *  For polling we also now return the number of cleaned packets
  *********************************************************************/
-static bool
+  bool
 lem_rxeof(struct adapter *adapter, int count, int *done)
 {
 	struct mbuf	*mp;
@@ -3530,7 +3438,7 @@ discard:
  * Be aware, best performance of the 8254x is achived only when jumbo frame is
  * not used at all on architectures with strict alignment.
  */
-static int
+  int
 lem_fixup_rx(struct adapter *adapter)
 {
 	struct mbuf *m, *n;
@@ -3570,7 +3478,7 @@ lem_fixup_rx(struct adapter *adapter)
  *  doesn't spend time verifying the checksum.
  *
  *********************************************************************/
-static void
+  void
 lem_receive_checksum(struct adapter *adapter,
 	    struct e1000_rx_desc *rx_desc, struct mbuf *mp)
 {
@@ -3608,7 +3516,7 @@ lem_receive_checksum(struct adapter *adapter,
  * This routine is run via an vlan
  * config EVENT
  */
-static void
+  void
 lem_register_vlan(void *arg, struct ifnet *ifp, u16 vtag)
 {
 	struct adapter	*adapter = ifp->if_softc;
@@ -3635,7 +3543,7 @@ lem_register_vlan(void *arg, struct ifnet *ifp, u16 vtag)
  * This routine is run via an vlan
  * unconfig EVENT
  */
-static void
+  void
 lem_unregister_vlan(void *arg, struct ifnet *ifp, u16 vtag)
 {
 	struct adapter	*adapter = ifp->if_softc;
@@ -3658,7 +3566,7 @@ lem_unregister_vlan(void *arg, struct ifnet *ifp, u16 vtag)
 	EM_CORE_UNLOCK(adapter);
 }
 
-static void
+  void
 lem_setup_vlan_hw_support(struct adapter *adapter)
 {
 	struct e1000_hw *hw = &adapter->hw;
@@ -3697,7 +3605,7 @@ lem_setup_vlan_hw_support(struct adapter *adapter)
 	    adapter->max_frame_size + VLAN_TAG_SIZE);
 }
 
-static void
+  void
 lem_enable_intr(struct adapter *adapter)
 {
 	struct e1000_hw *hw = &adapter->hw;
@@ -3710,7 +3618,7 @@ lem_enable_intr(struct adapter *adapter)
 	E1000_WRITE_REG(hw, E1000_IMS, ims_mask);
 }
 
-static void
+  void
 lem_disable_intr(struct adapter *adapter)
 {
 	struct e1000_hw *hw = &adapter->hw;
@@ -3725,7 +3633,7 @@ lem_disable_intr(struct adapter *adapter)
  * to enable OS management of the system... aka
  * to disable special hardware management features 
  */
-static void
+  void
 lem_init_manageability(struct adapter *adapter)
 {
 	/* A shared code workaround */
@@ -3741,7 +3649,7 @@ lem_init_manageability(struct adapter *adapter)
  * Give control back to hardware management
  * controller if there is one.
  */
-static void
+  void
 lem_release_manageability(struct adapter *adapter)
 {
 	if (adapter->has_manage) {
@@ -3759,7 +3667,7 @@ lem_release_manageability(struct adapter *adapter)
  * that the driver is loaded. For AMT version type f/w
  * this means that the network i/f is open.
  */
-static void
+  void
 lem_get_hw_control(struct adapter *adapter)
 {
 	u32 ctrl_ext;
@@ -3776,7 +3684,7 @@ lem_get_hw_control(struct adapter *adapter)
  * the driver is no longer loaded. For AMT versions of the
  * f/w this means that the network i/f is closed.
  */
-static void
+  void
 lem_release_hw_control(struct adapter *adapter)
 {
 	u32 ctrl_ext;
@@ -3790,7 +3698,7 @@ lem_release_hw_control(struct adapter *adapter)
 	return;
 }
 
-static int
+  int
 lem_is_valid_ether_addr(u8 *addr)
 {
 	char zero_addr[6] = { 0, 0, 0, 0, 0, 0 };
@@ -3807,7 +3715,7 @@ lem_is_valid_ether_addr(u8 *addr)
 ** to both system management and wake-on-lan for
 ** later use.
 */
-static void
+  void
 lem_get_wakeup(device_t dev)
 {
 	struct adapter	*adapter = device_get_softc(dev);
@@ -3876,7 +3784,7 @@ lem_get_wakeup(device_t dev)
 /*
  * Enable PCI Wake On Lan capability
  */
-static void
+  void
 lem_enable_wakeup(device_t dev)
 {
 	struct adapter	*adapter = device_get_softc(dev);
@@ -3939,7 +3847,7 @@ lem_enable_wakeup(device_t dev)
 ** WOL in the newer chipset interfaces (pchlan)
 ** require thing to be copied into the phy
 */
-static int
+  int
 lem_enable_phy_wakeup(struct adapter *adapter)
 {
 	struct e1000_hw *hw = &adapter->hw;
@@ -4018,7 +3926,7 @@ out:
 	return ret;
 }
 
-static void
+  void
 lem_led_func(void *arg, int onoff)
 {
 	struct adapter	*adapter = arg;
@@ -4053,7 +3961,7 @@ lem_led_func(void *arg, int onoff)
 *	  as 1,2,3,4(Hang) or 9,a,b,c (DAC)
 *
 *************************************************************************/
-static u32
+  u32
 lem_fill_descriptors (bus_addr_t address, u32 length,
 		PDESC_ARRAY desc_array)
 {
@@ -4094,7 +4002,7 @@ lem_fill_descriptors (bus_addr_t address, u32 length,
  *  Update the board statistics counters.
  *
  **********************************************************************/
-static void
+  void
 lem_update_stats_counters(struct adapter *adapter)
 {
 	struct ifnet   *ifp;
@@ -4188,7 +4096,7 @@ lem_update_stats_counters(struct adapter *adapter)
 }
 
 ///* Export a single 32-bit register via a read-only sysctl. */
-//static int
+//  int
 //lem_sysctl_reg_handler(SYSCTL_HANDLER_ARGS)
 //{
 //	struct adapter *adapter;
@@ -4202,7 +4110,7 @@ lem_update_stats_counters(struct adapter *adapter)
 ///*
 // * Add sysctl variables, one per statistic, to the system.
 // */
-//static void
+//  void
 //lem_add_hw_stats(struct adapter *adapter)
 //{
 //	device_t dev = adapter->dev;
@@ -4438,7 +4346,7 @@ lem_update_stats_counters(struct adapter *adapter)
  *
  **********************************************************************/
 
-//static int
+//  int
 //lem_sysctl_nvm_info(SYSCTL_HANDLER_ARGS)
 //{
 //	struct adapter *adapter;
@@ -4464,7 +4372,7 @@ lem_update_stats_counters(struct adapter *adapter)
 //	return (error);
 //}
 
-static void
+  void
 lem_print_nvm_info(struct adapter *adapter)
 {
 	u16	eeprom_data;
@@ -4484,7 +4392,7 @@ lem_print_nvm_info(struct adapter *adapter)
 	printf("\n");
 }
 
-//static int
+//  int
 //lem_sysctl_int_delay(SYSCTL_HANDLER_ARGS)
 //{
 //	struct em_int_delay_info *info;
@@ -4527,7 +4435,7 @@ lem_print_nvm_info(struct adapter *adapter)
 //	return (0);
 //}
 
-static void
+  void
 lem_add_int_delay_sysctl(struct adapter *adapter, const char *name,
 	const char *description, struct em_int_delay_info *info,
 	int offset, int value)
@@ -4541,7 +4449,7 @@ lem_add_int_delay_sysctl(struct adapter *adapter, const char *name,
 	    info, 0, lem_sysctl_int_delay, "I", description);*/
 }
 
-static void
+  void
 lem_set_flow_cntrl(struct adapter *adapter, const char *name,
         const char *description, int *limit, int value)
 {
@@ -4552,7 +4460,7 @@ lem_set_flow_cntrl(struct adapter *adapter, const char *name,
 }
 
 #ifndef EM_LEGACY_IRQ
-static void
+  void
 lem_add_rx_process_limit(struct adapter *adapter, const char *name,
 	const char *description, int *limit, int value)
 {

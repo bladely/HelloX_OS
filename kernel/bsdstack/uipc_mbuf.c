@@ -790,3 +790,90 @@ m_mbuftouio(struct uio *uio, struct mbuf *m, int len)
 	return (0);
 }
 
+/*
+ * Defragment a mbuf chain, returning the shortest possible
+ * chain of mbufs and clusters.  If allocation fails and
+ * this cannot be completed, NULL will be returned, but
+ * the passed in chain will be unchanged.  Upon success,
+ * the original chain will be freed, and the new chain
+ * will be returned.
+ *
+ * If a non-packet header is passed in, the original
+ * mbuf (chain?) will be returned unharmed.
+ */
+struct mbuf *
+m_defrag(struct mbuf *m0, int how)
+{
+	struct mbuf *m_new = NULL, *m_final = NULL;
+	int progress = 0, length;
+
+	MBUF_CHECKSLEEP(how);
+	if (!(m0->m_flags & M_PKTHDR))
+		return (m0);
+
+	m_fixhdr(m0); /* Needed sanity check */
+
+#ifdef MBUF_STRESS_TEST
+	if (m_defragrandomfailures) {
+		int temp = arc4random() & 0xff;
+		if (temp == 0xba)
+			goto nospace;
+	}
+#endif
+	
+	if (m0->m_pkthdr.len > MHLEN)
+		m_final = m_getcl(how, MT_DATA, M_PKTHDR);
+	else
+		m_final = m_gethdr(how, MT_DATA);
+
+	if (m_final == NULL)
+		goto nospace;
+
+	if (m_dup_pkthdr(m_final, m0, how) == 0)
+		goto nospace;
+
+	m_new = m_final;
+
+	while (progress < m0->m_pkthdr.len) {
+		length = m0->m_pkthdr.len - progress;
+		if (length > MCLBYTES)
+			length = MCLBYTES;
+
+		if (m_new == NULL) {
+			if (length > MLEN)
+				m_new = m_getcl(how, MT_DATA, 0);
+			else
+				m_new = m_get(how, MT_DATA);
+			if (m_new == NULL)
+				goto nospace;
+		}
+
+		m_copydata(m0, progress, length, mtod(m_new, caddr_t));
+		progress += length;
+		m_new->m_len = length;
+		if (m_new != m_final)
+			m_cat(m_final, m_new);
+		m_new = NULL;
+	}
+#ifdef MBUF_STRESS_TEST
+	if (m0->m_next == NULL)
+		m_defraguseless++;
+#endif
+	m_freem(m0);
+	m0 = m_final;
+#ifdef MBUF_STRESS_TEST
+	m_defragpackets++;
+	m_defragbytes += m0->m_pkthdr.len;
+#endif
+	return (m0);
+nospace:
+#ifdef MBUF_STRESS_TEST
+	m_defragfailure++;
+#endif
+	if (m_new)
+		m_free(m_new);
+	if (m_final)
+		m_freem(m_final);
+	return (NULL);
+}
+
