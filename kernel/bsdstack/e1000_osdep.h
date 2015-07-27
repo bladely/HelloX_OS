@@ -77,9 +77,9 @@
 #define DEBUGOUT7(S,A,B,C,D,E,F,G)	do {} while (0)
 
 #define STATIC			static
-#define FALSE			0
+//#define FALSE			0
 #define false			FALSE 
-#define TRUE			1
+//#define TRUE			1
 #define true			TRUE
 #define CMD_MEM_WRT_INVALIDATE	0x0010  /* BIT_4 */
 #define PCI_COMMAND_REGISTER	PCIR_COMMAND

@@ -33,7 +33,7 @@
 /*$FreeBSD: release/9.0.0/sys/dev/e1000/e1000_osdep.c 219902 2011-03-23 13:10:15Z jhb $*/
 
 #include "e1000_api.h"
-
+#include "pcivar.h"
 /*
  * NOTE: the following routines using the e1000 
  * 	naming style are provided to the shared

@@ -39,6 +39,7 @@
 #include "e1000_api.h"
 #include "if_lem.h"
 #include "pcireg.h"
+#include "pcivar.h"
 #include "mbuf.h"
 #include "ip.h"
 #include "tcp.h"
@@ -580,7 +581,7 @@ lem_attach(device_t dev)
 	//adapter->vlan_detach = EVENTHANDLER_REGISTER(vlan_unconfig,
 	//    lem_unregister_vlan, adapter, EVENTHANDLER_PRI_FIRST); 
 
-	lem_add_hw_stats(adapter);
+	//lem_add_hw_stats(adapter);
 
 	/* Non-AMT based hardware can now take control from firmware */
 	if (adapter->has_manage && !adapter->has_amt)
@@ -606,8 +607,8 @@ err_rx_desc:
 	lem_dma_free(adapter, &adapter->txdma);
 err_tx_desc:
 err_pci:
-	if (adapter->ifp != NULL)
-		if_free(adapter->ifp);
+	//if (adapter->ifp != NULL)
+	//	if_free(adapter->ifp);
 	lem_free_pci_resources(adapter);
 	free(adapter->mta);
 	EM_TX_LOCK_DESTROY(adapter);
@@ -672,7 +673,7 @@ lem_detach(device_t dev)
 
 	lem_free_pci_resources(adapter);
 	bus_generic_detach(dev);
-	if_free(ifp);
+	//if_free(ifp);
 
 	lem_free_transmit_structures(adapter);
 	lem_free_receive_structures(adapter);
@@ -2082,10 +2083,10 @@ lem_allocate_pci_resources(struct adapter *adapter)
 		device_printf(dev, "Unable to allocate bus resource: memory\n");
 		return (ENXIO);
 	}
-	adapter->osdep.mem_bus_space_tag =
-	    rman_get_bustag(adapter->memory);
-	adapter->osdep.mem_bus_space_handle =
-	    rman_get_bushandle(adapter->memory);
+	//adapter->osdep.mem_bus_space_tag =
+	//    rman_get_bustag(adapter->memory);
+	//adapter->osdep.mem_bus_space_handle =
+	//    rman_get_bushandle(adapter->memory);
 	adapter->hw.hw_addr = (u8 *)&adapter->osdep.mem_bus_space_handle;
 
 	/* Only older adapters use IO mapping */
@@ -2114,10 +2115,10 @@ lem_allocate_pci_resources(struct adapter *adapter)
 			return (ENXIO);
 		}
 		adapter->hw.io_base = 0;
-		adapter->osdep.io_bus_space_tag =
-		    rman_get_bustag(adapter->ioport);
-		adapter->osdep.io_bus_space_handle =
-		    rman_get_bushandle(adapter->ioport);
+		//adapter->osdep.io_bus_space_tag =
+		//    rman_get_bustag(adapter->ioport);
+		//adapter->osdep.io_bus_space_handle =
+		//    rman_get_bushandle(adapter->ioport);
 	}
 
 	adapter->hw.back = &adapter->osdep;

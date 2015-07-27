@@ -48,12 +48,13 @@
 #define INP_LOCK_ASSERT(inp)	
 
 #define KNOTE_LOCKED(d, k)
-
+#define callout_init_mtx(c, mtx, flags)
 #define	mtx_initialized(m)	
-
+#define mtx_init(m, name, type, opts)
 #define mtx_owned(m)	1
-
+#define mtx_destroy(a)
 #define mtx_recursed(m)	
+#define mtx_assert(m, what)	(void)0
 
 #define mtx_name(m)	
 #define UIDINFO_LOCK(m)

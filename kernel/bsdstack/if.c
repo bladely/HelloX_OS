@@ -1860,3 +1860,29 @@ found:
 	return (unit);
 }
 
+/*
+ * Allocate a struct ifnet and an index for an interface.  A layer 2
+ * common structure will also be allocated if an allocation routine is
+ * registered for the passed type.
+ */
+struct ifnet *
+if_alloc(u_char type)
+{
+	struct ifnet *ifp;
+	u_short idx;
+
+	ifp = malloc(sizeof(struct ifnet));
+	
+	ifp->if_index = idx;
+	ifp->if_type = type;
+	
+	ifp->if_afdata_initialized = 0;
+	IF_AFDATA_LOCK_INIT(ifp);
+	TAILQ_INIT(&ifp->if_addrhead);
+	TAILQ_INIT(&ifp->if_prefixhead);
+	TAILQ_INIT(&ifp->if_multiaddrs);
+
+
+	return (ifp);
+}
+

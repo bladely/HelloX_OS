@@ -55,7 +55,6 @@
 
 long Maxmem = 0;
 long realmem = 0;
-#define mtx_assert(m, what)	(void)0
 struct md_page {
 	TAILQ_HEAD(,pv_entry)	pv_list;
 	int			pat_mode;

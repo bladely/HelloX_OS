@@ -2712,13 +2712,6 @@ root_bus_configure(void)
 		device_probe_and_attach(dev);
 	}
 }
-
-pci_get_vendor(device_t	dev)
-{
-}
-pci_get_device(device_t	dev)
-{
-}
 int
 kobj_error_method(void)
 {
