@@ -106,7 +106,7 @@ void print_devclass_list(void);
 #define print_devclass_list_short()	/* nop */
 #define print_devclass_list()		/* nop */
 #endif
-
+extern int _hx_printf(const char* fmt,...);
 /*
  * dev sysctl tree
  */
@@ -734,7 +734,7 @@ devclass_delete_device(devclass_t dc, device_t dev)
 	PDEBUG(("%s in devclass %s", DEVICENAME(dev), DEVCLANAME(dc)));
 
 	if (dev->devclass != dc || dc->devices[dev->unit] != dev)
-		panic("devclass_delete_device: inconsistent device class");
+		_hx_printf("devclass_delete_device: inconsistent device class");
 	dc->devices[dev->unit] = NULL;
 	if (dev->flags & DF_WILDCARD)
 		dev->unit = -1;
@@ -1188,8 +1188,8 @@ device_get_devclass(device_t dev)
 const char *
 device_get_name(device_t dev)
 {
-	if (dev != NULL && dev->devclass)
-		return (devclass_get_name(dev->devclass));
+	if (dev != NULL && dev->name)
+		return (dev->name);
 	return (NULL);
 }
 
@@ -1262,7 +1262,7 @@ device_printf(device_t dev, const char * fmt, ...)
 
 	retval = device_print_prettyname(dev);
 	va_start(ap, fmt);
-	retval += vprintf(fmt, ap);
+	retval += _hx_printf(fmt, ap);
 	va_end(ap);
 	return (retval);
 }

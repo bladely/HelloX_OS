@@ -39,6 +39,9 @@ typedef struct{
 			DWORD     dwClass;
 			UCHAR     ucHdrType;
 			WORD      wReserved;
+			// Added by Luoyu
+			WORD      wSubDevice;
+			WORD      wSubVendor;
 		}PCI_Identifier;            //PCI interface device's identifier.
 
 		struct{

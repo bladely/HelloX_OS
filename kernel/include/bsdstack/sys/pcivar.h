@@ -29,7 +29,7 @@
 
 #ifndef _PCIVAR_H_
 #define	_PCIVAR_H_
-
+#include "pci_drv.h"
 #include <kqueue.h>
 
 /* some PCI bus constants */
@@ -217,6 +217,7 @@ struct pci_devinfo {
 #include "bus_if.h"
 #include "pci_if.h"
 #include "bus.h"
+
 enum pci_device_ivars {
     PCI_IVAR_SUBVENDOR,
     PCI_IVAR_SUBDEVICE,
@@ -240,7 +241,7 @@ enum pci_device_ivars {
     PCI_IVAR_MAXLAT,
     PCI_IVAR_LATTIMER
 };
-
+#if 0
 /*
  * Simplified accessors for pci devices
  */
@@ -270,14 +271,46 @@ PCI_ACCESSOR(maxlat,		MAXLAT,		uint8_t)
 PCI_ACCESSOR(lattimer,		LATTIMER,	uint8_t)
 
 #undef PCI_ACCESSOR
+#endif
+#if 1
+#define PCI_ACCESSOR(field, ivar, returntype) \
+__inline returntype pci_get_##field (__PHYSICAL_DEVICE* phydev) \
+{ \
+	return phydev->DevId.Bus_ID.PCI_Identifier.##ivar; \
+}
+PCI_ACCESSOR(vendor, wVendor, u16);
+PCI_ACCESSOR(device, wDevice, u16);
+PCI_ACCESSOR(subvendor, wSubVendor, u16);
+PCI_ACCESSOR(subdevice, wSubDevice, u16);
 
+#endif
 /*
  * Operations on configuration space.
  */
 static __inline uint32_t
 pci_read_config(device_t dev, int reg, int width)
 {
-    return PCI_READ_CONFIG(device_get_parent(dev), dev, reg, width);
+	DWORD output;
+	READ_PCI_INFO(dev->pciAddr, reg, output);
+    //return PCI_READ_CONFIG(device_get_parent(dev), dev, reg, width);
+    switch(width)
+    {
+    case 1:
+    	output &= 0xff;
+    	break;
+    case 2:
+    	output &= 0xffff;
+    	break;
+    case 3:
+    	output &= 0xffffff;
+    	break;
+    case 4:
+    	// Do nothing
+    	break;
+    default:
+    	return 0;
+    }
+    return output;
 }
 
 static __inline void

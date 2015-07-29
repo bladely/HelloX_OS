@@ -45,10 +45,6 @@
 #include "tcp.h"
 #include "udp.h"
 extern int bootverbose;
-/*********************************************************************
- *  Legacy Em Driver version:
- *********************************************************************/
-char lem_driver_version[] = "1.0.3";
 
 /*********************************************************************
  *  PCI Device ID Table
@@ -115,9 +111,6 @@ static em_vendor_info_t lem_vendor_info_array[] =
  *  Table of branding strings for all supported NICs.
  *********************************************************************/
 
-static char *lem_strings[] = {
-	"Intel(R) PRO/1000 Legacy Network Connection"
-};
 
 
 #ifdef DEVICE_POLLING
@@ -187,25 +180,26 @@ static int global_quad_port_a = 0;
  *********************************************************************/
 
 int
-lem_probe(device_t dev)
+lem_probe(__PHYSICAL_DEVICE* phydev)
 {
-	char		adapter_name[60];
+	//char		adapter_name[60];
 	u16		pci_vendor_id = 0;
 	u16		pci_device_id = 0;
 	u16		pci_subvendor_id = 0;
 	u16		pci_subdevice_id = 0;
 	em_vendor_info_t *ent;
 
-	INIT_DEBUGOUT("em_probe: begin");
+	
 
-	pci_vendor_id = pci_get_vendor(dev);
+	pci_vendor_id = pci_get_vendor(phydev);
 	if (pci_vendor_id != EM_VENDOR_ID)
 		return (ENXIO);
-
-	pci_device_id = pci_get_device(dev);
-	pci_subvendor_id = pci_get_subvendor(dev);
-	pci_subdevice_id = pci_get_subdevice(dev);
-
+	
+	pci_device_id = pci_get_device(phydev);
+	pci_subvendor_id = pci_get_subvendor(phydev);
+	pci_subdevice_id = pci_get_subdevice(phydev);
+	//_hx_printf("vendor 0x%x, device 0x%x, subvendor 0x%x, subdevice 0x%x\n", 
+	//	pci_vendor_id, pci_device_id, pci_subvendor_id, pci_subdevice_id);
 	ent = lem_vendor_info_array;
 	while (ent->vendor_id != 0) {
 		if ((pci_vendor_id == ent->vendor_id) &&
@@ -216,10 +210,9 @@ lem_probe(device_t dev)
 
 		    ((pci_subdevice_id == ent->subdevice_id) ||
 		    (ent->subdevice_id == PCI_ANY_ID))) {
-			sprintf(adapter_name, "%s %s",
-				lem_strings[ent->index],
-				lem_driver_version);
-			device_set_desc_copy(dev, adapter_name);
+			
+			//device_set_desc_copy(dev, adapter_name);
+			
 			return (BUS_PROBE_DEFAULT);
 		}
 		ent++;
@@ -239,7 +232,7 @@ lem_probe(device_t dev)
  *********************************************************************/
 
  int
-lem_attach(device_t dev)
+lem_attach(device_t dev, __PHYSICAL_DEVICE*phydev)
 {
 	struct adapter	*adapter;
 	int		tsize, rsize;
@@ -259,7 +252,7 @@ lem_attach(device_t dev)
 
 	/* Determine hardware and mac info */
 	lem_identify_hardware(adapter);
-
+return 0;
 	/* Setup PCI resources */
 	if (lem_allocate_pci_resources(adapter)) {
 		device_printf(dev, "Allocation of PCI resources failed\n");
@@ -1963,8 +1956,8 @@ lem_identify_hardware(struct adapter *adapter)
 	}
 
 	/* Save off the information about this board */
-	adapter->hw.vendor_id = pci_get_vendor(dev);
-	adapter->hw.device_id = pci_get_device(dev);
+	adapter->hw.vendor_id = pci_get_vendor(dev->phyDev);
+	adapter->hw.device_id = pci_get_device(dev->phyDev);
 	adapter->hw.revision_id = pci_read_config(dev, PCIR_REVID, 1);
 	adapter->hw.subsystem_vendor_id =
 	    pci_read_config(dev, PCIR_SUBVEND_0, 2);
@@ -1976,6 +1969,8 @@ lem_identify_hardware(struct adapter *adapter)
 		device_printf(dev, "Setup init failure\n");
 		return;
 	}
+	device_printf(dev, "Setup init success\n");
+
 }
 
   int

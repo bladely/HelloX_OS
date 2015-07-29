@@ -46,18 +46,34 @@
 static HANDLE g_hE1kIntHandler = NULL;     //Interrupt object handle,to preserve 
                                         //the interrupt object.
 
+static char lem_strings[] = {
+	"Intel(R) PRO/1000 Legacy Network Connection"
+};
+/*********************************************************************
+ *  Legacy Em Driver version:
+ *********************************************************************/
+char lem_driver_version[] = "1.0.3";
+
 //Initialization routine of MOUSE.
-static BOOL InitE1000()
+BOOL InitE1000(__PHYSICAL_DEVICE* phydev)
 {
-	struct adapter *softc = (struct adapter*)malloc(sizeof(*softc));
- 	device_t dev = (device_t)malloc(sizeof(*dev));
-	memset(dev, 0, sizeof(*dev));
-	memset(softc, 0, sizeof(struct adapter));
-	dev->name = "em0";//(char*)ENUML_DEV_NAME;
-	dev->unit = 0;
-	dev->softc = softc;
-	if (BUS_PROBE_DEFAULT == lem_probe(dev))
+	
+	if (BUS_PROBE_DEFAULT == lem_probe(phydev))
 	{
+		struct adapter *softc = (struct adapter*)malloc(sizeof(*softc));
+	 	device_t dev = (device_t)malloc(sizeof(*dev));
+		memset(dev, 0, sizeof(*dev));
+		memset(softc, 0, sizeof(struct adapter));
+		dev->name = "em";//(char*)ENUML_DEV_NAME;
+		dev->unit = 0;
+		dev->softc = softc;
+		dev->phyDev = phydev;
+		dev->desc = (char*)malloc(strlen(lem_strings) + strlen(lem_driver_version) + 2);
+		sprintf(dev->desc, "%s %s",
+				lem_strings,
+				lem_driver_version);
+		_hx_printf("%s\n", dev->desc);
+		lem_attach(dev);
 		return TRUE;
 	}
 	else
@@ -102,7 +118,7 @@ BOOL E1000DrvEntry(__DRIVER_OBJECT* lpDriverObject)
 	BOOL              bResult     = FALSE;
 
 	//Initialize the mouse device.
-	if(!InitE1000())
+	//if(!InitE1000())
 	{
 		goto __TERMINAL;
 	}

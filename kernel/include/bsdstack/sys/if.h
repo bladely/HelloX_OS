@@ -185,6 +185,8 @@ struct devclass {
 
 struct device {
 	char *name;
+	u_int32_t pciAddr;
+	__PHYSICAL_DEVICE *phyDev;
 	/*
 	 * Device hierarchy.
 	 */
@@ -563,4 +565,5 @@ unsigned int		 if_nametoindex(const char *);
  * Common lock type names.
  */
 #define	MTX_NETWORK_LOCK	"network driver"
+
 #endif /* !_NET_IF_H_ */

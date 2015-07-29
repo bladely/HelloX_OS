@@ -178,31 +178,23 @@ static VOID PciAddDevice(DWORD dwConfigReg,__SYSTEM_BUS* lpSysBus)
 	//
 	//The following code initializes identifier member of physical device.
 	//
-	dwConfigReg &= 0xFFFFFF00;    //Clear offset part.
-	dwConfigReg += PCI_CONFIG_OFFSET_VENDOR;
-	__outd(CONFIG_REGISTER,dwConfigReg);
-	dwTmp = __ind(DATA_REGISTER);  //Read vendor ID and device ID.
-
+	READ_PCI_INFO(dwConfigReg, PCI_CONFIG_OFFSET_VENDOR, dwTmp);
+	
 	lpPhyDev->DevId.dwBusType               = BUS_TYPE_PCI;
 	lpPhyDev->DevId.Bus_ID.PCI_Identifier.ucMask   = PCI_IDENTIFIER_MASK_ALL;
 	lpPhyDev->DevId.Bus_ID.PCI_Identifier.wVendor  = (WORD)dwTmp;
 	lpPhyDev->DevId.Bus_ID.PCI_Identifier.wDevice  = (WORD)(dwTmp >> 16);
 
-	dwConfigReg &= 0xFFFFFF00;
-	dwConfigReg += PCI_CONFIG_OFFSET_REVISION;  //Get revision ID and class code.
-	__outd(CONFIG_REGISTER,dwConfigReg);
-	dwTmp = __ind(DATA_REGISTER);
-
+	READ_PCI_INFO(dwConfigReg, PCI_CONFIG_OFFSET_REVISION, dwTmp);
 	lpPhyDev->DevId.Bus_ID.PCI_Identifier.dwClass = dwTmp;
 	lpDevInfo->dwClassCode                 = dwTmp;  //Save to information struct also.
 
-	dwConfigReg &= 0xFFFFFF00;
-	dwConfigReg += PCI_CONFIG_OFFSET_CACHELINESZ;    //Get header type.
-	__outd(CONFIG_REGISTER,dwConfigReg);
-	dwTmp = __ind(DATA_REGISTER);
-	
+	READ_PCI_INFO(dwConfigReg, PCI_CONFIG_OFFSET_CACHELINESZ, dwTmp);
 	lpPhyDev->DevId.Bus_ID.PCI_Identifier.ucHdrType = (UCHAR)(dwTmp >> 16); //Get header type.
 
+	READ_PCI_INFO(dwConfigReg, PCI_CONFIG_OFFSET_SUBSYSID, dwTmp);
+	lpPhyDev->DevId.Bus_ID.PCI_Identifier.wSubVendor = (WORD)dwTmp;
+	lpPhyDev->DevId.Bus_ID.PCI_Identifier.wSubDevice = (WORD)(dwTmp >> 16);
 	//
 	//The following code initializes the resource information required by device.
 	//
@@ -229,7 +221,7 @@ static VOID PciAddDevice(DWORD dwConfigReg,__SYSTEM_BUS* lpSysBus)
 		bResult = TRUE;
 		break;
 	}
-
+	
 	//
 	//Now,we have finished to initialize resource information,so we insert the physical device
 	//object into system bus.
@@ -239,7 +231,7 @@ static VOID PciAddDevice(DWORD dwConfigReg,__SYSTEM_BUS* lpSysBus)
 	lpPhyDev->lpNext = lpSysBus->lpDevListHdr;
 	lpSysBus->lpDevListHdr = lpPhyDev;
 	__LEAVE_CRITICAL_SECTION(NULL,dwFlags);
-
+	InitE1000(lpPhyDev);
 __TERMINAL:
 	if(!bResult)
 	{

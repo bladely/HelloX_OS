@@ -223,9 +223,9 @@
 #endif
 
 /* Defines for printing debug information */
-#define DEBUG_INIT  0
-#define DEBUG_IOCTL 0
-#define DEBUG_HW    0
+#define DEBUG_INIT  1
+#define DEBUG_IOCTL 1
+#define DEBUG_HW    1
 
 #define INIT_DEBUGOUT(S)            if (DEBUG_INIT)  printf(S "\n")
 #define INIT_DEBUGOUT1(S, A)        if (DEBUG_INIT)  printf(S "\n", A)
@@ -496,7 +496,7 @@ typedef struct _DESCRIPTOR_PAIR
 /*********************************************************************
  *  Function prototypes
  *********************************************************************/
-int	lem_probe(device_t);
+int	lem_probe(__PHYSICAL_DEVICE*);
 int	lem_attach(device_t);
 int	lem_detach(device_t);
 int	lem_shutdown(device_t);

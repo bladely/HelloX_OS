@@ -144,14 +144,14 @@ log_console(struct uio *uio)
 	return;
 }
 
-
+#if 0
 int
 vprintf(const char *fmt, va_list ap)
 {
 
 	return (0);
 }
-
+#endif
 
 /*
  * Scaled down version of sprintf(3).

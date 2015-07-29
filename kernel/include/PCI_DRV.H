@@ -126,6 +126,13 @@ typedef struct{
 #define PCI_DEVICE_TYPE_UNSUPPORTED  0x00000008
 #define PCI_DEVICE_TYPE_EMPTY        0x00000000
 
+#define READ_PCI_INFO(dev, offset, output) \
+	do { \
+		dev &= 0xFFFFFF00;     \
+		dev += offset; \
+		__outd(CONFIG_REGISTER, dev); \
+	output = __ind(DATA_REGISTER);   \
+	}while(0);
 #ifdef __cplusplus
 }
 #endif

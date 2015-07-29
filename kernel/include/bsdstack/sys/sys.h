@@ -201,7 +201,7 @@ typedef	__gid_t		gid_t;		/* group id */
 
 
 
-#define panic(param)	{ printf(param); exit(-1); }
+#define panic _hx_printf
 
 
 #define	TUNABLE_INT_FETCH(path, var)
