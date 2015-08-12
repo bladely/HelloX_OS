@@ -2314,7 +2314,11 @@ bus_generic_child_present(device_t dev, device_t child)
  * less-wordy code.  In the future, it might make sense for this code
  * to maintain some sort of a list of resources allocated by each device.
  */
-
+#ifndef __KAPI_H__
+#include "..\INCLUDE\\KAPI.H"
+#endif
+#include "devmgr.h"
+#include "pcireg.h"
 /**
  * @brief Wrapper function for BUS_ALLOC_RESOURCE().
  *
@@ -2325,6 +2329,33 @@ struct resource *
 bus_alloc_resource(device_t dev, int type, int *rid, u_long start, u_long end,
     u_long count, u_int flags)
 {
+	struct resource *presource  = NULL;
+	LPVOID      pBaseAddr       = NULL;
+	__PHYSICAL_DEVICE *phydev   = dev->phyDev;
+	int len = (int)phydev->Resource[0].Dev_Res.MemoryRegion.lpEndAddr - (int)phydev->Resource[0].Dev_Res.MemoryRegion.lpStartAddr;
+	
+	switch(type)
+	{
+	case SYS_RES_MEMORY:
+		pBaseAddr = VirtualAlloc((LPVOID)phydev->Resource[0].Dev_Res.MemoryRegion.lpStartAddr,
+			len,
+			VIRTUAL_AREA_ALLOCATE_IO,  //Allocate flags.
+			VIRTUAL_AREA_ACCESS_RW,  //Access flats.
+			"NET");
+		_hx_printf("type %d, start 0x%x end 0x%x virtBase 0x%x\n", phydev->Resource[0].dwResType,
+				phydev->Resource[0].Dev_Res.MemoryRegion.lpStartAddr,
+				phydev->Resource[0].Dev_Res.MemoryRegion.lpEndAddr, pBaseAddr);
+		presource = (struct resource*)malloc(sizeof(struct resource));
+		presource->r_start = (u_long)phydev->Resource[0].Dev_Res.MemoryRegion.lpStartAddr;
+		presource->r_end = (u_long)phydev->Resource[0].Dev_Res.MemoryRegion.lpStartAddr + len;
+		presource->r_virtual = pBaseAddr;
+		presource->r_rid = *rid;
+		return presource;
+	case SYS_RES_IRQ:
+		return presource;
+	default:
+		return NULL;
+	}
 #if 0
 	if (dev->parent == 0)
 		return (0);

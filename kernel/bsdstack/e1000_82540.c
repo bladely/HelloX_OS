@@ -346,23 +346,24 @@ static s32 e1000_init_hw_82540(struct e1000_hw *hw)
 	DEBUGFUNC("e1000_init_hw_82540");
 
 	/* Initialize identification LED */
-	ret_val = mac->ops.id_led_init(hw);
-	if (ret_val) {
-		DEBUGOUT("Error initializing identification LED\n");
+	//ret_val = mac->ops.id_led_init(hw);
+	//if (ret_val) {
+	//	DEBUGOUT("Error initializing identification LED\n");
 		/* This is not fatal and we should not stop init due to this */
-	}
+	//}
 
 	/* Disabling VLAN filtering */
 	DEBUGOUT("Initializing the IEEE VLAN\n");
 	if (mac->type < e1000_82545_rev_3)
 		E1000_WRITE_REG(hw, E1000_VET, 0);
-
+	
 	mac->ops.clear_vfta(hw);
 
 	/* Setup the receive address. */
 	e1000_init_rx_addrs_generic(hw, mac->rar_entry_count);
-
+	
 	/* Zero out the Multicast HASH table */
+#if 0
 	DEBUGOUT("Zeroing the MTA\n");
 	for (i = 0; i < mac->mta_reg_count; i++) {
 		E1000_WRITE_REG_ARRAY(hw, E1000_MTA, i, 0);
@@ -376,18 +377,19 @@ static s32 e1000_init_hw_82540(struct e1000_hw *hw)
 		 */
 		E1000_WRITE_FLUSH(hw);
 	}
-
 	if (mac->type < e1000_82545_rev_3)
 		e1000_pcix_mmrbc_workaround_generic(hw);
+#endif
 
 	/* Setup link and flow control */
-	ret_val = mac->ops.setup_link(hw);
+	// LUOYU delete @2015/8/12
+	//ret_val = mac->ops.setup_link(hw);
 
 	txdctl = E1000_READ_REG(hw, E1000_TXDCTL(0));
 	txdctl = (txdctl & ~E1000_TXDCTL_WTHRESH) |
 	         E1000_TXDCTL_FULL_TX_DESC_WB;
 	E1000_WRITE_REG(hw, E1000_TXDCTL(0), txdctl);
-
+	
 	/*
 	 * Clear all of the statistics registers (clear on read).  It is
 	 * important that we do this after we have tried to establish link
@@ -706,7 +708,7 @@ s32 e1000_read_mac_addr_82540(struct e1000_hw *hw)
 {
 	s32  ret_val = E1000_SUCCESS;
 	u16 offset, nvm_data, i;
-
+#if 0
 	DEBUGFUNC("e1000_read_mac_addr");
 
 	for (i = 0; i < ETH_ADDR_LEN; i += 2) {
@@ -723,7 +725,12 @@ s32 e1000_read_mac_addr_82540(struct e1000_hw *hw)
 	/* Flip last bit of mac address if we're on second port */
 	if (hw->bus.func == E1000_FUNC_1)
 		hw->mac.perm_addr[5] ^= 1;
+#endif
 
+	// LUOYU add the following 2 lines
+	for (i = 0; i < ETH_ADDR_LEN; i++)
+		hw->mac.perm_addr[i] = i + 0x22;
+		
 	for (i = 0; i < ETH_ADDR_LEN; i++)
 		hw->mac.addr[i] = hw->mac.perm_addr[i];
 

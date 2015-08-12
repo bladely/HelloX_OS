@@ -72,7 +72,7 @@ BOOL InitE1000(__PHYSICAL_DEVICE* phydev)
 		sprintf(dev->desc, "%s %s",
 				lem_strings,
 				lem_driver_version);
-		_hx_printf("%s\n", dev->desc);
+		//_hx_printf("%s\n", dev->desc);
 		lem_attach(dev);
 		return TRUE;
 	}

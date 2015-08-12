@@ -33,7 +33,7 @@
 /*$FreeBSD: release/9.0.0/sys/dev/e1000/e1000_api.c 218530 2011-02-11 01:00:26Z jfv $*/
 
 #include "e1000_api.h"
-
+#include "if_lem.h"
 /**
  *  e1000_init_mac_params - Initialize MAC function pointers
  *  @hw: pointer to the HW structure
@@ -450,14 +450,14 @@ s32 e1000_setup_init_funcs(struct e1000_hw *hw, bool init_device)
 		ret_val = e1000_init_nvm_params(hw);
 		if (ret_val)
 			goto out;
+        // LUOYU delete @2015/8/12
+		//ret_val = e1000_init_phy_params(hw);
+		//if (ret_val)
+		//	goto out;
 
-		ret_val = e1000_init_phy_params(hw);
-		if (ret_val)
-			goto out;
-
-		ret_val = e1000_init_mbx_params(hw);
-		if (ret_val)
-			goto out;
+		//ret_val = e1000_init_mbx_params(hw);
+		//if (ret_val)
+		//	goto out;
 	}
 
 out:

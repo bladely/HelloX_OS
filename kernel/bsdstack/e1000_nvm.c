@@ -1006,7 +1006,8 @@ s32 e1000_validate_nvm_checksum_generic(struct e1000_hw *hw)
 	u16 i, nvm_data;
 
 	DEBUGFUNC("e1000_validate_nvm_checksum_generic");
-
+#if 0
+LUOYU delete @2015/8/12
 	for (i = 0; i < (NVM_CHECKSUM_REG + 1); i++) {
 		ret_val = hw->nvm.ops.read(hw, i, 1, &nvm_data);
 		if (ret_val) {
@@ -1021,7 +1022,7 @@ s32 e1000_validate_nvm_checksum_generic(struct e1000_hw *hw)
 		ret_val = -E1000_ERR_NVM;
 		goto out;
 	}
-
+#endif
 out:
 	return ret_val;
 }

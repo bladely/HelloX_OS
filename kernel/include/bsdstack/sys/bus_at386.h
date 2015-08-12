@@ -82,7 +82,7 @@ static __inline u_int
 inl(u_int port)
 {
 	u_int	data;
-
+	data = __ind(port);
 	//__asm __volatile("inl %%dx,%0" : "=a" (data) : "d" (port));
 	return (data);
 }
@@ -94,6 +94,7 @@ outl(u_int port, u_int data)
 	 * possible micro-optimizations such as the unnecessary
 	 * assignment for them.
 	 */
+	 __outd(port,data);
 	//__asm __volatile("outl %0,%%dx" : : "a" (data), "d" (port));
 }
 

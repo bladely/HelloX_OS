@@ -575,6 +575,7 @@ void	lem_get_wakeup(device_t);
 void     lem_enable_wakeup(device_t);
 int	lem_enable_phy_wakeup(struct adapter *);
 void	lem_led_func(void *, int);
+#define EM_LEGACY_IRQ
 
 #ifdef EM_LEGACY_IRQ
 static void	lem_intr(void *);

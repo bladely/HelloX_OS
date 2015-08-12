@@ -51,6 +51,7 @@ static DWORD GetRangeSize(DWORD dwValue)  //Get the length of one base address r
 		return dwTmp;
 	}
 }
+#define PCI_ROM_ADDRESS_MASK	(~0x7ffUL)
 
 //
 //The following routine filles resource array of a physical device object.
@@ -70,11 +71,23 @@ static VOID PciFillDevResources(DWORD dwConfigReg,__PHYSICAL_DEVICE* lpPhyDev)
 	dwConfigReg += PCI_CONFIG_OFFSET_BASE1;  //Pointing to the first base address register.
 	for(dwLoop = 0;dwLoop < 6;dwLoop ++)  //Read resources.
 	{
+		DWORD reg = 0;
+
+		reg = PCI_CONFIG_OFFSET_BASE1 + (dwLoop << 2);
+		
 		__outd(CONFIG_REGISTER,dwConfigReg);
 		dwOrg = __ind(DATA_REGISTER);     //Read and save the original value.
 		//__outd(CONFIG_REGISTER,0xFFFFFFFF);
 		__outd(DATA_REGISTER,0xFFFFFFFF);
 		dwTmp = __ind(DATA_REGISTER);
+		/*if (lpPhyDev->DevId.Bus_ID.PCI_Identifier.wDevice == 0x100e)
+		{
+			_hx_printf("%s %x%x dwLoop %d, start 0x%x \n", __FUNCTION__,
+				lpPhyDev->DevId.Bus_ID.PCI_Identifier.wVendor, lpPhyDev->DevId.Bus_ID.PCI_Identifier.wDevice,
+				dwLoop,			
+				dwTmp);
+		}*/
+		
 		if((0 == dwTmp) || (0xFFFFFFFF == dwTmp)) //This base address register is not used.
 		{
 			dwConfigReg += 4;
@@ -101,6 +114,7 @@ static VOID PciFillDevResources(DWORD dwConfigReg,__PHYSICAL_DEVICE* lpPhyDev)
 			lpPhyDev->Resource[dwIndex].Dev_Res.MemoryRegion.lpEndAddr   = 
 				(LPVOID)(dwOrg + dwSize - 1);
 		}
+		
 		dwIndex ++;
 		dwConfigReg += 4;
 	}
@@ -157,7 +171,7 @@ static VOID PciAddDevice(DWORD dwConfigReg,__SYSTEM_BUS* lpSysBus)
 	__PHYSICAL_DEVICE*                    lpPhyDev       = NULL;
 	DWORD                                 dwFlags        = 0;
 	BOOL                                  bResult        = FALSE;
-	//DWORD                                 dwLoop         = 0;
+	DWORD                                 dwDeviceType  = 0;
 	DWORD                                 dwTmp          = 0;
 
 	if((0 == dwConfigReg) || (NULL == lpSysBus)) //Invalid parameters.
@@ -189,16 +203,16 @@ static VOID PciAddDevice(DWORD dwConfigReg,__SYSTEM_BUS* lpSysBus)
 	lpPhyDev->DevId.Bus_ID.PCI_Identifier.dwClass = dwTmp;
 	lpDevInfo->dwClassCode                 = dwTmp;  //Save to information struct also.
 
-	READ_PCI_INFO(dwConfigReg, PCI_CONFIG_OFFSET_CACHELINESZ, dwTmp);
-	lpPhyDev->DevId.Bus_ID.PCI_Identifier.ucHdrType = (UCHAR)(dwTmp >> 16); //Get header type.
-
+	READ_PCI_INFO(dwConfigReg, PCI_CONFIG_OFFSET_CACHELINESZ, dwDeviceType);
+	lpPhyDev->DevId.Bus_ID.PCI_Identifier.ucHdrType = (UCHAR)(dwDeviceType >> 16); //Get header type.
+	
 	READ_PCI_INFO(dwConfigReg, PCI_CONFIG_OFFSET_SUBSYSID, dwTmp);
 	lpPhyDev->DevId.Bus_ID.PCI_Identifier.wSubVendor = (WORD)dwTmp;
 	lpPhyDev->DevId.Bus_ID.PCI_Identifier.wSubDevice = (WORD)(dwTmp >> 16);
 	//
 	//The following code initializes the resource information required by device.
 	//
-	switch((dwTmp >> 16) & 0x7F)
+	switch((dwDeviceType >> 16) & 0x7F)
 	{
 	case 0:         //Normal PCI device.
 		lpDevInfo->dwDeviceType = PCI_DEVICE_TYPE_NORMAL;
@@ -231,7 +245,9 @@ static VOID PciAddDevice(DWORD dwConfigReg,__SYSTEM_BUS* lpSysBus)
 	lpPhyDev->lpNext = lpSysBus->lpDevListHdr;
 	lpSysBus->lpDevListHdr = lpPhyDev;
 	__LEAVE_CRITICAL_SECTION(NULL,dwFlags);
+	
 	InitE1000(lpPhyDev);
+	
 __TERMINAL:
 	if(!bResult)
 	{

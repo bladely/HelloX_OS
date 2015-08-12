@@ -367,7 +367,7 @@ const char *wmesg;
 u_int atomic_add_int(int *a, int n)
 {
 	*a += n;
-	//return (*a);
+	return (*a);
 }
 u_int atomic_fetchadd_int(int *a, int n)
 {

@@ -198,8 +198,7 @@ lem_probe(__PHYSICAL_DEVICE* phydev)
 	pci_device_id = pci_get_device(phydev);
 	pci_subvendor_id = pci_get_subvendor(phydev);
 	pci_subdevice_id = pci_get_subdevice(phydev);
-	//_hx_printf("vendor 0x%x, device 0x%x, subvendor 0x%x, subdevice 0x%x\n", 
-	//	pci_vendor_id, pci_device_id, pci_subvendor_id, pci_subdevice_id);
+	
 	ent = lem_vendor_info_array;
 	while (ent->vendor_id != 0) {
 		if ((pci_vendor_id == ent->vendor_id) &&
@@ -212,7 +211,8 @@ lem_probe(__PHYSICAL_DEVICE* phydev)
 		    (ent->subdevice_id == PCI_ANY_ID))) {
 			
 			//device_set_desc_copy(dev, adapter_name);
-			
+			//_hx_printf("vendor 0x%x, device 0x%x, subvendor 0x%x, subdevice 0x%x\n", 
+			//	pci_vendor_id, pci_device_id, pci_subvendor_id, pci_subdevice_id);
 			return (BUS_PROBE_DEFAULT);
 		}
 		ent++;
@@ -252,7 +252,7 @@ lem_attach(device_t dev, __PHYSICAL_DEVICE*phydev)
 
 	/* Determine hardware and mac info */
 	lem_identify_hardware(adapter);
-return 0;
+
 	/* Setup PCI resources */
 	if (lem_allocate_pci_resources(adapter)) {
 		device_printf(dev, "Allocation of PCI resources failed\n");
@@ -330,9 +330,9 @@ return 0;
 	adapter->hw.phy.autoneg_advertised = AUTONEG_ADV_DEFAULT;
 	adapter->rx_buffer_len = 2048;
 
-	e1000_init_script_state_82541(&adapter->hw, TRUE);
+	//e1000_init_script_state_82541(&adapter->hw, TRUE);
 	e1000_set_tbi_compatibility_82543(&adapter->hw, TRUE);
-
+	
 	/* Copper options */
 	if (adapter->hw.phy.media_type == e1000_media_type_copper) {
 		adapter->hw.phy.mdix = AUTO_ALL_MODES;
@@ -362,6 +362,7 @@ return 0;
 		error = ENOMEM;
 		goto err_tx_desc;
 	}
+	
 	adapter->tx_desc_base = 
 	    (struct e1000_tx_desc *)adapter->txdma.dma_vaddr;
 
@@ -376,7 +377,7 @@ return 0;
 	}
 	adapter->rx_desc_base =
 	    (struct e1000_rx_desc *)adapter->rxdma.dma_vaddr;
-
+	
 	/* Allocate multicast array memory. */
 	adapter->mta = malloc(sizeof(u8) * ETH_ADDR_LEN * MAX_NUM_MULTICAST_ADDRESSES);
 	if (adapter->mta == NULL) {
@@ -391,7 +392,7 @@ return 0;
 	** mac from that.
 	*/
 	e1000_reset_hw(&adapter->hw);
-
+	
 	/* Make sure we have a good EEPROM before we read from it */
 	if (e1000_validate_nvm_checksum(&adapter->hw) < 0) {
 		/*
@@ -406,7 +407,7 @@ return 0;
 			goto err_hw_init;
 		}
 	}
-
+	
 	/* Copy the permanent MAC address out of the EEPROM */
 	if (e1000_read_mac_addr(&adapter->hw) < 0) {
 		device_printf(dev, "EEPROM read error while reading MAC"
@@ -420,7 +421,7 @@ return 0;
 		error = EIO;
 		goto err_hw_init;
 	}
-
+	
 	/* Initialize the hardware */
 	if (lem_hardware_init(adapter)) {
 		device_printf(dev, "Unable to initialize the hardware\n");
@@ -441,14 +442,13 @@ return 0;
 		error = ENOMEM;
 		goto err_rx_struct;
 	}
-
 	/*
 	**  Do interrupt configuration
 	*/
-	error = lem_allocate_irq(adapter);
-	if (error)
-		goto err_rx_struct;
-
+	//error = lem_allocate_irq(adapter);
+	//if (error)
+	//	goto err_rx_struct;
+	
 	/*
 	 * Get Wake-on-Lan and Management info for later use
 	 */
@@ -460,7 +460,7 @@ return 0;
 
 	/* Initialize statistics */
 	lem_update_stats_counters(adapter);
-
+	
 	adapter->hw.mac.get_link_status = 1;
 	lem_update_link_status(adapter);
 
@@ -1111,7 +1111,6 @@ lem_poll(struct ifnet *ifp, enum poll_cmd cmd, int count)
 	return (rx_done);
 }
 #endif /* DEVICE_POLLING */
-
 #ifdef EM_LEGACY_IRQ 
 /*********************************************************************
  *
@@ -1137,8 +1136,8 @@ lem_intr(void *arg)
 	if ((reg_icr == 0xffffffff) || (reg_icr == 0))
 			goto out;
 
-	if ((ifp->if_drv_flags & IFF_DRV_RUNNING) == 0)
-			goto out;
+	//if ((ifp->if_drv_flags & IFF_RUNNING) == 0)
+	//		goto out;
 
 	if (reg_icr & (E1000_ICR_RXSEQ | E1000_ICR_LSC)) {
 		callout_stop(&adapter->timer);
@@ -1154,9 +1153,9 @@ lem_intr(void *arg)
 	EM_TX_LOCK(adapter);
 	lem_rxeof(adapter, -1, NULL);
 	lem_txeof(adapter);
-	if (ifp->if_drv_flags & IFF_DRV_RUNNING &&
-	    !IFQ_DRV_IS_EMPTY(&ifp->if_snd))
-		lem_start_locked(ifp);
+	//if (ifp->if_drv_flags & IFF_RUNNING &&
+	//    !IFQ_DRV_IS_EMPTY(&ifp->if_snd))
+	//	lem_start_locked(ifp);
 	EM_TX_UNLOCK(adapter);
 
 out:
@@ -1969,7 +1968,7 @@ lem_identify_hardware(struct adapter *adapter)
 		device_printf(dev, "Setup init failure\n");
 		return;
 	}
-	device_printf(dev, "Setup init success\n");
+	//device_printf(dev, "Setup init success\n");
 
 }
 
@@ -1991,7 +1990,7 @@ lem_allocate_pci_resources(struct adapter *adapter)
 	//adapter->osdep.mem_bus_space_handle =
 	//    rman_get_bushandle(adapter->memory);
 	adapter->hw.hw_addr = (u8 *)&adapter->osdep.mem_bus_space_handle;
-
+#if 0
 	/* Only older adapters use IO mapping */
 	if (adapter->hw.mac.type > e1000_82543) {
 		/* Figure our where our IO BAR is ? */
@@ -2023,7 +2022,7 @@ lem_allocate_pci_resources(struct adapter *adapter)
 		//adapter->osdep.io_bus_space_handle =
 		//    rman_get_bushandle(adapter->ioport);
 	}
-
+#endif
 	adapter->hw.back = &adapter->osdep;
 
 	return (error);
@@ -2034,6 +2033,7 @@ lem_allocate_pci_resources(struct adapter *adapter)
  *  Setup the Legacy or MSI Interrupt handler
  *
  **********************************************************************/
+
 int
 lem_allocate_irq(struct adapter *adapter)
 {
@@ -2060,7 +2060,7 @@ lem_allocate_irq(struct adapter *adapter)
 		device_printf(dev, "Failed to register interrupt handler");
 		return (error);
 	}
-
+	
 #else /* FAST_IRQ */
 	/*
 	 * Try allocating a fast interrupt and the associated deferred
@@ -2130,7 +2130,7 @@ lem_hardware_init(struct adapter *adapter)
 
 	/* Issue a global reset */
 	e1000_reset_hw(&adapter->hw);
-
+	
 	/* When hardware is reset, fifo_head is also reset */
 	adapter->tx_fifo_head = 0;
 
@@ -2163,13 +2163,13 @@ lem_hardware_init(struct adapter *adapter)
                 adapter->hw.fc.requested_mode = lem_fc_setting;
         else
                 adapter->hw.fc.requested_mode = e1000_fc_none;
-
+	
 	if (e1000_init_hw(&adapter->hw) < 0) {
 		device_printf(dev, "Hardware Initialization Failed\n");
 		return (EIO);
 	}
 
-	e1000_check_for_link(&adapter->hw);
+	//e1000_check_for_link(&adapter->hw);
 
 	return (0);
 }
@@ -2370,7 +2370,7 @@ lem_dma_malloc(struct adapter *adapter, bus_size_t size,
 		    __FUNCTION__, error);
 		goto fail_0;
 	}
-
+	
 	error = bus_dmamem_alloc(dma->dma_tag, (void**) &dma->dma_vaddr,
 	    BUS_DMA_NOWAIT | BUS_DMA_COHERENT, &dma->dma_map);
 	if (error) {
@@ -2379,8 +2379,10 @@ lem_dma_malloc(struct adapter *adapter, bus_size_t size,
 		    __FUNCTION__, (uintmax_t)size, error);
 		goto fail_2;
 	}
-
+	
 	dma->dma_paddr = 0;
+	#if 0
+	LUOYU delete @2015/8/12
 	error = bus_dmamap_load(dma->dma_tag, dma->dma_map, dma->dma_vaddr,
 	    size, lem_dmamap_cb, &dma->dma_paddr, mapflags | BUS_DMA_NOWAIT);
 	if (error || dma->dma_paddr == 0) {
@@ -2389,12 +2391,14 @@ lem_dma_malloc(struct adapter *adapter, bus_size_t size,
 		    __FUNCTION__, error);
 		goto fail_3;
 	}
-
+	#endif 
+	
 	return (0);
 
 fail_3:
 	bus_dmamap_unload(dma->dma_tag, dma->dma_map);
 fail_2:
+	INIT_DEBUGOUT("lem_dma_malloc 2399");
 	bus_dmamem_free(dma->dma_tag, dma->dma_vaddr, dma->dma_map);
 	bus_dma_tag_destroy(dma->dma_tag);
 fail_0:
