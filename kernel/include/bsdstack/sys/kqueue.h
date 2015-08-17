@@ -208,7 +208,6 @@ struct {								\
 #define	TAILQ_INIT(head) do {						\
 	TAILQ_FIRST((head)) = NULL;					\
 	(head)->tqh_last = &TAILQ_FIRST((head));			\
-	QMD_TRACE_HEAD(head);						\
 } while (0)
 
 #define	TAILQ_INSERT_AFTER(head, listelm, elm, field) do {		\
@@ -221,8 +220,6 @@ struct {								\
 	}								\
 	TAILQ_NEXT((listelm), field) = (elm);				\
 	(elm)->field.tqe_prev = &TAILQ_NEXT((listelm), field);		\
-	QMD_TRACE_ELEM(&(elm)->field);					\
-	QMD_TRACE_ELEM(&listelm->field);				\
 } while (0)
 
 #define	TAILQ_INSERT_BEFORE(listelm, elm, field) do {			\
@@ -230,8 +227,6 @@ struct {								\
 	TAILQ_NEXT((elm), field) = (listelm);				\
 	*(listelm)->field.tqe_prev = (elm);				\
 	(listelm)->field.tqe_prev = &TAILQ_NEXT((elm), field);		\
-	QMD_TRACE_ELEM(&(elm)->field);					\
-	QMD_TRACE_ELEM(&listelm->field);				\
 } while (0)
 
 #define	TAILQ_INSERT_HEAD(head, elm, field) do {			\
@@ -242,8 +237,6 @@ struct {								\
 		(head)->tqh_last = &TAILQ_NEXT((elm), field);		\
 	TAILQ_FIRST((head)) = (elm);					\
 	(elm)->field.tqe_prev = &TAILQ_FIRST((head));			\
-	QMD_TRACE_HEAD(head);						\
-	QMD_TRACE_ELEM(&(elm)->field);					\
 } while (0)
 
 #define	TAILQ_INSERT_TAIL(head, elm, field) do {			\
@@ -251,8 +244,6 @@ struct {								\
 	(elm)->field.tqe_prev = (head)->tqh_last;			\
 	*(head)->tqh_last = (elm);					\
 	(head)->tqh_last = &TAILQ_NEXT((elm), field);			\
-	QMD_TRACE_HEAD(head);						\
-	QMD_TRACE_ELEM(&(elm)->field);					\
 } while (0)
 
 #define	TAILQ_LAST(head, headname)					\
@@ -269,12 +260,10 @@ struct {								\
 		    (elm)->field.tqe_prev;				\
 	else {								\
 		(head)->tqh_last = (elm)->field.tqe_prev;		\
-		QMD_TRACE_HEAD(head);					\
 	}								\
 	*(elm)->field.tqe_prev = TAILQ_NEXT((elm), field);		\
 	TRASHIT((elm)->field.tqe_next);					\
 	TRASHIT((elm)->field.tqe_prev);					\
-	QMD_TRACE_ELEM(&(elm)->field);					\
 } while (0)
 /*
  * Singly-linked Tail queue declarations.

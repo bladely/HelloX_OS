@@ -66,6 +66,7 @@
 //must put the driver entry in proper order.For example,file system driver's entry
 //point should be put ahead of storage device driver's entry point.
 //
+extern BOOL E1000DrvEntry(__DRIVER_OBJECT* lpDriverObject);
 __DRIVER_ENTRY DriverEntryArray[] = {
 #ifdef __CFG_DRV_KEYBOARD
 	KBDriverEntry,     //Key board driver entry.
@@ -98,6 +99,7 @@ __DRIVER_ENTRY DriverEntryArray[] = {
 #ifdef __CFG_DRV_SDIO //Only available under STM32.
   SDIODriverEntry,
 #endif
+	E1000DrvEntry,
 	NULL               //Terminator of the driver entry array.
 };
 

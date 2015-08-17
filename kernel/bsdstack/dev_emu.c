@@ -74,6 +74,7 @@ BOOL InitE1000(__PHYSICAL_DEVICE* phydev)
 				lem_driver_version);
 		//_hx_printf("%s\n", dev->desc);
 		lem_attach(dev);
+
 		return TRUE;
 	}
 	else
@@ -108,7 +109,7 @@ static BOOL E1000IntHandler(LPVOID pParam,LPVOID pEsp)
 	__DEVICE_MESSAGE dmsg;
 	UCHAR  data;
 
-	
+	_hx_printf("enter %s\n", __FUNCTION__);
 	return TRUE;
 }
 //Main entry point of MOUSE driver.
@@ -119,10 +120,10 @@ BOOL E1000DrvEntry(__DRIVER_OBJECT* lpDriverObject)
 
 	//Initialize the mouse device.
 	//if(!InitE1000())
-	{
-		goto __TERMINAL;
-	}
-	
+	//{
+	//	goto __TERMINAL;
+	//}
+	PrintLine("enter E1000DrvEntry.");
 	g_hE1kIntHandler = ConnectInterrupt(E1000IntHandler,
 		NULL,
 		EM_INT_VECTOR);

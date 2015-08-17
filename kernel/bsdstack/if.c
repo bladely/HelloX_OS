@@ -328,6 +328,7 @@ if_attach(struct ifnet *ifp)
 	IFNET_WLOCK();
 	
 	TAILQ_INSERT_TAIL(&ifnet_head, ifp, if_link);
+	
 	IFNET_WUNLOCK();
 	/*
 	 * XXX -
@@ -768,11 +769,7 @@ ifunit(const char *name)
 
 	IFNET_RLOCK();
 	TAILQ_FOREACH(ifp, &ifnet_head, if_link) {
-#if 1   /*KJZ*/
 		if (strncmp(ifname, ifp->if_xname, IFNAMSIZ) == 0)
-#else
-		if (strncmp(name, ifp->if_xname, IFNAMSIZ) == 0)
-#endif
 			break;
 	}
 	IFNET_RUNLOCK();
@@ -1155,11 +1152,11 @@ ifioctl(struct socket *so, u_long cmd, caddr_t data, struct thread *td)
 	case SIOCIFGCLONERS:
 		return (if_clone_list((struct if_clonereq *)data));
 	}
-	
+
 	ifp = ifunit(ifr->ifr_name);
 	if (ifp == 0)
 		return (ENXIO);
-	_hx_printf("%s %d\n", __FUNCTION__, __LINE__);
+		
 	error = ifhwioctl(cmd, ifp, data, td);
 	if (error != ENOIOCTL)
 		return (error);
@@ -1208,6 +1205,7 @@ ifioctl(struct socket *so, u_long cmd, caddr_t data, struct thread *td)
 		case OSIOCGIFNETMASK:
 			cmd = SIOCGIFNETMASK;
 		}
+		
 		error =  ((*so->so_proto->pr_usrreqs->pru_control)(so,
 								   cmd,
 								   data,

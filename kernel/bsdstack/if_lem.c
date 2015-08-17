@@ -232,7 +232,7 @@ lem_probe(__PHYSICAL_DEVICE* phydev)
  *********************************************************************/
 
  int
-lem_attach(device_t dev, __PHYSICAL_DEVICE*phydev)
+lem_attach(device_t dev)
 {
 	struct adapter	*adapter;
 	int		tsize, rsize;
@@ -448,7 +448,6 @@ lem_attach(device_t dev, __PHYSICAL_DEVICE*phydev)
 	//error = lem_allocate_irq(adapter);
 	//if (error)
 	//	goto err_rx_struct;
-	
 	/*
 	 * Get Wake-on-Lan and Management info for later use
 	 */
@@ -2192,6 +2191,7 @@ lem_setup_interface(device_t dev, struct adapter *adapter)
 		return (-1);
 	}
 	if_initname(ifp, device_get_name(dev), device_get_unit(dev));
+	
 	ifp->if_mtu = ETHERMTU;
 	ifp->if_init =  lem_init;
 	ifp->if_softc = adapter;

@@ -69,8 +69,8 @@
 #define msec_delay_irq(x) DELAY(1000*(x))
 
 #define MSGOUT(S, A, B)     printf(S "\n", A, B)
-#define DEBUGFUNC(F)        printf(F "\n")
-#define DEBUGOUT(S)			do {printf(S "\n");} while (0)
+#define DEBUGFUNC(F)        
+#define DEBUGOUT(S)			do {} while (0)
 #define DEBUGOUT1(S,A)			do {} while (0)
 #define DEBUGOUT2(S,A,B)		do {} while (0)
 #define DEBUGOUT3(S,A,B,C)		do {} while (0)

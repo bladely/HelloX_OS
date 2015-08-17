@@ -223,7 +223,7 @@
 #endif
 
 /* Defines for printing debug information */
-#define DEBUG_INIT  1
+#define DEBUG_INIT  0
 #define DEBUG_IOCTL 1
 #define DEBUG_HW    1
 

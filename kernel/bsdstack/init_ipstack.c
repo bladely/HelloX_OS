@@ -63,7 +63,7 @@ void BISStartup()
 		ifCfg = ifCfg->next;
 		i ++;
 	}*/
-	
+	PciMatchDriver();
 	uma_startup(NULL);
 	mbuf_init(NULL);
 	domaininit(NULL);

@@ -27,7 +27,7 @@ void routepr();
 void pmsg_addrs(char *cp, int addrs);
 void pmsg_common(struct rt_msghdr *rtm);
 void sockaddr(char *addr, 	struct sockaddr *sa);
-
+void show_ip_interface();
 
 extern int errno;
 
@@ -109,25 +109,6 @@ int set_lookbackIpAddr(int cfgId)
 
 int set_ipAddr(int cfgId, char *devName, char if_index, char * ipAddr)
 {	
-#if 0
-	struct ifreq ifr;
-	struct sockaddr_in sin;
-	memset(&ifr, 0, sizeof(ifr));
-	memset(&sin, 0, sizeof(sin));
-	strcpy(ifr.ifr_name, ENUM_DEV);
-	
-	sin.sin_family = AF_INET;
-	sin.sin_len = sizeof(sin);
-	sin.sin_addr.s_addr = htonl(inet_addr(ipAddr));
-	memcpy((char *) &ifr.ifr_addr, (char *) &sin, sizeof(struct sockaddr_in));
-	if (ioctl(cfgId, SIOCSIFADDR, &ifr) < 0)
-	{
-		printf("set interface error!\n");
-		return -1;
-	}
-	
-    return 0;
-#endif
 	char if_xname[IFNAMSIZ] = {0};
 	struct ifreq		ifr;
 	struct ifaliasreq	ifra;
@@ -139,8 +120,7 @@ int set_ipAddr(int cfgId, char *devName, char if_index, char * ipAddr)
 	memset(&sin, 0, sizeof(sin));
 	sprintf(if_xname, "%s%d", devName, if_index);
 	strcpy(ifr.ifr_name, if_xname);
-	
-	
+
 	
 	/* Then delete it */	
 	memset(&ifra, 0, sizeof(ifra));
@@ -667,28 +647,28 @@ int BISConfig()
 	cfgId = socket(AF_INET, SOCK_DGRAM, IPPROTO_IP);
 	
 	set_lookbackIpAddr(cfgId);
-	
+	set_ipAddr(cfgId, "em", 0, IP_ADDR);
 	so_close(cfgId);
+
+	// Just for test
+	show_ip_interface();
 	return 0;
 }
 //extern IPS_ALL g_ips_all;
 void show_ip_interface()
 {
-#ifdef hellox_dbg
+
 	int cfgId;
-	IPS_CFG_IFA *ifCfg = g_ips_all.config.ifa;
 	cfgId = socket(AF_INET, SOCK_DGRAM, IPPROTO_IP);
 	get_ip(cfgId, "lo", 0);
-	while(ifCfg)
 	{	
 		/* the following functions is for test ioctl, write, read and route */	
-		get_ip(cfgId, ifCfg->ifName, ifCfg->index);
-		get_netmask(cfgId, ifCfg->ifName, ifCfg->index);
+		get_ip(cfgId, "em", 0);
+		get_netmask(cfgId, "em", 0);
 		//get_route(ifCfg->ipaddr);
-		ifCfg = ifCfg->next;
+		
 	}
 	so_close(cfgId);
-#endif
 }
 /*
  * Structures returned by network data base library.  All addresses are

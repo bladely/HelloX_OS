@@ -737,7 +737,7 @@ ether_ifattach(struct ifnet *ifp, const u_int8_t *llc)
 	int i;
 	struct ifaddr *ifa;
 	struct sockaddr_dl *sdl;
-
+	
 	ifp->if_type = IFT_ETHER;
 	ifp->if_addrlen = ETHER_ADDR_LEN;
 	ifp->if_hdrlen = ETHER_HDR_LEN;
