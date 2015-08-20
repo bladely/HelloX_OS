@@ -65,11 +65,11 @@
  * followed here.
  */
 
-#include "sys.h"
+#include "bsdsys.h"
 #include "kqueue.h"
 #include "uma.h"
 #include "socket.h"
-#include "if.h"
+#include "bsdif.h"
 #include "libkern.h"
 
 TAILQ_HEAD(hc_qhead, hc_metrics);

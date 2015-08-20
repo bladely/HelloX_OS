@@ -36,7 +36,7 @@
 #ifndef _FREEBSD_OS_H_
 #define _FREEBSD_OS_H_
 
-#include "sys.h"
+#include "bsdsys.h"
 #include "uio.h"
 #include "stdio.h"
 #include "libkern.h"
@@ -51,7 +51,7 @@
 #include "kin.h"
 #include "in_pcb.h"
 #include "in_var.h"
-#include "if.h"
+#include "bsdif.h"
 #include "if_var.h"
 #include "sockio.h"
 #include "kroute.h"
@@ -93,11 +93,11 @@
 #define E1000_MUTEX_TRYLOCK(mutex)      mtx_trylock(mutex)
 #define E1000_MUTEX_UNLOCK(mutex)       mtx_unlock(mutex)
 
-typedef __uint64_t	u64;
+typedef uint64_t	u64;
 typedef __uint32_t	u32;
 typedef __uint16_t	u16;
 typedef __uint8_t		u8;
-typedef __int64		s64;
+typedef int64_t		s64;
 typedef __int32_t		s32;
 typedef __int16_t		s16;
 typedef __int8_t		s8;

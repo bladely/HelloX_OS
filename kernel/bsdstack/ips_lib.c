@@ -3,14 +3,14 @@
 /********************************************************/
 
 #include "uio.h"
-#include "sys.h"
+#include "bsdsys.h"
 #include "libkern.h"
 #include "kin.h"
-#include "ip.h"
+#include "bsdip.h"
 #include "ip_icmp.h"
 #include "socket.h"
 #include "sockio.h"
-#include "if.h"
+#include "bsdif.h"
 #include "if_dl.h"
 #include "ethernet.h"
 #include "kroute.h"

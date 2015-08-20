@@ -1,5 +1,5 @@
 
-#include "sys.h"
+#include "bsdsys.h"
 
 #include "param.h"
 	//#include <sys/systm.h>

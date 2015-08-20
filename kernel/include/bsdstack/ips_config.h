@@ -3,7 +3,7 @@
 /********************************************************/
 #ifndef INCLUDE_CONFIG_IPS_FILE
 #define INCLUDE_CONFIG_IPS_FILE
-#include "sys.h"
+#include "bsdsys.h"
 
 
 typedef struct  _tagIPS_CFG_IFA

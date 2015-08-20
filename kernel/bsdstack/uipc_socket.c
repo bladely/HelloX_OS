@@ -1,4 +1,4 @@
-#include "sys.h"
+#include "bsdsys.h"
 #include "uio.h"
 #include "stdio.h"
 #include "libkern.h"
@@ -11,7 +11,7 @@
 #include "uma.h"
 #include "kmalloc.h"
 #include "ktime.h"
-#include "if.h"
+#include "bsdif.h"
 #include "kpoll.h"
 /*
  * Socket operation routines.

@@ -1,4 +1,4 @@
-#include "sys.h"
+#include "bsdsys.h"
 #include "sysproto.h"
 #include "domain.h"
 #include "protosw.h"
@@ -641,7 +641,7 @@ sendit(td, s, mp, flags)
 	} else {
 		control = NULL;
 	}
-
+	
 	error = kern_sendit(td, s, mp, flags, control);
 
 bad:
@@ -663,19 +663,22 @@ kern_sendit(td, s, mp, flags, control)
 	struct socket *so;
 	int i;
 	int len, error;
-
+	
 	NET_LOCK_GIANT();
 	//if ((error = fgetsock(s, &so, NULL)) != 0)
 	//	goto bad2;
 	so = (struct socket *)s;
 
 	auio.uio_iov = mp->msg_iov;
+	
 	auio.uio_iovcnt = mp->msg_iovlen;
 	auio.uio_segflg = UIO_SYSSPACE;//UIO_USERSPACE;LUOYU
 	auio.uio_rw = UIO_WRITE;
 	auio.uio_td = td;
-	auio.uio_offset = 0;			/* XXX */
+
+	auio.uio_offset = 0;
 	auio.uio_resid = 0;
+
 	iov = mp->msg_iov;
 	for (i = 0; i < mp->msg_iovlen; i++, iov++) {
 		if ((auio.uio_resid += iov->iov_len) < 0) {
@@ -684,6 +687,7 @@ kern_sendit(td, s, mp, flags, control)
 		}
 	}
 	len = auio.uio_resid;
+	
 	error = so->so_proto->pr_usrreqs->pru_sosend(so, mp->msg_name, &auio,
 	    0, control, flags, td);
 	if (error) {
@@ -729,6 +733,7 @@ sendto(int	s,
 	msg.msg_control = 0;
 	aiov.iov_base = buf;
 	aiov.iov_len = len;
+	
 	error = sendit(NULL, s, &msg, flags);
 	return (error);
 }
@@ -772,7 +777,8 @@ recvit(td, s, mp, namelenp)
 	auio.uio_segflg = UIO_SYSSPACE;
 	auio.uio_rw = UIO_READ;
 	auio.uio_td = td;
-	auio.uio_offset = 0;			/* XXX */
+	//INIT_U64_0(auio.uio_offset);			/* XXX */
+	auio.uio_offset = 0;
 	auio.uio_resid = 0;
 	iov = mp->msg_iov;
 	for (i = 0; i < mp->msg_iovlen; i++, iov++) {
@@ -1099,7 +1105,7 @@ int so_write(int fd, void *buf, int nbyte)
 	aiov.iov_len = nbyte;
 	auio.uio_iov = &aiov;
 	auio.uio_iovcnt = 1;
-	auio.uio_offset = (__off_t)-1;
+	auio.uio_offset = (__off_t) -1;
 	if (nbyte > INT_MAX)
 		return (EINVAL);
 	auio.uio_resid = nbyte;
@@ -1121,7 +1127,7 @@ int so_read(int fd, void *buf, int nbyte)
 	aiov.iov_len = nbyte;
 	auio.uio_iov = &aiov;
 	auio.uio_iovcnt = 1;
-	auio.uio_offset = (__off_t)-1;
+	auio.uio_offset = (__off_t) -1;
 	if (nbyte > INT_MAX)
 		return (EINVAL);
 	auio.uio_resid = nbyte;

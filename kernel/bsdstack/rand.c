@@ -1,4 +1,4 @@
-#include <sys.h>
+#include <bsdsys.h>
 #include <param.h>
 #include <ktime.h>
 #include <libkern.h>

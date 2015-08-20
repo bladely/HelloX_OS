@@ -32,7 +32,7 @@
 
 #ifndef _SYS_MALLOC_H_
 #define	_SYS_MALLOC_H_
-#include "sys.h"
+#include "bsdsys.h"
 #include "kqueue.h"
 
 #define	MINALLOCSIZE	UMA_SMALLEST_UNIT
@@ -53,7 +53,7 @@ struct malloc_type {
 	u_long 	ks_memuse;	/* total memory held in bytes */
 	u_long	ks_size;	/* sizes of this thing that are allocated */
 	u_long	ks_inuse;	/* # of packets of this type currently in use */
-	__int64 ks_calls;	/* total packets of this type ever allocated */
+	int64_t ks_calls;	/* total packets of this type ever allocated */
 	u_long	ks_maxused;	/* maximum number ever used */
 	u_long	ks_magic;	/* if it's not magic, don't touch it */
 	const char *ks_shortdesc;	/* short description */

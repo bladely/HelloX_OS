@@ -31,7 +31,7 @@
 
 ******************************************************************************/
 /*$FreeBSD: release/9.0.0/sys/dev/e1000/if_lem.c 225640 2011-09-17 13:48:09Z rstone $*/
-#include "sys.h"
+#include "bsdsys.h"
 #include "uio.h"
 #include "stdio.h"
 #include "bus_at386.h"
@@ -41,9 +41,9 @@
 #include "pcireg.h"
 #include "pcivar.h"
 #include "mbuf.h"
-#include "ip.h"
-#include "tcp.h"
-#include "udp.h"
+#include "bsdip.h"
+#include "bsdtcp.h"
+#include "bsdudp.h"
 extern int bootverbose;
 
 /*********************************************************************
@@ -653,7 +653,7 @@ lem_start_locked(struct ifnet *ifp)
 	struct mbuf	*m_head;
 
 	EM_TX_LOCK_ASSERT(adapter);
-
+	printf("%s %d\n", __FUNCTION__, __LINE__);
 	/*if ((ifp->if_drv_flags & (IFF_DRV_RUNNING|IFF_DRV_OACTIVE)) !=
 	    IFF_DRV_RUNNING)
 		return;*/
@@ -709,8 +709,8 @@ lem_start(struct ifnet *ifp)
 	struct adapter *adapter = ifp->if_softc;
 
 	EM_TX_LOCK(adapter);
-	/*if (ifp->if_drv_flags & IFF_DRV_RUNNING)
-		lem_start_locked(ifp);*/
+	//if (ifp->if_drv_flags & IFF_DRV_RUNNING)
+	lem_start_locked(ifp);
 	EM_TX_UNLOCK(adapter);
 }
 
@@ -732,7 +732,7 @@ lem_ioctl(struct ifnet *ifp, u_long command, caddr_t data)
 	struct ifaddr *ifa = (struct ifaddr *)data;
 #endif
 	int error = 0;
-
+	
 	if (adapter->in_detach)
 		return (error);
 
@@ -740,6 +740,7 @@ lem_ioctl(struct ifnet *ifp, u_long command, caddr_t data)
 	case SIOCSIFADDR:
 #ifdef INET
 		if (ifa->ifa_addr->sa_family == AF_INET) {
+			printf("%s:%d AF_INET\n", __FUNCTION__, __LINE__);
 			/*
 			 * XXX
 			 * Since resetting hardware takes a very long time
@@ -748,11 +749,11 @@ lem_ioctl(struct ifnet *ifp, u_long command, caddr_t data)
 			 * required.
 			 */
 			ifp->if_flags |= IFF_UP;
-			/*if (!(ifp->if_drv_flags & IFF_DRV_RUNNING)) {
+			//if (!(ifp->if_drv_flags & IFF_DRV_RUNNING)) {
 				EM_CORE_LOCK(adapter);
 				lem_init_locked(adapter);
 				EM_CORE_UNLOCK(adapter);
-			}*/
+			//}
 			arp_ifinit(ifp, ifa);
 		} else
 #endif
@@ -1054,7 +1055,9 @@ lem_init_locked(struct adapter *adapter)
 	/* AMT based hardware can now take control from firmware */
 	if (adapter->has_manage && adapter->has_amt)
 		lem_get_hw_control(adapter);
-
+	ifp->if_flags |= IFF_RUNNING;
+	ifp->if_flags &= ~IFF_OACTIVE;
+	printf("%s:%d if_flags 0x%x\n", __FUNCTION__, __LINE__, ifp->if_flags);
 	/* Don't reset the phy next time init gets called */
 	adapter->hw.phy.reset_disable = TRUE;
 }
@@ -2489,6 +2492,8 @@ fail:
   void
 lem_setup_transmit_structures(struct adapter *adapter)
 {
+#if 0
+LUOYU 
 	struct em_buffer *tx_buffer;
 	int i;
 	/* Clear the old ring contents */
@@ -2514,7 +2519,7 @@ lem_setup_transmit_structures(struct adapter *adapter)
 
 	bus_dmamap_sync(adapter->txdma.dma_tag, adapter->txdma.dma_map,
 	    BUS_DMASYNC_PREREAD | BUS_DMASYNC_PREWRITE);
-
+#endif
 	return;
 }
 
@@ -3031,6 +3036,7 @@ fail:
   int
 lem_setup_receive_structures(struct adapter *adapter)
 {
+#if 0
 	struct em_buffer *rx_buffer;
 	int i, error;
 
@@ -3054,14 +3060,14 @@ lem_setup_receive_structures(struct adapter *adapter)
 	for (i = 0; i < adapter->num_rx_desc; i++) {
 		error = lem_get_buf(adapter, i);
 		if (error)
-                        return (error);
+            return (error);
 	}
 
 	/* Setup our descriptor pointers */
 	adapter->next_rx_desc_to_check = 0;
 	bus_dmamap_sync(adapter->rxdma.dma_tag, adapter->rxdma.dma_map,
 	    BUS_DMASYNC_PREREAD | BUS_DMASYNC_PREWRITE);
-
+#endif
 	return (0);
 }
 

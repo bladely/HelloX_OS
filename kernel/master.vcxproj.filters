@@ -647,6 +647,12 @@
     <ClCompile Include="bsdstack\busdma_machdep.c">
       <Filter>Source Files\kernel\bsdstack</Filter>
     </ClCompile>
+    <ClCompile Include="bsdstack\test_func.c">
+      <Filter>Source Files\kernel\bsdstack</Filter>
+    </ClCompile>
+    <ClCompile Include="bsdstack\test_rawsocket.c">
+      <Filter>Source Files\kernel\bsdstack</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\arch\bpstruct.h">

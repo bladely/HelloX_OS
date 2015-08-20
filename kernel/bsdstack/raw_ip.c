@@ -1,4 +1,4 @@
-#include "sys.h"
+#include "bsdsys.h"
 #include "uio.h"
 #include "stdio.h"
 #include "libkern.h"
@@ -11,13 +11,13 @@
 #include "uma.h"
 #include "kmalloc.h"
 #include "ktime.h"
-#include "if.h"
+#include "bsdif.h"
 #include "if_var.h"
 #include "in_pcb.h"
 #include "in_var.h"
 #include "tcp_var.h"
 
-#include "ip.h"
+#include "bsdip.h"
 #include "ip_mroute.h"
 #include "tcp_ip.h"
 
@@ -188,7 +188,7 @@ rip_output(struct mbuf *m, struct socket *so, u_long dst)
 	int error;
 	struct inpcb *inp = sotoinpcb(so);
 	int flags = (so->so_options & SO_DONTROUTE) | IP_ALLOWBROADCAST;
-
+	printf("enter rip_output\n");
 	/*
 	 * If the user handed us a complete IP packet, use it.
 	 * Otherwise, allocate an mbuf for a header and fill it in.
@@ -253,7 +253,7 @@ rip_output(struct mbuf *m, struct socket *so, u_long dst)
 #ifdef MAC
 	mac_create_mbuf_from_inpcb(inp, m);
 #endif
-
+	
 	error = bsd_ip_output(m, inp->inp_options, NULL, flags,
 	    inp->inp_moptions, inp);
 	INP_UNLOCK(inp);
@@ -704,7 +704,7 @@ rip_send(struct socket *so, int flags, struct mbuf *m, struct sockaddr *nam,
 	struct inpcb *inp;
 	u_long dst;
 	int ret;
-
+	
 	INP_INFO_WLOCK(&ripcbinfo);
 	inp = sotoinpcb(so);
 	if (so->so_state & SS_ISCONNECTED) {
@@ -722,6 +722,7 @@ rip_send(struct socket *so, int flags, struct mbuf *m, struct sockaddr *nam,
 		}
 		dst = ((struct sockaddr_in *)nam)->sin_addr.s_addr;
 	}
+	
 	ret = rip_output(m, so, dst);
 	INP_INFO_WUNLOCK(&ripcbinfo);
 	return ret;

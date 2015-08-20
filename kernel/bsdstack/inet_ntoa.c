@@ -27,7 +27,7 @@
  * SUCH DAMAGE.
  */
 
-#include <sys.h>
+#include <bsdsys.h>
 
 #include <param.h>
 

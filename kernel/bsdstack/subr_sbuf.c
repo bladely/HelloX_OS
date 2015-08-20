@@ -26,7 +26,7 @@
  * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <sys.h>
+#include <bsdsys.h>
 #include <param.h>
 #include <sbuf.h>
 #include <stdio.h>

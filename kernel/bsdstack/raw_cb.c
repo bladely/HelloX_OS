@@ -30,7 +30,7 @@
  *           src/sys/net/raw_cb.c,v 1.29.4.1 2004/10/21 09:30:46 rwatson Exp $
  */
 
-#include "sys.h"
+#include "bsdsys.h"
 #include "uio.h"
 #include "stdio.h"
 #include "libkern.h"
@@ -43,13 +43,13 @@
 #include "uma.h"
 #include "kmalloc.h"
 #include "ktime.h"
-#include "if.h"
+#include "bsdif.h"
 #include "if_var.h"
 #include "in_pcb.h"
 #include "in_var.h"
 #include "tcp_var.h"
 
-#include "ip.h"
+#include "bsdip.h"
 #include "ip_mroute.h"
 #include "raw_cb.h"
 

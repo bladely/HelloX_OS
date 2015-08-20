@@ -34,11 +34,11 @@
 #define	_SYS_MBUF_H_
 
 /* XXX: These includes suck. Sorry! */
-#include "sys.h"
+#include "bsdsys.h"
 #include "kqueue.h"
 #include "uma.h"
 #include "socket.h"
-#include "if.h"
+#include "bsdif.h"
 // copy from pfil.h
 #define PFIL_IN		0x00000001
 #define PFIL_OUT	0x00000002

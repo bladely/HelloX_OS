@@ -31,7 +31,7 @@
 
 ******************************************************************************/
 /*$FreeBSD: release/9.0.0/sys/dev/e1000/e1000_nvm.c 218530 2011-02-11 01:00:26Z jfv $*/
-#include "sys.h"
+#include "bsdsys.h"
 #include "uio.h"
 #include "stdio.h"
 #include "bus_at386.h"
@@ -40,9 +40,9 @@
 #include "if_lem.h"
 #include "pcireg.h"
 #include "mbuf.h"
-#include "ip.h"
-#include "tcp.h"
-#include "udp.h"
+#include "bsdip.h"
+#include "bsdtcp.h"
+#include "bsdudp.h"
 #include "e1000_api.h"
 
 static void e1000_reload_nvm_generic(struct e1000_hw *hw);

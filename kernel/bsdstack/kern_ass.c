@@ -1,4 +1,4 @@
-#include "sys.h"
+#include "bsdsys.h"
 #include "uio.h"
 #include "stdio.h"
 #include "libkern.h"
@@ -18,7 +18,7 @@
 #include "kroute.h"
 #include "ktime.h"
 #include "netisr.h"
-#include "ip.h"
+#include "bsdip.h"
 static void	doselwakeup(struct selinfo *, int);
 
 //#define ADDCARRY(x)  (x > 65535 ? x -= 65535 : x)

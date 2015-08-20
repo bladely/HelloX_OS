@@ -1,6 +1,6 @@
 #ifndef _SYS_EVENT_H_
 #define _SYS_EVENT_H_
-#include "sys.h"
+#include "bsdsys.h"
 #include "interrupt.h"
 #include "kqueue.h"
 #define EVFILT_READ		(-1)

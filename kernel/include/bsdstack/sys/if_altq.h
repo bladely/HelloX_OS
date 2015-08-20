@@ -28,7 +28,7 @@
  */
 #ifndef _ALTQ_IF_ALTQ_H_
 #define	_ALTQ_IF_ALTQ_H_
-#include <sys.h>
+#include <bsdsys.h>
 #if (defined(__KYLIN__) && __KYLIN_version >= 500000)
 #include <sys/lock.h>		/* XXX */
 #include <sys/mutex.h>		/* XXX */
@@ -122,12 +122,12 @@ struct altq_tag {
  * independent manner.
  */
 struct tb_regulator {
-	__int64		tbr_rate;	/* (scaled) token bucket rate */
-	__int64		tbr_depth;	/* (scaled) token bucket depth */
+	int64_t		tbr_rate;	/* (scaled) token bucket rate */
+	int64_t		tbr_depth;	/* (scaled) token bucket depth */
 
-	__int64		tbr_token;	/* (scaled) current token */
-	__int64 	tbr_filluptime;	/* (scaled) time to fill up bucket */
-	__uint64_t	tbr_last;	/* last time token was updated */
+	int64_t		tbr_token;	/* (scaled) current token */
+	int64_t 	tbr_filluptime;	/* (scaled) time to fill up bucket */
+	uint64_t	tbr_last;	/* last time token was updated */
 
 	int		tbr_lastop;	/* last dequeue operation type
 					   needed for poll-and-dequeue */

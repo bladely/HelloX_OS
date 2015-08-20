@@ -40,7 +40,7 @@
  * 82547EI Gigabit Ethernet Controller
  * 82547GI Gigabit Ethernet Controller
  */
-#include "sys.h"
+#include "bsdsys.h"
 #include "uio.h"
 #include "stdio.h"
 #include "bus_at386.h"
@@ -49,9 +49,9 @@
 #include "if_lem.h"
 #include "pcireg.h"
 #include "mbuf.h"
-#include "ip.h"
-#include "tcp.h"
-#include "udp.h"
+#include "bsdip.h"
+#include "bsdtcp.h"
+#include "bsdudp.h"
 #include "e1000_api.h"
 
 static s32  e1000_init_phy_params_82541(struct e1000_hw *hw);

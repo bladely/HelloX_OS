@@ -33,7 +33,7 @@
  *           src/sys/netinet/tcp_syncache.c,v 1.66.2.1 2004/09/23 16:38:53 andre Exp $
  */
 
-#include "sys.h"
+#include "bsdsys.h"
 #include "uio.h"
 #include "stdio.h"
 #include "libkern.h"
@@ -45,10 +45,10 @@
 #include "socketvar.h"
 #include "uma.h"
 #include "kmalloc.h"
-#include "if.h"
+#include "bsdif.h"
 #include "in_pcb.h"
 #include "in_var.h"
-#include "ip.h"
+#include "bsdip.h"
 #include "tcp_var.h"
 #include "tcp_fsm.h"
 #include "ktime.h"

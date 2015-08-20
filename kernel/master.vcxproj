@@ -76,7 +76,7 @@
       <ExceptionHandling>false</ExceptionHandling>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <BufferSecurityCheck>false</BufferSecurityCheck>
-      <EnableEnhancedInstructionSet>NotSet</EnableEnhancedInstructionSet>
+      <EnableEnhancedInstructionSet>NoExtensions</EnableEnhancedInstructionSet>
     </ClCompile>
     <Midl>
       <SuppressStartupBanner>true</SuppressStartupBanner>
@@ -215,6 +215,8 @@
     <ClCompile Include="bsdstack\tcp_syncache.c" />
     <ClCompile Include="bsdstack\tcp_timer.c" />
     <ClCompile Include="bsdstack\tcp_usrreq.c" />
+    <ClCompile Include="bsdstack\test_func.c" />
+    <ClCompile Include="bsdstack\test_rawsocket.c" />
     <ClCompile Include="bsdstack\udp_usrreq.c" />
     <ClCompile Include="bsdstack\uipc_domain.c" />
     <ClCompile Include="bsdstack\uipc_mbuf.c" />

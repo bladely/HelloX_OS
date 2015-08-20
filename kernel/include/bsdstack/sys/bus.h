@@ -29,8 +29,8 @@
 #ifndef _SYS_BUS_H_
 #define _SYS_BUS_H_
 
-#include "sys.h"
-#include "if.h"
+#include "bsdsys.h"
+#include "bsdif.h"
 #include <_bus_dma.h>
 
 /**
@@ -69,7 +69,7 @@ struct u_device {
 
 
 #include <kqueue.h>
-#include "if.h"
+#include "bsdif.h"
 /**
  * devctl hooks.  Typically one should use the devctl_notify
  * hook to send the message.  However, devctl_queue_data is also

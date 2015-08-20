@@ -1,7 +1,7 @@
 #ifndef _NETINET_TCP_VAR_H_
 #define _NETINET_TCP_VAR_H_
 
-#include <tcp.h>
+#include <bsdtcp.h>
 
 #include "in_pcb.h"
 #include "libkern.h"

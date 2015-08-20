@@ -1,5 +1,5 @@
 
-#include "sys.h"
+#include "bsdsys.h"
 #include "uio.h"
 #include "stdio.h"
 #include "libkern.h"
@@ -20,7 +20,7 @@
 #include "sockio.h"
 #include "kroute.h"
 #include "netisr.h"
-#include "ip.h"
+#include "bsdip.h"
 #include "ip_var.h"
 #include "ip_icmp.h"
 static int ipfastforward_active = 0;

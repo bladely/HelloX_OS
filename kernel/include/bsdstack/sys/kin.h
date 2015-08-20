@@ -33,7 +33,7 @@
 #ifndef _NETINET_IN_H_
 #define	_NETINET_IN_H_
 
-#include "sys.h"
+#include "bsdsys.h"
 
 
 /* Protocols common to RFC 1700, POSIX, and X/Open. */

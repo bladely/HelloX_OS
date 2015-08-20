@@ -30,7 +30,7 @@
  *           src/sys/net/if_clone.c,v 1.2.2.1 2004/09/20 07:12:21 brooks Exp $
  */
 
-#include "sys.h"
+#include "bsdsys.h"
 #include "uio.h"
 #include "stdio.h"
 #include "libkern.h"
@@ -51,7 +51,7 @@
 #include "sockio.h"
 #include "kroute.h"
 #include "netisr.h"
-#include "ip.h"
+#include "bsdip.h"
 #include "ip_var.h"
 #include "ip_icmp.h"
 

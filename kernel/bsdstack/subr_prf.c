@@ -34,7 +34,7 @@
  *	@(#)subr_prf.c	8.3 (Berkeley) 1/21/94
  */
 
-#include <sys.h>
+#include <bsdsys.h>
 #include <param.h>
 #include <libkern.h>
 /*

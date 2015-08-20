@@ -10,7 +10,7 @@
  * See the source file for legal information
  */
 
-#include "sys.h"
+#include "bsdsys.h"
 #include "uio.h"
 #include "stdio.h"
 #include "libkern.h"

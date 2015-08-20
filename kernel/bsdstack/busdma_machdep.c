@@ -23,7 +23,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  */
-#include "sys.h"
+#include "bsdsys.h"
 #include "uio.h"
 #include "stdio.h"
 #include "bus_at386.h"
@@ -691,14 +691,14 @@ _bus_dmamap_load_buffer(bus_dma_tag_t dmat,
 	vaddr = (vm_offset_t)buf;
 	lastaddr = *lastaddrp;
 	bmask = ~(dmat->boundary - 1);
-
+#if 0
 	for (seg = *segp; buflen > 0 ; ) {
 		bus_size_t max_sgsize;
 		_hx_printf("%s:%d\n", __FUNCTION__, __LINE__);
 		/*
 		 * Get the physical address for this segment.
 		 */
-#if 0		 
+		 
 		if (pmap)
 			curaddr = pmap_extract(pmap, vaddr);
 		else
@@ -717,7 +717,6 @@ _bus_dmamap_load_buffer(bus_dma_tag_t dmat,
 		} else {
 			sgsize = MIN(sgsize, max_sgsize);
 		}
-#endif
 		/*
 		 * Make sure we don't cross any boundaries.
 		 */
@@ -753,6 +752,7 @@ _bus_dmamap_load_buffer(bus_dma_tag_t dmat,
 		vaddr += sgsize;
 		buflen -= sgsize;
 	}
+#endif
 
 	*segp = seg;
 	*lastaddrp = lastaddr;

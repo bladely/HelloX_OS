@@ -1,6 +1,7 @@
 #ifndef __SYS_H__
 #define __SYS_H__
 #include "stdafx.h"
+#include "stdint.h"
 #include "error.h"
 #include "stdio.h"
 #include "stdlib.h"
@@ -18,7 +19,7 @@ typedef char * caddr_t;
 typedef	const char *	c_caddr_t;	/* core address, pointer to const */
 typedef	volatile char *v_caddr_t;	/* core address, pointer to volatile */
 
-typedef unsigned __int64 u_quad_t;
+typedef uint64_t u_quad_t;
 
 typedef	signed char		__int8_t;
 typedef	unsigned char		__uint8_t;
@@ -26,7 +27,7 @@ typedef	short			__int16_t;
 typedef	unsigned short		__uint16_t;
 typedef	int			__int32_t;
 typedef	unsigned int		__uint32_t;
-typedef unsigned __int64 __uint64_t;
+typedef uint64_t __uint64_t;
 typedef	__uint32_t	__vm_paddr_t;
 typedef	__vm_paddr_t	vm_paddr_t;
 /*
@@ -34,19 +35,19 @@ typedef	__vm_paddr_t	vm_paddr_t;
  */
 typedef	__int32_t	__clockid_t;	/* clock_gettime()... */
 typedef	__uint32_t	__fflags_t;	/* file flags */
-typedef	__uint64_t	__fsblkcnt_t;
-typedef	__uint64_t	__fsfilcnt_t;
+typedef	uint64_t	__fsblkcnt_t;
+typedef	uint64_t	__fsfilcnt_t;
 typedef	__uint32_t	__gid_t;
-typedef	__int64	__id_t;		/* can hold a gid_t, pid_t, or uid_t */
+typedef	int64_t	__id_t;		/* can hold a gid_t, pid_t, or uid_t */
 typedef	__uint32_t	__ino_t;	/* inode number */
 typedef	long		__key_t;	/* IPC key (for Sys V IPC) */
 typedef	__int32_t	__lwpid_t;	/* Thread ID (a.k.a. LWP) */
 typedef	__uint16_t	__mode_t;	/* permissions */
 typedef	int		__nl_item;
 typedef	__uint16_t	__nlink_t;	/* link count */
-typedef	__int64	__off_t;	/* file offset */ 
+typedef	 __int64	__off_t;	/* file offset */ 
 typedef	__int32_t	__pid_t;	/* process [group] */
-typedef	__int64	__rlim_t;	/* resource limit (XXX not unsigned) */
+typedef	 int64_t	__rlim_t;	/* resource limit (XXX not unsigned) */
 typedef	__uint8_t	__sa_family_t;
 typedef	__uint32_t	__socklen_t;
 typedef	long		__suseconds_t;	/* microseconds (signed) */
@@ -97,8 +98,8 @@ typedef	__uint32_t	__dev_t;	/* device number */
 
 typedef	__uint32_t	__fixpt_t;	/* fixed point number */
 typedef	__uint32_t	__vm_offset_t;
-typedef	unsigned __int64	__vm_ooffset_t;
-typedef	__uint64_t	__vm_pindex_t;
+typedef	uint64_t	__vm_ooffset_t;
+typedef	uint64_t	__vm_pindex_t;
 typedef	__uint32_t	__vm_size_t;
 
 typedef	__vm_offset_t	vm_offset_t;
@@ -106,8 +107,8 @@ typedef	__vm_ooffset_t	vm_ooffset_t;
 typedef	__vm_paddr_t	vm_paddr_t;
 typedef	__vm_pindex_t	vm_pindex_t;
 typedef	__vm_size_t	vm_size_t;
-typedef	__uint64_t	u_quad_t;	/* quads (deprecated) */
-typedef	__uint64_t	quad_t;
+typedef	uint64_t	u_quad_t;	/* quads (deprecated) */
+typedef	uint64_t	quad_t;
 typedef	quad_t *	qaddr_t;
 #ifndef _INT32_T_DECLARED
 typedef	__int32_t		int32_t;
@@ -224,25 +225,25 @@ typedef	__gid_t		gid_t;		/* group id */
 #define	htobe64(x)	bswap64((x))
 #define	htole16(x)	((uint16_t)(x))
 #define	htole32(x)	((uint32_t)(x))
-#define	htole64(x)	((__uint64_t)(x))
+#define	htole64(x)	((uint64_t)(x))
 
 #define	be16toh(x)	bswap16((x))
 #define	be32toh(x)	bswap32((x))
 #define	be64toh(x)	bswap64((x))
 #define	le16toh(x)	((uint16_t)(x))
 #define	le32toh(x)	((uint32_t)(x))
-#define	le64toh(x)	((__uint64_t)(x))
+#define	le64toh(x)	((uint64_t)(x))
 #else /* _BYTE_ORDER != _LITTLE_ENDIAN */
 #define	htobe16(x)	((uint16_t)(x))
 #define	htobe32(x)	((uint32_t)(x))
-#define	htobe64(x)	((__uint64_t)(x))
+#define	htobe64(x)	((uint64_t)(x))
 #define	htole16(x)	bswap16((x))
 #define	htole32(x)	bswap32((x))
 #define	htole64(x)	bswap64((x))
 
 #define	be16toh(x)	((uint16_t)(x))
 #define	be32toh(x)	((uint32_t)(x))
-#define	be64toh(x)	((__uint64_t)(x))
+#define	be64toh(x)	((uint64_t)(x))
 #define	le16toh(x)	bswap16((x))
 #define	le32toh(x)	bswap32((x))
 #define	le64toh(x)	bswap64((x))
@@ -261,15 +262,15 @@ int __inline max(int a, int b)
 	return a > b ? a : b;
 }
 
-typedef	__int64 intmax_t;
-typedef	__uint64_t	uintmax_t;
+typedef	int64_t intmax_t;
+typedef	uint64_t	uintmax_t;
 typedef	__uint32_t uintptr_t;
 typedef	__uint32_t	ptrdiff_t;
 /*
  * Bus address and size types
  */
 #ifdef PAE
-typedef __uint64_t bus_addr_t;
+typedef uint64_t bus_addr_t;
 #else
 typedef __uint32_t bus_addr_t;
 #endif

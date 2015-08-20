@@ -43,7 +43,7 @@
  * plus some NetBSD extensions.
  */
 
-#include "sys.h"
+#include "bsdsys.h"
 #include "uio.h"
 #include "stdio.h"
 #include "libkern.h"
@@ -58,7 +58,7 @@
 #include "kin.h"
 #include "in_pcb.h"
 #include "in_var.h"
-#include "if.h"
+#include "bsdif.h"
 #include "if_var.h"
 #include "sockio.h"
 #include "kroute.h"

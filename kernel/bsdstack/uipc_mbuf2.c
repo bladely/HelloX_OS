@@ -60,7 +60,7 @@
  *	@(#)uipc_mbuf.c	8.4 (Berkeley) 2/14/95
  */
 
-#include "sys.h"
+#include "bsdsys.h"
 #include "uio.h"
 #include "stdio.h"
 #include "libkern.h"
@@ -73,12 +73,12 @@
 #include "uma.h"
 #include "kmalloc.h"
 #include "ktime.h"
-#include "if.h"
+#include "bsdif.h"
 #include "in_pcb.h"
 #include "in_var.h"
 #include "tcp_var.h"
 #include "tcp_fsm.h"
-#include "ip.h"
+#include "bsdip.h"
 #include "kroute.h"
 #include "tcp_ip.h"
 #include "netisr.h"

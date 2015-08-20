@@ -1,5 +1,5 @@
 
-#include "sys.h"
+#include "bsdsys.h"
 #include "sysproto.h"
 #include "mbuf.h"
 #include "domain.h"

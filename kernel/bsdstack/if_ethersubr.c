@@ -30,7 +30,7 @@
  *           src/sys/net/if_ethersubr.c,v 1.177.2.1 2004/10/16 07:04:49 scottl Exp $
  */
 
-#include "sys.h"
+#include "bsdsys.h"
 #include "uio.h"
 #include "stdio.h"
 #include "libkern.h"
@@ -107,17 +107,18 @@ ether_output(struct ifnet *ifp, struct mbuf *m,
 	int loop_copy = 0;
 	int hlen;	/* link layer header length */
 
-
 	if (ifp->if_flags & IFF_MONITOR)
 		senderr(ENETDOWN);
 	if ((ifp->if_flags & (IFF_UP|IFF_RUNNING)) != (IFF_UP|IFF_RUNNING))
 		senderr(ENETDOWN);
 
 	hlen = ETHER_HDR_LEN;
+	
 	switch (dst->sa_family) {
 #ifdef INET
 	case AF_INET:
 		error = arpresolve(ifp, rt0, m, dst, edst);
+		printf("%s:%d arpresolve return %d\n", __FUNCTION__, __LINE__, error);
 		if (error)
 			return (error == EWOULDBLOCK ? 0 : error);
 		type = htons(ETHERTYPE_IP);
@@ -293,6 +294,7 @@ ether_output_frame(struct ifnet *ifp, struct mbuf *m)
 	 * Queue message on interface, update output statistics if
 	 * successful, and start output if interface not yet active.
 	 */
+	
 	IFQ_HANDOFF(ifp, m, error);
 	return (error);
 }

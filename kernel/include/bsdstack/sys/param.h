@@ -38,7 +38,7 @@
 #ifndef _SYS_PARAM_H_
 #define _SYS_PARAM_H_
 
-#include <sys.h>
+#include <bsdsys.h>
 
 #define	BSD	199506		/* System version (year & month). */
 #define BSD4_3	1

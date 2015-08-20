@@ -34,7 +34,7 @@
 #define	_SYS_UIO_H_
 
 
-#include "sys.h"
+#include "bsdsys.h"
 
 typedef	__int32_t	__ssize_t;		/* byte count or error */
 typedef	__int32_t	__time_t;		/* time()... */
@@ -56,10 +56,10 @@ enum uio_seg {
 #endif
 
 
-struct uio {
+struct  uio {
 	struct	iovec *uio_iov;
 	int	uio_iovcnt;
-	__off_t	uio_offset;
+	__int64 uio_offset;
 	int	uio_resid;
 	enum	uio_seg uio_segflg;
 	enum	uio_rw uio_rw;

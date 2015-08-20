@@ -33,7 +33,7 @@
 #ifndef _SYS_LIBKERN_H_
 #define	_SYS_LIBKERN_H_
 
-#include <sys.h>
+#include <bsdsys.h>
 #include <kin.h>
 
 /* BCD conversions. */
@@ -68,13 +68,13 @@ char	*index(const char *, int);
 int	 bcmp(const void *, const void *, size_t);
 
 
-
+#if 0
 static __inline int
 memcmp(const void *b1, const void *b2, size_t len)
 {
 	return (bcmp(b1, b2, len));
 }
-
+#endif
 
 /* fnmatch() return values. */
 #define	FNM_NOMATCH	1	/* Match failed. */

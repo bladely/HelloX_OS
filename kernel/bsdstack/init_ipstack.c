@@ -2,7 +2,7 @@
 /****************** AUTHOR LUOYU ************************/
 /********************************************************/
 
-#include "sys.h"
+#include "bsdsys.h"
 #include "uio.h"
 #include "stdio.h"
 #include "libkern.h"
@@ -15,12 +15,12 @@
 #include "uma.h"
 #include "kmalloc.h"
 #include "ktime.h"
-#include "if.h"
+#include "bsdif.h"
 #include "in_pcb.h"
 #include "in_var.h"
 #include "tcp_var.h"
 #include "tcp_fsm.h"
-#include "ip.h"
+#include "bsdip.h"
 #include "kroute.h"
 #include "tcp_ip.h"
 #include "netisr.h"
@@ -79,5 +79,6 @@ void BISStartup()
 	arp_init();
 	
 	BISConfig();
+	test_ping("10.1.1.2");
 }
 

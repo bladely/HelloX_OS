@@ -163,7 +163,7 @@ struct sockaddr_storage {
 	unsigned char	ss_len;		/* address length */
 	sa_family_t	ss_family;	/* address family */
 	char		__ss_pad1[_SS_PAD1SIZE];
-	__int64	__ss_align;	/* force desired struct alignment */
+	uint64_t	__ss_align;	/* force desired struct alignment */
 	char		__ss_pad2[_SS_PAD2SIZE];
 };
 

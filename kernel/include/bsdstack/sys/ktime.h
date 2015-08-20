@@ -28,7 +28,7 @@
 #ifndef _SYS__TIMEVAL_H_
 #define _SYS__TIMEVAL_H_
 
-#include <sys.h>
+#include <bsdsys.h>
 #include <uio.h>
 #ifndef _SUSECONDS_T_DECLARED
 typedef	__suseconds_t	suseconds_t;
@@ -123,8 +123,8 @@ struct timecounter {
 struct timehands {
 	/* These fields must be initialized by the driver. */
 	struct timecounter	*th_counter;
-	__int64			th_adjustment;
-	__uint64_t		th_scale;
+	int64_t			th_adjustment;
+	uint64_t		th_scale;
 	u_int	 		th_offset_count;
 	struct bintime		th_offset;
 	struct timeval		th_microtime;

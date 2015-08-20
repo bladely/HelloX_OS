@@ -1,4 +1,4 @@
-#include "sys.h"
+#include "bsdsys.h"
 #include "uio.h"
 #include "stdio.h"
 #include "libkern.h"
@@ -19,8 +19,8 @@
 #include "tcp_var.h"
 #include "ktime.h"
 #include "tcp_ip.h"
-#include "ip.h"
-#include "tcp.h"
+#include "bsdip.h"
+#include "bsdtcp.h"
 #include "tcp_seq.h"
 #include "tcp_fsm.h"
 #include "tcp_timer.h"
@@ -1230,13 +1230,13 @@ tcp_xmit_bandwidth_limit(struct tcpcb *tp, tcp_seq ack_seq)
 	if ((u_int)(save_ticks - tp->t_bw_rtttime) < 1)
 		return;
 
-	bw = (__int64)(ack_seq - tp->t_bw_rtseq) * hz /
+	bw = (int64_t)(ack_seq - tp->t_bw_rtseq) * hz /
 	    (save_ticks - tp->t_bw_rtttime);
 	tp->t_bw_rtttime = save_ticks;
 	tp->t_bw_rtseq = ack_seq;
 	if (tp->t_bw_rtttime == 0 || (int)bw < 0)
 		return;
-	bw = ((__int64)tp->snd_bandwidth * 15 + bw) >> 4;
+	bw = ((int64_t)tp->snd_bandwidth * 15 + bw) >> 4;
 
 	tp->snd_bandwidth = bw;
 
@@ -1269,7 +1269,7 @@ tcp_xmit_bandwidth_limit(struct tcpcb *tp, tcp_seq ack_seq)
 	 *	    no other choice.
 	 */
 #define USERTT	((tp->t_srtt + tp->t_rttbest) / 2)
-	bwnd = (__int64)bw * USERTT / (hz << TCP_RTT_SHIFT) + tcp_inflight_stab * tp->t_maxseg / 10;
+	bwnd = (int64_t)bw * USERTT / (hz << TCP_RTT_SHIFT) + tcp_inflight_stab * tp->t_maxseg / 10;
 #undef USERTT
 
 	if (tcp_inflight_debug > 0) {

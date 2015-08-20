@@ -30,7 +30,7 @@
 #ifndef _SYS_POLL_H_
 #define	_SYS_POLL_H_
 
-#include <sys.h>
+#include <bsdsys.h>
 
 /*
  * This file is intended to be compatible with the traditional poll.h.

@@ -32,7 +32,7 @@
  *
  *           src/sys/pci/if_pcnreg.h,v 1.8 2003/11/14 19:00:31 sam Exp $
  */
-#include "if.h"
+#include "bsdif.h"
 #include "callout.h"
 /*
  * I/O map in 16-bit mode. To switch to 32-bit mode,

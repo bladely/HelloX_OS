@@ -363,7 +363,7 @@ extern	char *ether_sprintf(const u_int8_t *);
 
 #else /* _KERNEL */
 
-#include <sys.h>
+#include <bsdsys.h>
 
 /*
  * Ethernet address conversion/parsing routines.

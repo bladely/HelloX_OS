@@ -33,7 +33,7 @@
 #ifndef _NETINET_UDP_VAR_H_
 #define _NETINET_UDP_VAR_H_
 #include "ip_var.h"
-#include "udp.h"
+#include "bsdudp.h"
 #include "libkern.h"
 /*
  * UDP kernel structures and variables.

@@ -78,10 +78,10 @@ extern "C" {
 #undef ntohl
 #endif /* ntohl */
 
-#define htons(x) lwip_htons(x)
-#define ntohs(x) lwip_ntohs(x)
-#define htonl(x) lwip_htonl(x)
-#define ntohl(x) lwip_ntohl(x)
+//#define htons(x) lwip_htons(x)
+//#define ntohs(x) lwip_ntohs(x)
+//#define htonl(x) lwip_htonl(x)
+//#define ntohl(x) lwip_ntohl(x)
 #endif /* LWIP_PREFIX_BYTEORDER_FUNCS */
 
 #if BYTE_ORDER == BIG_ENDIAN

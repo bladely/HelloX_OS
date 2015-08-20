@@ -30,7 +30,7 @@
  *           src/sys/net/raw_usrreq.c,v 1.34.4.1 2004/10/21 09:30:46 rwatson Exp $
  */
 
-#include "sys.h"
+#include "bsdsys.h"
 #include "uio.h"
 #include "stdio.h"
 #include "libkern.h"
@@ -42,8 +42,8 @@
 #include "socketvar.h"
 #include "uma.h"
 #include "kmalloc.h"
-#include "if.h"
-#include "ip.h"
+#include "bsdif.h"
+#include "bsdip.h"
 #include "in_pcb.h"
 #include "in_var.h"
 

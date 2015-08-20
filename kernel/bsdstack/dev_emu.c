@@ -1,6 +1,6 @@
 
 
-#include "sys.h"
+#include "bsdsys.h"
 #include "uio.h"
 #include "stdio.h"
 #include "libkern.h"
@@ -19,7 +19,7 @@
 #include "sockio.h"
 #include "kroute.h"
 #include "if_dl.h"
-#include "if.h"
+#include "bsdif.h"
 #include "sbuf.h"
 #include "ethernet.h"
 #include "if_vlan_var.h"
@@ -29,9 +29,9 @@
 #include "pcireg.h"
 #include "pcivar.h"
 #include "mbuf.h"
-#include "ip.h"
-#include "tcp.h"
-#include "udp.h"
+#include "bsdip.h"
+#include "bsdtcp.h"
+#include "bsdudp.h"
 //#include "ips_config.h"
 //#include "ip_osal.h"
 #ifndef __STDAFX_H__

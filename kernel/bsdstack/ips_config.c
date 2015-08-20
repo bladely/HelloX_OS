@@ -2,14 +2,14 @@
 /****************** AUTHOR LUOYU ************************/
 /********************************************************/
 #include "uio.h"
-#include "sys.h"
+#include "bsdsys.h"
 #include "libkern.h"
 #include "kin.h"
-#include "ip.h"
+#include "bsdip.h"
 #include "ip_icmp.h"
 #include "socket.h"
 #include "sockio.h"
-#include "if.h"
+#include "bsdif.h"
 #include "if_dl.h"
 #include "ethernet.h"
 #include "kroute.h"
@@ -21,7 +21,7 @@
 #include <process.h>
 //#include "ips_config.h"
 
-const char IP_ADDR[] = "10.1.1.1";
+const char TEST_IP_ADDR[] = "10.1.1.1";
 typedef unsigned short u_short;
 void routepr();
 void pmsg_addrs(char *cp, int addrs);
@@ -647,7 +647,7 @@ int BISConfig()
 	cfgId = socket(AF_INET, SOCK_DGRAM, IPPROTO_IP);
 	
 	set_lookbackIpAddr(cfgId);
-	set_ipAddr(cfgId, "em", 0, IP_ADDR);
+	set_ipAddr(cfgId, "em", 0, TEST_IP_ADDR);
 	so_close(cfgId);
 
 	// Just for test

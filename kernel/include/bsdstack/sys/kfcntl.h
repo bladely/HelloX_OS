@@ -44,7 +44,7 @@
  * related kernel definitions.
  */
 
-//#include "sys.h"
+//#include "bsdsys.h"
 
 
 #ifndef _MODE_T_DECLARED
@@ -172,9 +172,9 @@ typedef	__pid_t		pid_t;
  * information passed to system by user
  */
 struct flock {
-	__int64	l_start;	/* starting offset */
-	__int64	l_len;		/* len = 0 means until end of file */
-	__int64	l_pid;		/* lock owner */
+	int64_t	l_start;	/* starting offset */
+	int64_t	l_len;		/* len = 0 means until end of file */
+	int64_t	l_pid;		/* lock owner */
 	short	l_type;		/* lock type: read/write, etc. */
 	short	l_whence;	/* type of l_start */
 };

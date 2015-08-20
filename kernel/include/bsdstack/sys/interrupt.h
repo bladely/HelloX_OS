@@ -28,7 +28,7 @@
 #ifndef _SYS_INTERRUPT_H_
 #define _SYS_INTERRUPT_H_
 
-#include <sys.h>
+#include <bsdsys.h>
 #include <param.h>
 /**
  * @brief Interrupt type bits.

@@ -1,4 +1,4 @@
-#include "sys.h"
+#include "bsdsys.h"
 #include "stdio.h"
 #include "libkern.h"
 #include "sysproto.h"
@@ -9,7 +9,7 @@
 #include "socketvar.h"
 #include "uma.h"
 #include "kmalloc.h"
-#include "if.h"
+#include "bsdif.h"
 
 
 MALLOC_DEFINE(M_CACHE, "cache", "Various Dynamically allocated caches");
