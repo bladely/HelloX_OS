@@ -16,12 +16,12 @@ static u_int8_t arc4_randbyte(void);
 static __inline void
 arc4_swap(u_int8_t *a, u_int8_t *b)
 {
-	u_int8_t c;
+    u_int8_t c;
 
-	c = *a;
-	*a = *b;
-	*b = c;
-}	
+    c = *a;
+    *a = *b;
+    *b = c;
+}
 
 /*
  * Stir our S-box.
@@ -29,40 +29,42 @@ arc4_swap(u_int8_t *a, u_int8_t *b)
 static void
 arc4_randomstir (void)
 {
-	u_int8_t key[256];
-	int r, n;
-	struct timeval tv_now;
+    u_int8_t key[256];
+    int r, n;
+    struct timeval tv_now;
 
-	/*
-	 * XXX read_random() returns unsafe numbers if the entropy
-	 * device is not loaded -- MarkM.
-	 */
-	r = read_random(key, ARC4_KEYBYTES);
-	getmicrouptime(&tv_now);
-	mtx_lock(&arc4_mtx);
-	/* If r == 0 || -1, just use what was on the stack. */
-	if (r > 0) {
-		for (n = r; n < sizeof(key); n++)
-			key[n] = key[n % r];
-	}
+    /*
+     * XXX read_random() returns unsafe numbers if the entropy
+     * device is not loaded -- MarkM.
+     */
+    r = read_random(key, ARC4_KEYBYTES);
+    getmicrouptime(&tv_now);
+    mtx_lock(&arc4_mtx);
+    /* If r == 0 || -1, just use what was on the stack. */
+    if (r > 0)
+    {
+        for (n = r; n < sizeof(key); n++)
+            key[n] = key[n % r];
+    }
 
-	for (n = 0; n < 256; n++) {
-		arc4_j = (arc4_j + arc4_sbox[n] + key[n]) % 256;
-		arc4_swap(&arc4_sbox[n], &arc4_sbox[arc4_j]);
-	}
+    for (n = 0; n < 256; n++)
+    {
+        arc4_j = (arc4_j + arc4_sbox[n] + key[n]) % 256;
+        arc4_swap(&arc4_sbox[n], &arc4_sbox[arc4_j]);
+    }
 
-	/* Reset for next reseed cycle. */
-	arc4_t_reseed = tv_now.tv_sec + ARC4_RESEED_SECONDS;
-	arc4_numruns = 0;
+    /* Reset for next reseed cycle. */
+    arc4_t_reseed = tv_now.tv_sec + ARC4_RESEED_SECONDS;
+    arc4_numruns = 0;
 
-	/*
-	 * Throw away the first N words of output, as suggested in the
-	 * paper "Weaknesses in the Key Scheduling Algorithm of RC4"
-	 * by Fluher, Mantin, and Shamir.  (N = 256 in our case.)
-	 */
-	for (n = 0; n < 256*4; n++)
-		arc4_randbyte();
-	mtx_unlock(&arc4_mtx);
+    /*
+     * Throw away the first N words of output, as suggested in the
+     * paper "Weaknesses in the Key Scheduling Algorithm of RC4"
+     * by Fluher, Mantin, and Shamir.  (N = 256 in our case.)
+     */
+    for (n = 0; n < 256 * 4; n++)
+        arc4_randbyte();
+    mtx_unlock(&arc4_mtx);
 }
 
 /*
@@ -71,15 +73,15 @@ arc4_randomstir (void)
 static u_int8_t
 arc4_randbyte(void)
 {
-	u_int8_t arc4_t;
+    u_int8_t arc4_t;
 
-	arc4_i = (arc4_i + 1) % 256;
-	arc4_j = (arc4_j + arc4_sbox[arc4_i]) % 256;
+    arc4_i = (arc4_i + 1) % 256;
+    arc4_j = (arc4_j + arc4_sbox[arc4_i]) % 256;
 
-	arc4_swap(&arc4_sbox[arc4_i], &arc4_sbox[arc4_j]);
+    arc4_swap(&arc4_sbox[arc4_i], &arc4_sbox[arc4_j]);
 
-	arc4_t = (arc4_sbox[arc4_i] + arc4_sbox[arc4_j]) % 256;
-	return arc4_sbox[arc4_t];
+    arc4_t = (arc4_sbox[arc4_i] + arc4_sbox[arc4_j]) % 256;
+    return arc4_sbox[arc4_t];
 }
 
 /*
@@ -88,36 +90,36 @@ arc4_randbyte(void)
 void
 arc4rand(void *ptr, u_int len, int reseed)
 {
-	u_char *p;
-	struct timeval tv;
+    u_char *p;
+    struct timeval tv;
 
-	getmicrouptime(&tv);
-	if (reseed || 
-	   (arc4_numruns > ARC4_RESEED_BYTES) ||
-	   (tv.tv_sec > arc4_t_reseed))
-		arc4_randomstir();
+    getmicrouptime(&tv);
+    if (reseed ||
+            (arc4_numruns > ARC4_RESEED_BYTES) ||
+            (tv.tv_sec > arc4_t_reseed))
+        arc4_randomstir();
 
-	mtx_lock(&arc4_mtx);
-	arc4_numruns += len;
-	p = ptr;
-	while (len--)
-		*p++ = arc4_randbyte();
-	mtx_unlock(&arc4_mtx);
+    mtx_lock(&arc4_mtx);
+    arc4_numruns += len;
+    p = ptr;
+    while (len--)
+        *p++ = arc4_randbyte();
+    mtx_unlock(&arc4_mtx);
 }
 
 uint32_t arc4random()
 {
-	uint32_t ret;
+    uint32_t ret;
 
-	arc4rand(&ret, sizeof ret, 0);
-	return ret;
+    arc4rand(&ret, sizeof ret, 0);
+    return ret;
 }
 
 /* Userland-visible version of read_random */
 int
 read_random(void *buf, int count)
 {
-	//return ((*read_func)(buf, count));//LUOYU
-	return 1234567;
+    //return ((*read_func)(buf, count));//LUOYU
+    return 1234567;
 }
 

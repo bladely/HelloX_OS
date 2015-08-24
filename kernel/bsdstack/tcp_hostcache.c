@@ -63,32 +63,34 @@
 
 TAILQ_HEAD(hc_qhead, hc_metrics);
 
-struct hc_head {
-	struct hc_qhead	hch_bucket;
-	u_int		hch_length;
-	struct mtx	hch_mtx;
+struct hc_head
+{
+    struct hc_qhead	hch_bucket;
+    u_int		hch_length;
+    struct mtx	hch_mtx;
 };
 
-struct hc_metrics {
-	/* housekeeping */
-	TAILQ_ENTRY(hc_metrics) rmx_q;
-	struct	hc_head *rmx_head; /* head of bucket tail queue */
-	struct	in_addr ip4;	/* IP address */
-	struct	in6_addr ip6;	/* IP6 address */
-	/* endpoint specific values for tcp */
-	u_long	rmx_mtu;	/* MTU for this path */
-	u_long	rmx_ssthresh;	/* outbound gateway buffer limit */
-	u_long	rmx_rtt;	/* estimated round trip time */
-	u_long	rmx_rttvar;	/* estimated rtt variance */
-	u_long	rmx_bandwidth;	/* estimated bandwidth */
-	u_long	rmx_cwnd;	/* congestion window */
-	u_long	rmx_sendpipe;	/* outbound delay-bandwidth product */
-	u_long	rmx_recvpipe;	/* inbound delay-bandwidth product */
-	struct	rmxp_tao rmx_tao; /* TAO cache for T/TCP */
-	/* tcp hostcache internal data */
-	int	rmx_expire;	/* lifetime for object */
-	u_long	rmx_hits;	/* number of hits */
-	u_long	rmx_updates;	/* number of updates */
+struct hc_metrics
+{
+    /* housekeeping */
+    TAILQ_ENTRY(hc_metrics) rmx_q;
+    struct	hc_head *rmx_head; /* head of bucket tail queue */
+    struct	in_addr ip4;	/* IP address */
+    struct	in6_addr ip6;	/* IP6 address */
+    /* endpoint specific values for tcp */
+    u_long	rmx_mtu;	/* MTU for this path */
+    u_long	rmx_ssthresh;	/* outbound gateway buffer limit */
+    u_long	rmx_rtt;	/* estimated round trip time */
+    u_long	rmx_rttvar;	/* estimated rtt variance */
+    u_long	rmx_bandwidth;	/* estimated bandwidth */
+    u_long	rmx_cwnd;	/* congestion window */
+    u_long	rmx_sendpipe;	/* outbound delay-bandwidth product */
+    u_long	rmx_recvpipe;	/* inbound delay-bandwidth product */
+    struct	rmxp_tao rmx_tao; /* TAO cache for T/TCP */
+    /* tcp hostcache internal data */
+    int	rmx_expire;	/* lifetime for object */
+    u_long	rmx_hits;	/* number of hits */
+    u_long	rmx_updates;	/* number of updates */
 };
 
 /* Arbitrary values */
@@ -97,16 +99,17 @@ struct hc_metrics {
 #define TCP_HOSTCACHE_EXPIRE		60*60	/* one hour */
 #define TCP_HOSTCACHE_PRUNE		5*60	/* every 5 minutes */
 
-struct tcp_hostcache {
-	struct	hc_head *hashbase;
-	uma_zone_t zone;
-	u_int	hashsize;
-	u_int	hashmask;
-	u_int	bucket_limit;
-	u_int	cache_count;
-	u_int	cache_limit;
-	int	expire;
-	int	purgeall;
+struct tcp_hostcache
+{
+    struct	hc_head *hashbase;
+    uma_zone_t zone;
+    u_int	hashsize;
+    u_int	hashmask;
+    u_int	bucket_limit;
+    u_int	cache_count;
+    u_int	cache_limit;
+    int	expire;
+    int	purgeall;
 };
 static struct tcp_hostcache tcp_hostcache;
 
@@ -135,58 +138,60 @@ static void tcp_hc_purge(void *);
 void
 tcp_hc_init(void)
 {
-	int i;
+    int i;
 
-	/*
-	 * Initialize hostcache structures
-	 */
-	tcp_hostcache.cache_count = 0;
-	tcp_hostcache.hashsize = TCP_HOSTCACHE_HASHSIZE;
-	tcp_hostcache.bucket_limit = TCP_HOSTCACHE_BUCKETLIMIT;
-	tcp_hostcache.cache_limit =
-	    tcp_hostcache.hashsize * tcp_hostcache.bucket_limit;
-	tcp_hostcache.expire = TCP_HOSTCACHE_EXPIRE;
+    /*
+     * Initialize hostcache structures
+     */
+    tcp_hostcache.cache_count = 0;
+    tcp_hostcache.hashsize = TCP_HOSTCACHE_HASHSIZE;
+    tcp_hostcache.bucket_limit = TCP_HOSTCACHE_BUCKETLIMIT;
+    tcp_hostcache.cache_limit =
+        tcp_hostcache.hashsize * tcp_hostcache.bucket_limit;
+    tcp_hostcache.expire = TCP_HOSTCACHE_EXPIRE;
 
-	TUNABLE_INT_FETCH("net.inet.tcp.hostcache.hashsize",
-	    &tcp_hostcache.hashsize);
-	TUNABLE_INT_FETCH("net.inet.tcp.hostcache.cachelimit",
-	    &tcp_hostcache.cache_limit);
-	TUNABLE_INT_FETCH("net.inet.tcp.hostcache.bucketlimit",
-	    &tcp_hostcache.bucket_limit);
-	if (!powerof2(tcp_hostcache.hashsize)) {
-		printf("WARNING: hostcache hash size is not a power of 2.\n");
-		tcp_hostcache.hashsize = 512;	/* safe default */
-	}
-	tcp_hostcache.hashmask = tcp_hostcache.hashsize - 1;
+    TUNABLE_INT_FETCH("net.inet.tcp.hostcache.hashsize",
+                      &tcp_hostcache.hashsize);
+    TUNABLE_INT_FETCH("net.inet.tcp.hostcache.cachelimit",
+                      &tcp_hostcache.cache_limit);
+    TUNABLE_INT_FETCH("net.inet.tcp.hostcache.bucketlimit",
+                      &tcp_hostcache.bucket_limit);
+    if (!powerof2(tcp_hostcache.hashsize))
+    {
+        printf("WARNING: hostcache hash size is not a power of 2.\n");
+        tcp_hostcache.hashsize = 512;	/* safe default */
+    }
+    tcp_hostcache.hashmask = tcp_hostcache.hashsize - 1;
 
-	/*
-	 * Allocate the hash table
-	 */
-	tcp_hostcache.hashbase = (struct hc_head *)
-	    malloc(tcp_hostcache.hashsize * sizeof(struct hc_head));
+    /*
+     * Allocate the hash table
+     */
+    tcp_hostcache.hashbase = (struct hc_head *)
+                             malloc(tcp_hostcache.hashsize * sizeof(struct hc_head));
 
-	/*
-	 * Initialize the hash buckets
-	 */
-	for (i = 0; i < tcp_hostcache.hashsize; i++) {
-		TAILQ_INIT(&tcp_hostcache.hashbase[i].hch_bucket);
-		tcp_hostcache.hashbase[i].hch_length = 0;
-		//mtx_init(&tcp_hostcache.hashbase[i].hch_mtx, "tcp_hc_entry",
-		//	  NULL, MTX_DEF);
-	}
+    /*
+     * Initialize the hash buckets
+     */
+    for (i = 0; i < tcp_hostcache.hashsize; i++)
+    {
+        TAILQ_INIT(&tcp_hostcache.hashbase[i].hch_bucket);
+        tcp_hostcache.hashbase[i].hch_length = 0;
+        //mtx_init(&tcp_hostcache.hashbase[i].hch_mtx, "tcp_hc_entry",
+        //	  NULL, MTX_DEF);
+    }
 
-	/*
-	 * Allocate the hostcache entries.
-	 */
-	tcp_hostcache.zone = uma_zcreate("hostcache", sizeof(struct hc_metrics), 10,
-	    NULL, NULL, UMA_ALIGN_PTR, 0);
-	uma_zone_set_max(tcp_hostcache.zone, tcp_hostcache.cache_limit);
+    /*
+     * Allocate the hostcache entries.
+     */
+    tcp_hostcache.zone = uma_zcreate("hostcache", sizeof(struct hc_metrics), 10,
+                                     NULL, NULL, UMA_ALIGN_PTR, 0);
+    uma_zone_set_max(tcp_hostcache.zone, tcp_hostcache.cache_limit);
 
-	/*
-	 * Set up periodic cache cleanup.
-	 */
-	//callout_init(&tcp_hc_callout, CALLOUT_MPSAFE);LUOYU
-	//callout_reset(&tcp_hc_callout, TCP_HOSTCACHE_PRUNE * hz, tcp_hc_purge, 0);
+    /*
+     * Set up periodic cache cleanup.
+     */
+    //callout_init(&tcp_hc_callout, CALLOUT_MPSAFE);LUOYU
+    //callout_reset(&tcp_hc_callout, TCP_HOSTCACHE_PRUNE * hz, tcp_hc_purge, 0);
 }
 
 /*
@@ -198,49 +203,53 @@ tcp_hc_init(void)
 static struct hc_metrics *
 tcp_hc_lookup(struct in_conninfo *inc)
 {
-	int hash;
-	struct hc_head *hc_head;
-	struct hc_metrics *hc_entry;
+    int hash;
+    struct hc_head *hc_head;
+    struct hc_metrics *hc_entry;
 
-	KASSERT(inc != NULL, ("tcp_hc_lookup with NULL in_conninfo pointer"));
+    KASSERT(inc != NULL, ("tcp_hc_lookup with NULL in_conninfo pointer"));
 
-	/*
-	 * Hash the foreign ip address.
-	 */
-	//if (inc->inc_isipv6)LUOYU
-	//	hash = HOSTCACHE_HASH6(&inc->inc6_faddr);
-	//else
-		hash = HOSTCACHE_HASH(&inc->inc_faddr);
+    /*
+     * Hash the foreign ip address.
+     */
+    //if (inc->inc_isipv6)LUOYU
+    //	hash = HOSTCACHE_HASH6(&inc->inc6_faddr);
+    //else
+    hash = HOSTCACHE_HASH(&inc->inc_faddr);
 
-	hc_head = &tcp_hostcache.hashbase[hash];
+    hc_head = &tcp_hostcache.hashbase[hash];
 
-	/*
-	 * aquire lock for this bucket row
-	 * we release the lock if we don't find an entry,
-	 * otherwise the caller has to unlock after he is done
-	 */
-	THC_LOCK(&hc_head->hch_mtx);
+    /*
+     * aquire lock for this bucket row
+     * we release the lock if we don't find an entry,
+     * otherwise the caller has to unlock after he is done
+     */
+    THC_LOCK(&hc_head->hch_mtx);
 
-	/*
-	 * circle through entries in bucket row looking for a match
-	 */
-	TAILQ_FOREACH(hc_entry, &hc_head->hch_bucket, rmx_q) {
-		if (inc->inc_isipv6) {
-			if (memcmp(&inc->inc6_faddr, &hc_entry->ip6,
-			    sizeof(inc->inc6_faddr)) == 0)
-				return hc_entry;
-		} else {
-			if (memcmp(&inc->inc_faddr, &hc_entry->ip4,
-			    sizeof(inc->inc_faddr)) == 0)
-				return hc_entry;
-		}
-	}
+    /*
+     * circle through entries in bucket row looking for a match
+     */
+    TAILQ_FOREACH(hc_entry, &hc_head->hch_bucket, rmx_q)
+    {
+        if (inc->inc_isipv6)
+        {
+            if (memcmp(&inc->inc6_faddr, &hc_entry->ip6,
+                       sizeof(inc->inc6_faddr)) == 0)
+                return hc_entry;
+        }
+        else
+        {
+            if (memcmp(&inc->inc_faddr, &hc_entry->ip4,
+                       sizeof(inc->inc_faddr)) == 0)
+                return hc_entry;
+        }
+    }
 
-	/*
-	 * We were unsuccessful and didn't find anything
-	 */
-	THC_UNLOCK(&hc_head->hch_mtx);
-	return NULL;
+    /*
+     * We were unsuccessful and didn't find anything
+     */
+    THC_UNLOCK(&hc_head->hch_mtx);
+    return NULL;
 }
 
 /*
@@ -253,80 +262,84 @@ tcp_hc_lookup(struct in_conninfo *inc)
 static struct hc_metrics *
 tcp_hc_insert(struct in_conninfo *inc)
 {
-	int hash;
-	struct hc_head *hc_head;
-	struct hc_metrics *hc_entry;
+    int hash;
+    struct hc_head *hc_head;
+    struct hc_metrics *hc_entry;
 
-	KASSERT(inc != NULL, ("tcp_hc_insert with NULL in_conninfo pointer"));
+    KASSERT(inc != NULL, ("tcp_hc_insert with NULL in_conninfo pointer"));
 
-	/*
-	 * Hash the foreign ip address
-	 */
-	//if (inc->inc_isipv6)
-	//	hash = HOSTCACHE_HASH6(&inc->inc6_faddr);
-	//else
-		hash = HOSTCACHE_HASH(&inc->inc_faddr);
+    /*
+     * Hash the foreign ip address
+     */
+    //if (inc->inc_isipv6)
+    //	hash = HOSTCACHE_HASH6(&inc->inc6_faddr);
+    //else
+    hash = HOSTCACHE_HASH(&inc->inc_faddr);
 
-	hc_head = &tcp_hostcache.hashbase[hash];
+    hc_head = &tcp_hostcache.hashbase[hash];
 
-	/*
-	 * aquire lock for this bucket row
-	 * we release the lock if we don't find an entry,
-	 * otherwise the caller has to unlock after he is done
-	 */
-	THC_LOCK(&hc_head->hch_mtx);
+    /*
+     * aquire lock for this bucket row
+     * we release the lock if we don't find an entry,
+     * otherwise the caller has to unlock after he is done
+     */
+    THC_LOCK(&hc_head->hch_mtx);
 
-	/*
-	 * If the bucket limit is reached reuse the least used element
-	 */
-	if (hc_head->hch_length >= tcp_hostcache.bucket_limit ||
-	    tcp_hostcache.cache_count >= tcp_hostcache.cache_limit) {
-		hc_entry = TAILQ_LAST(&hc_head->hch_bucket, hc_qhead);
-		/*
-		 * At first we were dropping the last element, just to
-		 * reaquire it in the next two lines again which ain't
-		 * very efficient. Instead just reuse the least used element.
-		 * Maybe we drop something that is still "in-use" but we can
-		 * be "lossy".
-		 */
-		TAILQ_REMOVE(&hc_head->hch_bucket, hc_entry, rmx_q);
-		tcp_hostcache.hashbase[hash].hch_length--;
-		tcp_hostcache.cache_count--;
-		tcpstat.tcps_hc_bucketoverflow++;
+    /*
+     * If the bucket limit is reached reuse the least used element
+     */
+    if (hc_head->hch_length >= tcp_hostcache.bucket_limit ||
+            tcp_hostcache.cache_count >= tcp_hostcache.cache_limit)
+    {
+        hc_entry = TAILQ_LAST(&hc_head->hch_bucket, hc_qhead);
+        /*
+         * At first we were dropping the last element, just to
+         * reaquire it in the next two lines again which ain't
+         * very efficient. Instead just reuse the least used element.
+         * Maybe we drop something that is still "in-use" but we can
+         * be "lossy".
+         */
+        TAILQ_REMOVE(&hc_head->hch_bucket, hc_entry, rmx_q);
+        tcp_hostcache.hashbase[hash].hch_length--;
+        tcp_hostcache.cache_count--;
+        tcpstat.tcps_hc_bucketoverflow++;
 #if 0
-		uma_free(tcp_hostcache.zone, hc_entry);
+        uma_free(tcp_hostcache.zone, hc_entry);
 #endif
-	} else {
-		/*
-		 * Allocate a new entry, or balk if not possible
-		 */
-		hc_entry = uma_alloc(tcp_hostcache.zone, M_NOWAIT);
-		if (hc_entry == NULL) {
-			THC_UNLOCK(&hc_head->hch_mtx);
-			return NULL;
-		}
-	}
+    }
+    else
+    {
+        /*
+         * Allocate a new entry, or balk if not possible
+         */
+        hc_entry = uma_alloc(tcp_hostcache.zone, M_NOWAIT);
+        if (hc_entry == NULL)
+        {
+            THC_UNLOCK(&hc_head->hch_mtx);
+            return NULL;
+        }
+    }
 
-	/*
-	 * Initialize basic information of hostcache entry
-	 */
-	bzero(hc_entry, sizeof(*hc_entry));
-	if (inc->inc_isipv6)
-		bcopy(&inc->inc6_faddr, &hc_entry->ip6, sizeof(hc_entry->ip6));
-	else
-		hc_entry->ip4 = inc->inc_faddr;
-	hc_entry->rmx_head = hc_head;
-	hc_entry->rmx_expire = tcp_hostcache.expire;
+    /*
+     * Initialize basic information of hostcache entry
+     */
+    bzero(hc_entry, sizeof(*hc_entry));
+    if (inc->inc_isipv6)
+        bcopy(&inc->inc6_faddr, &hc_entry->ip6, sizeof(hc_entry->ip6));
+    else
+        hc_entry->ip4 = inc->inc_faddr;
+    hc_entry->rmx_head = hc_head;
+    hc_entry->rmx_expire = tcp_hostcache.expire;
 
-	/*
-	 * Put it upfront
-	 */
-	TAILQ_INSERT_HEAD(&hc_head->hch_bucket, hc_entry, rmx_q);
-	tcp_hostcache.hashbase[hash].hch_length++;
-	tcp_hostcache.cache_count++;
-	tcpstat.tcps_hc_added++;
+    /*
+     * Put it upfront
+     */
+    TAILQ_INSERT_HEAD(&hc_head->hch_bucket, hc_entry, rmx_q);
+    tcp_hostcache.hashbase[hash].hch_length++;
+    tcp_hostcache.cache_count++;
+    tcpstat.tcps_hc_added++;
 
-	return hc_entry;
+    return hc_entry;
 }
 
 /*
@@ -337,36 +350,37 @@ tcp_hc_insert(struct in_conninfo *inc)
 void
 tcp_hc_get(struct in_conninfo *inc, struct hc_metrics_lite *hc_metrics_lite)
 {
-	struct hc_metrics *hc_entry;
+    struct hc_metrics *hc_entry;
 
-	/*
-	 * Find the right bucket
-	 */
-	hc_entry = tcp_hc_lookup(inc);
+    /*
+     * Find the right bucket
+     */
+    hc_entry = tcp_hc_lookup(inc);
 
-	/*
-	 * If we don't have an existing object
-	 */
-	if (hc_entry == NULL) {
-		bzero(hc_metrics_lite, sizeof(*hc_metrics_lite));
-		return;
-	}
-	hc_entry->rmx_hits++;
-	hc_entry->rmx_expire = tcp_hostcache.expire; /* start over again */
+    /*
+     * If we don't have an existing object
+     */
+    if (hc_entry == NULL)
+    {
+        bzero(hc_metrics_lite, sizeof(*hc_metrics_lite));
+        return;
+    }
+    hc_entry->rmx_hits++;
+    hc_entry->rmx_expire = tcp_hostcache.expire; /* start over again */
 
-	hc_metrics_lite->rmx_mtu = hc_entry->rmx_mtu;
-	hc_metrics_lite->rmx_ssthresh = hc_entry->rmx_ssthresh;
-	hc_metrics_lite->rmx_rtt = hc_entry->rmx_rtt;
-	hc_metrics_lite->rmx_rttvar = hc_entry->rmx_rttvar;
-	hc_metrics_lite->rmx_bandwidth = hc_entry->rmx_bandwidth;
-	hc_metrics_lite->rmx_cwnd = hc_entry->rmx_cwnd;
-	hc_metrics_lite->rmx_sendpipe = hc_entry->rmx_sendpipe;
-	hc_metrics_lite->rmx_recvpipe = hc_entry->rmx_recvpipe;
+    hc_metrics_lite->rmx_mtu = hc_entry->rmx_mtu;
+    hc_metrics_lite->rmx_ssthresh = hc_entry->rmx_ssthresh;
+    hc_metrics_lite->rmx_rtt = hc_entry->rmx_rtt;
+    hc_metrics_lite->rmx_rttvar = hc_entry->rmx_rttvar;
+    hc_metrics_lite->rmx_bandwidth = hc_entry->rmx_bandwidth;
+    hc_metrics_lite->rmx_cwnd = hc_entry->rmx_cwnd;
+    hc_metrics_lite->rmx_sendpipe = hc_entry->rmx_sendpipe;
+    hc_metrics_lite->rmx_recvpipe = hc_entry->rmx_recvpipe;
 
-	/*
-	 * unlock bucket row
-	 */
-	THC_UNLOCK(&hc_entry->rmx_head->hch_mtx);
+    /*
+     * unlock bucket row
+     */
+    THC_UNLOCK(&hc_entry->rmx_head->hch_mtx);
 }
 
 /*
@@ -376,19 +390,20 @@ tcp_hc_get(struct in_conninfo *inc, struct hc_metrics_lite *hc_metrics_lite)
 u_long
 tcp_hc_getmtu(struct in_conninfo *inc)
 {
-	struct hc_metrics *hc_entry;
-	u_long mtu;
+    struct hc_metrics *hc_entry;
+    u_long mtu;
 
-	hc_entry = tcp_hc_lookup(inc);
-	if (hc_entry == NULL) {
-		return 0;
-	}
-	hc_entry->rmx_hits++;
-	hc_entry->rmx_expire = tcp_hostcache.expire; /* start over again */
+    hc_entry = tcp_hc_lookup(inc);
+    if (hc_entry == NULL)
+    {
+        return 0;
+    }
+    hc_entry->rmx_hits++;
+    hc_entry->rmx_expire = tcp_hostcache.expire; /* start over again */
 
-	mtu = hc_entry->rmx_mtu;
-	THC_UNLOCK(&hc_entry->rmx_head->hch_mtx);
-	return mtu;
+    mtu = hc_entry->rmx_mtu;
+    THC_UNLOCK(&hc_entry->rmx_head->hch_mtx);
+    return mtu;
 }
 
 /*
@@ -399,18 +414,19 @@ tcp_hc_getmtu(struct in_conninfo *inc)
 void
 tcp_hc_gettao(struct in_conninfo *inc, struct rmxp_tao *tao)
 {
-	struct hc_metrics *hc_entry;
+    struct hc_metrics *hc_entry;
 
-	hc_entry = tcp_hc_lookup(inc);
-	if (hc_entry == NULL) {
-		bzero(tao, sizeof(*tao));
-		return;
-	}
-	hc_entry->rmx_hits++;
-	hc_entry->rmx_expire = tcp_hostcache.expire; /* start over again */
+    hc_entry = tcp_hc_lookup(inc);
+    if (hc_entry == NULL)
+    {
+        bzero(tao, sizeof(*tao));
+        return;
+    }
+    hc_entry->rmx_hits++;
+    hc_entry->rmx_expire = tcp_hostcache.expire; /* start over again */
 
-	bcopy(&hc_entry->rmx_tao, tao, sizeof(*tao));
-	THC_UNLOCK(&hc_entry->rmx_head->hch_mtx);
+    bcopy(&hc_entry->rmx_tao, tao, sizeof(*tao));
+    THC_UNLOCK(&hc_entry->rmx_head->hch_mtx);
 }
 
 /*
@@ -420,36 +436,37 @@ tcp_hc_gettao(struct in_conninfo *inc, struct rmxp_tao *tao)
 void
 tcp_hc_updatemtu(struct in_conninfo *inc, u_long mtu)
 {
-	struct hc_metrics *hc_entry;
+    struct hc_metrics *hc_entry;
 
-	/*
-	 * Find the right bucket
-	 */
-	hc_entry = tcp_hc_lookup(inc);
+    /*
+     * Find the right bucket
+     */
+    hc_entry = tcp_hc_lookup(inc);
 
-	/*
-	 * If we don't have an existing object try to insert a new one
-	 */
-	if (hc_entry == NULL) {
-		hc_entry = tcp_hc_insert(inc);
-		if (hc_entry == NULL)
-			return;
-	}
-	hc_entry->rmx_updates++;
-	hc_entry->rmx_expire = tcp_hostcache.expire; /* start over again */
+    /*
+     * If we don't have an existing object try to insert a new one
+     */
+    if (hc_entry == NULL)
+    {
+        hc_entry = tcp_hc_insert(inc);
+        if (hc_entry == NULL)
+            return;
+    }
+    hc_entry->rmx_updates++;
+    hc_entry->rmx_expire = tcp_hostcache.expire; /* start over again */
 
-	hc_entry->rmx_mtu = mtu;
+    hc_entry->rmx_mtu = mtu;
 
-	/*
-	 * put it upfront so we find it faster next time
-	 */
-	TAILQ_REMOVE(&hc_entry->rmx_head->hch_bucket, hc_entry, rmx_q);
-	TAILQ_INSERT_HEAD(&hc_entry->rmx_head->hch_bucket, hc_entry, rmx_q);
+    /*
+     * put it upfront so we find it faster next time
+     */
+    TAILQ_REMOVE(&hc_entry->rmx_head->hch_bucket, hc_entry, rmx_q);
+    TAILQ_INSERT_HEAD(&hc_entry->rmx_head->hch_bucket, hc_entry, rmx_q);
 
-	/*
-	 * unlock bucket row
-	 */
-	THC_UNLOCK(&hc_entry->rmx_head->hch_mtx);
+    /*
+     * unlock bucket row
+     */
+    THC_UNLOCK(&hc_entry->rmx_head->hch_mtx);
 }
 
 /*
@@ -459,77 +476,85 @@ tcp_hc_updatemtu(struct in_conninfo *inc, u_long mtu)
 void
 tcp_hc_update(struct in_conninfo *inc, struct hc_metrics_lite *hcml)
 {
-	struct hc_metrics *hc_entry;
+    struct hc_metrics *hc_entry;
 
-	hc_entry = tcp_hc_lookup(inc);
-	if (hc_entry == NULL) {
-		hc_entry = tcp_hc_insert(inc);
-		if (hc_entry == NULL)
-			return;
-	}
-	hc_entry->rmx_updates++;
-	hc_entry->rmx_expire = tcp_hostcache.expire; /* start over again */
+    hc_entry = tcp_hc_lookup(inc);
+    if (hc_entry == NULL)
+    {
+        hc_entry = tcp_hc_insert(inc);
+        if (hc_entry == NULL)
+            return;
+    }
+    hc_entry->rmx_updates++;
+    hc_entry->rmx_expire = tcp_hostcache.expire; /* start over again */
 
-	if (hcml->rmx_rtt != 0) {
-		if (hc_entry->rmx_rtt == 0)
-			hc_entry->rmx_rtt = hcml->rmx_rtt;
-		else
-			hc_entry->rmx_rtt =
-			    (hc_entry->rmx_rtt + hcml->rmx_rtt) / 2;
-		tcpstat.tcps_cachedrtt++;
-	}
-	if (hcml->rmx_rttvar != 0) {
-	        if (hc_entry->rmx_rttvar == 0)
-			hc_entry->rmx_rttvar = hcml->rmx_rttvar;
-		else
-			hc_entry->rmx_rttvar =
-			    (hc_entry->rmx_rttvar + hcml->rmx_rttvar) / 2;
-		tcpstat.tcps_cachedrttvar++;
-	}
-	if (hcml->rmx_ssthresh != 0) {
-		if (hc_entry->rmx_ssthresh == 0)
-			hc_entry->rmx_ssthresh = hcml->rmx_ssthresh;
-		else
-			hc_entry->rmx_ssthresh =
-			    (hc_entry->rmx_ssthresh + hcml->rmx_ssthresh) / 2;
-		tcpstat.tcps_cachedssthresh++;
-	}
-	if (hcml->rmx_bandwidth != 0) {
-		if (hc_entry->rmx_bandwidth == 0)
-			hc_entry->rmx_bandwidth = hcml->rmx_bandwidth;
-		else
-			hc_entry->rmx_bandwidth =
-			    (hc_entry->rmx_bandwidth + hcml->rmx_bandwidth) / 2;
-		/* tcpstat.tcps_cachedbandwidth++; */
-	}
-	if (hcml->rmx_cwnd != 0) {
-		if (hc_entry->rmx_cwnd == 0)
-			hc_entry->rmx_cwnd = hcml->rmx_cwnd;
-		else
-			hc_entry->rmx_cwnd =
-			    (hc_entry->rmx_cwnd + hcml->rmx_cwnd) / 2;
-		/* tcpstat.tcps_cachedcwnd++; */
-	}
-	if (hcml->rmx_sendpipe != 0) {
-		if (hc_entry->rmx_sendpipe == 0)
-			hc_entry->rmx_sendpipe = hcml->rmx_sendpipe;
-		else
-			hc_entry->rmx_sendpipe =
-			    (hc_entry->rmx_sendpipe + hcml->rmx_sendpipe) /2;
-		/* tcpstat.tcps_cachedsendpipe++; */
-	}
-	if (hcml->rmx_recvpipe != 0) {
-		if (hc_entry->rmx_recvpipe == 0)
-			hc_entry->rmx_recvpipe = hcml->rmx_recvpipe;
-		else
-			hc_entry->rmx_recvpipe =
-			    (hc_entry->rmx_recvpipe + hcml->rmx_recvpipe) /2;
-		/* tcpstat.tcps_cachedrecvpipe++; */
-	}
+    if (hcml->rmx_rtt != 0)
+    {
+        if (hc_entry->rmx_rtt == 0)
+            hc_entry->rmx_rtt = hcml->rmx_rtt;
+        else
+            hc_entry->rmx_rtt =
+                (hc_entry->rmx_rtt + hcml->rmx_rtt) / 2;
+        tcpstat.tcps_cachedrtt++;
+    }
+    if (hcml->rmx_rttvar != 0)
+    {
+        if (hc_entry->rmx_rttvar == 0)
+            hc_entry->rmx_rttvar = hcml->rmx_rttvar;
+        else
+            hc_entry->rmx_rttvar =
+                (hc_entry->rmx_rttvar + hcml->rmx_rttvar) / 2;
+        tcpstat.tcps_cachedrttvar++;
+    }
+    if (hcml->rmx_ssthresh != 0)
+    {
+        if (hc_entry->rmx_ssthresh == 0)
+            hc_entry->rmx_ssthresh = hcml->rmx_ssthresh;
+        else
+            hc_entry->rmx_ssthresh =
+                (hc_entry->rmx_ssthresh + hcml->rmx_ssthresh) / 2;
+        tcpstat.tcps_cachedssthresh++;
+    }
+    if (hcml->rmx_bandwidth != 0)
+    {
+        if (hc_entry->rmx_bandwidth == 0)
+            hc_entry->rmx_bandwidth = hcml->rmx_bandwidth;
+        else
+            hc_entry->rmx_bandwidth =
+                (hc_entry->rmx_bandwidth + hcml->rmx_bandwidth) / 2;
+        /* tcpstat.tcps_cachedbandwidth++; */
+    }
+    if (hcml->rmx_cwnd != 0)
+    {
+        if (hc_entry->rmx_cwnd == 0)
+            hc_entry->rmx_cwnd = hcml->rmx_cwnd;
+        else
+            hc_entry->rmx_cwnd =
+                (hc_entry->rmx_cwnd + hcml->rmx_cwnd) / 2;
+        /* tcpstat.tcps_cachedcwnd++; */
+    }
+    if (hcml->rmx_sendpipe != 0)
+    {
+        if (hc_entry->rmx_sendpipe == 0)
+            hc_entry->rmx_sendpipe = hcml->rmx_sendpipe;
+        else
+            hc_entry->rmx_sendpipe =
+                (hc_entry->rmx_sendpipe + hcml->rmx_sendpipe) / 2;
+        /* tcpstat.tcps_cachedsendpipe++; */
+    }
+    if (hcml->rmx_recvpipe != 0)
+    {
+        if (hc_entry->rmx_recvpipe == 0)
+            hc_entry->rmx_recvpipe = hcml->rmx_recvpipe;
+        else
+            hc_entry->rmx_recvpipe =
+                (hc_entry->rmx_recvpipe + hcml->rmx_recvpipe) / 2;
+        /* tcpstat.tcps_cachedrecvpipe++; */
+    }
 
-	TAILQ_REMOVE(&hc_entry->rmx_head->hch_bucket, hc_entry, rmx_q);
-	TAILQ_INSERT_HEAD(&hc_entry->rmx_head->hch_bucket, hc_entry, rmx_q);
-	THC_UNLOCK(&hc_entry->rmx_head->hch_mtx);
+    TAILQ_REMOVE(&hc_entry->rmx_head->hch_bucket, hc_entry, rmx_q);
+    TAILQ_INSERT_HEAD(&hc_entry->rmx_head->hch_bucket, hc_entry, rmx_q);
+    THC_UNLOCK(&hc_entry->rmx_head->hch_mtx);
 }
 
 /*
@@ -539,34 +564,36 @@ tcp_hc_update(struct in_conninfo *inc, struct hc_metrics_lite *hcml)
 void
 tcp_hc_updatetao(struct in_conninfo *inc, int field, tcp_cc ccount, u_short mss)
 {
-	struct hc_metrics *hc_entry;
+    struct hc_metrics *hc_entry;
 
-	hc_entry = tcp_hc_lookup(inc);
-	if (hc_entry == NULL) {
-		hc_entry = tcp_hc_insert(inc);
-		if (hc_entry == NULL)
-			return;
-	}
-	hc_entry->rmx_updates++;
-	hc_entry->rmx_expire = tcp_hostcache.expire; /* start over again */
+    hc_entry = tcp_hc_lookup(inc);
+    if (hc_entry == NULL)
+    {
+        hc_entry = tcp_hc_insert(inc);
+        if (hc_entry == NULL)
+            return;
+    }
+    hc_entry->rmx_updates++;
+    hc_entry->rmx_expire = tcp_hostcache.expire; /* start over again */
 
-	switch(field) {
-		case TCP_HC_TAO_CC:
-			hc_entry->rmx_tao.tao_cc = ccount;
-			break;
+    switch(field)
+    {
+    case TCP_HC_TAO_CC:
+        hc_entry->rmx_tao.tao_cc = ccount;
+        break;
 
-		case TCP_HC_TAO_CCSENT:
-			hc_entry->rmx_tao.tao_ccsent = ccount;
-			break;
+    case TCP_HC_TAO_CCSENT:
+        hc_entry->rmx_tao.tao_ccsent = ccount;
+        break;
 
-		case TCP_HC_TAO_MSSOPT:
-			hc_entry->rmx_tao.tao_mssopt = mss;
-			break;
-	}
+    case TCP_HC_TAO_MSSOPT:
+        hc_entry->rmx_tao.tao_mssopt = mss;
+        break;
+    }
 
-	TAILQ_REMOVE(&hc_entry->rmx_head->hch_bucket, hc_entry, rmx_q);
-	TAILQ_INSERT_HEAD(&hc_entry->rmx_head->hch_bucket, hc_entry, rmx_q);
-	THC_UNLOCK(&hc_entry->rmx_head->hch_mtx);
+    TAILQ_REMOVE(&hc_entry->rmx_head->hch_bucket, hc_entry, rmx_q);
+    TAILQ_INSERT_HEAD(&hc_entry->rmx_head->hch_bucket, hc_entry, rmx_q);
+    THC_UNLOCK(&hc_entry->rmx_head->hch_mtx);
 }
 
 /*
@@ -576,30 +603,35 @@ tcp_hc_updatetao(struct in_conninfo *inc, int field, tcp_cc ccount, u_short mss)
 static void
 tcp_hc_purge(void *arg)
 {
-	struct hc_metrics *hc_entry, *hc_next;
-	int all = (intptr_t)arg;
-	int i;
+    struct hc_metrics *hc_entry, *hc_next;
+    int all = (intptr_t)arg;
+    int i;
 
-	if (tcp_hostcache.purgeall) {
-		all = 1;
-		tcp_hostcache.purgeall = 0;
-	}
+    if (tcp_hostcache.purgeall)
+    {
+        all = 1;
+        tcp_hostcache.purgeall = 0;
+    }
 
-	for (i = 0; i < tcp_hostcache.hashsize; i++) {
-		THC_LOCK(&tcp_hostcache.hashbase[i].hch_mtx);
-		TAILQ_FOREACH_SAFE(hc_entry, &tcp_hostcache.hashbase[i].hch_bucket,
-			      rmx_q, hc_next) {
-			if (all || hc_entry->rmx_expire <= 0) {
-				TAILQ_REMOVE(&tcp_hostcache.hashbase[i].hch_bucket,
-					      hc_entry, rmx_q);
-				uma_free(tcp_hostcache.zone, hc_entry);
-				tcp_hostcache.hashbase[i].hch_length--;
-				tcp_hostcache.cache_count--;
-			} else
-				hc_entry->rmx_expire -= TCP_HOSTCACHE_PRUNE;
-		}
-		THC_UNLOCK(&tcp_hostcache.hashbase[i].hch_mtx);
-	}
-	//callout_reset(&tcp_hc_callout, TCP_HOSTCACHE_PRUNE * hz, tcp_hc_purge, 0);LUOYU
+    for (i = 0; i < tcp_hostcache.hashsize; i++)
+    {
+        THC_LOCK(&tcp_hostcache.hashbase[i].hch_mtx);
+        TAILQ_FOREACH_SAFE(hc_entry, &tcp_hostcache.hashbase[i].hch_bucket,
+                           rmx_q, hc_next)
+        {
+            if (all || hc_entry->rmx_expire <= 0)
+            {
+                TAILQ_REMOVE(&tcp_hostcache.hashbase[i].hch_bucket,
+                             hc_entry, rmx_q);
+                uma_free(tcp_hostcache.zone, hc_entry);
+                tcp_hostcache.hashbase[i].hch_length--;
+                tcp_hostcache.cache_count--;
+            }
+            else
+                hc_entry->rmx_expire -= TCP_HOSTCACHE_PRUNE;
+        }
+        THC_UNLOCK(&tcp_hostcache.hashbase[i].hch_mtx);
+    }
+    //callout_reset(&tcp_hc_callout, TCP_HOSTCACHE_PRUNE * hz, tcp_hc_purge, 0);LUOYU
 }
 

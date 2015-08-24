@@ -60,20 +60,23 @@ static void		if_clone_free(struct if_clone *ifc);
 static struct mtx	if_cloners_mtx;
 static int		if_cloners_count;
 //LIST_HEAD(, if_clone)	if_cloners = LIST_HEAD_INITIALIZER(if_cloners);
-struct  {								\
-	struct if_clone *lh_first;	/* first element */			\
-}if_cloners = {NULL};
+struct
+{
+    \
+    struct if_clone *lh_first;	/* first element */
+    \
+} if_cloners = {NULL};
 
-#define IF_CLONERS_LOCK_INIT()		
-#define IF_CLONERS_LOCK_ASSERT()	
-#define IF_CLONERS_LOCK()		
-#define IF_CLONERS_UNLOCK()		
+#define IF_CLONERS_LOCK_INIT()
+#define IF_CLONERS_LOCK_ASSERT()
+#define IF_CLONERS_LOCK()
+#define IF_CLONERS_UNLOCK()
 
-#define IF_CLONE_LOCK_INIT(ifc)		
-#define IF_CLONE_LOCK_DESTROY(ifc)	
-#define IF_CLONE_LOCK_ASSERT(ifc)	
-#define IF_CLONE_LOCK(ifc)		
-#define IF_CLONE_UNLOCK(ifc)		
+#define IF_CLONE_LOCK_INIT(ifc)
+#define IF_CLONE_LOCK_DESTROY(ifc)
+#define IF_CLONE_LOCK_ASSERT(ifc)
+#define IF_CLONE_LOCK(ifc)
+#define IF_CLONE_UNLOCK(ifc)
 
 #define IF_CLONE_ADDREF(ifc)						\
 	do {								\
@@ -122,7 +125,7 @@ void	ifc_free_unit(struct if_clone *, int);
 void
 if_clone_init(void)
 {
-	IF_CLONERS_LOCK_INIT();
+    IF_CLONERS_LOCK_INIT();
 }
 
 /*
@@ -131,28 +134,30 @@ if_clone_init(void)
 int
 if_clone_create(char *name, size_t len)
 {
-	int err;
-	struct if_clone *ifc;
+    int err;
+    struct if_clone *ifc;
 
-	if (ifunit(name) != NULL)
-		return (EEXIST);
+    if (ifunit(name) != NULL)
+        return (EEXIST);
 
-	/* Try to find an applicable cloner for this request */
-	IF_CLONERS_LOCK();
-	LIST_FOREACH(ifc, &if_cloners, ifc_list) {
-		if (ifc->ifc_match(ifc, name)) {
-			IF_CLONE_ADDREF(ifc);
-			break;
-		}
-	}
-	IF_CLONERS_UNLOCK();
+    /* Try to find an applicable cloner for this request */
+    IF_CLONERS_LOCK();
+    LIST_FOREACH(ifc, &if_cloners, ifc_list)
+    {
+        if (ifc->ifc_match(ifc, name))
+        {
+            IF_CLONE_ADDREF(ifc);
+            break;
+        }
+    }
+    IF_CLONERS_UNLOCK();
 
-	if (ifc == NULL)
-		return (EINVAL);
+    if (ifc == NULL)
+        return (EINVAL);
 
-	err = (*ifc->ifc_create)(ifc, name, len);
-	IF_CLONE_REMREF(ifc);
-	return (err);
+    err = (*ifc->ifc_create)(ifc, name, len);
+    IF_CLONE_REMREF(ifc);
+    return (err);
 }
 
 /*
@@ -161,36 +166,39 @@ if_clone_create(char *name, size_t len)
 int
 if_clone_destroy(const char *name)
 {
-	int err;
-	struct if_clone *ifc;
-	struct ifnet *ifp;
+    int err;
+    struct if_clone *ifc;
+    struct ifnet *ifp;
 
-	ifp = ifunit(name);
-	if (ifp == NULL)
-		return (ENXIO);
+    ifp = ifunit(name);
+    if (ifp == NULL)
+        return (ENXIO);
 
-	/* Find the cloner for this interface */
-	IF_CLONERS_LOCK();
-	LIST_FOREACH(ifc, &if_cloners, ifc_list) {
-		if (strcmp(ifc->ifc_name, ifp->if_dname) == 0) {
-			IF_CLONE_ADDREF(ifc);
-			break;
-		}
-	}
-	IF_CLONERS_UNLOCK();
-	if (ifc == NULL)
-		return (EINVAL);
+    /* Find the cloner for this interface */
+    IF_CLONERS_LOCK();
+    LIST_FOREACH(ifc, &if_cloners, ifc_list)
+    {
+        if (strcmp(ifc->ifc_name, ifp->if_dname) == 0)
+        {
+            IF_CLONE_ADDREF(ifc);
+            break;
+        }
+    }
+    IF_CLONERS_UNLOCK();
+    if (ifc == NULL)
+        return (EINVAL);
 
-	if (ifc->ifc_destroy == NULL) {
-		err = EOPNOTSUPP;
-		goto done;
-	}
+    if (ifc->ifc_destroy == NULL)
+    {
+        err = EOPNOTSUPP;
+        goto done;
+    }
 
-	err =  (*ifc->ifc_destroy)(ifc, ifp);
+    err =  (*ifc->ifc_destroy)(ifc, ifp);
 
 done:
-	IF_CLONE_REMREF(ifc);
-	return (err);
+    IF_CLONE_REMREF(ifc);
+    return (err);
 }
 
 /*
@@ -199,28 +207,28 @@ done:
 void
 if_clone_attach(struct if_clone *ifc)
 {
-	int len, maxclone;
+    int len, maxclone;
 
-	/*
-	 * Compute bitmap size and allocate it.
-	 */
-	maxclone = ifc->ifc_maxunit + 1;
-	len = maxclone >> 3;
-	if ((len << 3) < maxclone)
-		len++;
-	ifc->ifc_units = malloc(len);
-	ifc->ifc_bmlen = len;
-	IF_CLONE_LOCK_INIT(ifc);
-	IF_CLONE_ADDREF(ifc);
+    /*
+     * Compute bitmap size and allocate it.
+     */
+    maxclone = ifc->ifc_maxunit + 1;
+    len = maxclone >> 3;
+    if ((len << 3) < maxclone)
+        len++;
+    ifc->ifc_units = malloc(len);
+    ifc->ifc_bmlen = len;
+    IF_CLONE_LOCK_INIT(ifc);
+    IF_CLONE_ADDREF(ifc);
 
-	IF_CLONERS_LOCK();
-	LIST_INSERT_HEAD(&if_cloners, ifc, ifc_list);
-	if_cloners_count++;
-	IF_CLONERS_UNLOCK();
+    IF_CLONERS_LOCK();
+    LIST_INSERT_HEAD(&if_cloners, ifc, ifc_list);
+    if_cloners_count++;
+    IF_CLONERS_UNLOCK();
 
-	if (ifc->ifc_attach != NULL)
-		(*ifc->ifc_attach)(ifc);
-	//EVENTHANDLER_INVOKE(if_clone_event, ifc);LUOYU
+    if (ifc->ifc_attach != NULL)
+        (*ifc->ifc_attach)(ifc);
+    //EVENTHANDLER_INVOKE(if_clone_event, ifc);LUOYU
 }
 
 /*
@@ -230,20 +238,20 @@ void
 if_clone_detach(struct if_clone *ifc)
 {
 
-	IF_CLONERS_LOCK();
-	LIST_REMOVE(ifc, ifc_list);
-	if_cloners_count--;
-	IF_CLONERS_UNLOCK();
+    IF_CLONERS_LOCK();
+    LIST_REMOVE(ifc, ifc_list);
+    if_cloners_count--;
+    IF_CLONERS_UNLOCK();
 
-	IF_CLONE_REMREF(ifc);
+    IF_CLONE_REMREF(ifc);
 }
 
 static void
 if_clone_free(struct if_clone *ifc)
 {
 
-	IF_CLONE_LOCK_DESTROY(ifc);
-	free(ifc->ifc_units);
+    IF_CLONE_LOCK_DESTROY(ifc);
+    free(ifc->ifc_units);
 }
 
 /*
@@ -252,54 +260,57 @@ if_clone_free(struct if_clone *ifc)
 int
 if_clone_list(struct if_clonereq *ifcr)
 {
-	char *buf, *dst, *outbuf = NULL;
-	struct if_clone *ifc;
-	int buf_count, count, err = 0;
+    char *buf, *dst, *outbuf = NULL;
+    struct if_clone *ifc;
+    int buf_count, count, err = 0;
 
-	IF_CLONERS_LOCK();
-	/*
-	 * Set our internal output buffer size.  We could end up not
-	 * reporting a cloner that is added between the unlock and lock
-	 * below, but that's not a major problem.  Not caping our
-	 * allocation to the number of cloners actually in the system
-	 * could be because that would let arbitrary users cause us to
-	 * allocate abritrary amounts of kernel memory.
-	 */
-	buf_count = (if_cloners_count < ifcr->ifcr_count) ?
-	    if_cloners_count : ifcr->ifcr_count;
-	IF_CLONERS_UNLOCK();
+    IF_CLONERS_LOCK();
+    /*
+     * Set our internal output buffer size.  We could end up not
+     * reporting a cloner that is added between the unlock and lock
+     * below, but that's not a major problem.  Not caping our
+     * allocation to the number of cloners actually in the system
+     * could be because that would let arbitrary users cause us to
+     * allocate abritrary amounts of kernel memory.
+     */
+    buf_count = (if_cloners_count < ifcr->ifcr_count) ?
+                if_cloners_count : ifcr->ifcr_count;
+    IF_CLONERS_UNLOCK();
 
-	outbuf = malloc(IFNAMSIZ*buf_count);
+    outbuf = malloc(IFNAMSIZ * buf_count);
 
-	IF_CLONERS_LOCK();
+    IF_CLONERS_LOCK();
 
-	ifcr->ifcr_total = if_cloners_count;
-	if ((dst = ifcr->ifcr_buffer) == NULL) {
-		/* Just asking how many there are. */
-		goto done;
-	}
+    ifcr->ifcr_total = if_cloners_count;
+    if ((dst = ifcr->ifcr_buffer) == NULL)
+    {
+        /* Just asking how many there are. */
+        goto done;
+    }
 
-	if (ifcr->ifcr_count < 0) {
-		err = EINVAL;
-		goto done;
-	}
+    if (ifcr->ifcr_count < 0)
+    {
+        err = EINVAL;
+        goto done;
+    }
 
-	count = (if_cloners_count < buf_count) ?
-	    if_cloners_count : buf_count;
+    count = (if_cloners_count < buf_count) ?
+            if_cloners_count : buf_count;
 
-	for (ifc = LIST_FIRST(&if_cloners), buf = outbuf;
-	    ifc != NULL && count != 0;
-	    ifc = LIST_NEXT(ifc, ifc_list), count--, buf += IFNAMSIZ) {
-		strlcpy(buf, ifc->ifc_name, IFNAMSIZ);
-	}
+    for (ifc = LIST_FIRST(&if_cloners), buf = outbuf;
+            ifc != NULL && count != 0;
+            ifc = LIST_NEXT(ifc, ifc_list), count--, buf += IFNAMSIZ)
+    {
+        strlcpy(buf, ifc->ifc_name, IFNAMSIZ);
+    }
 
 done:
-	IF_CLONERS_UNLOCK();
-	if (err == 0)
-		err = copyout(outbuf, dst, buf_count*IFNAMSIZ);
-	if (outbuf != NULL)
-		free(outbuf);
-	return (err);
+    IF_CLONERS_UNLOCK();
+    if (err == 0)
+        err = copyout(outbuf, dst, buf_count * IFNAMSIZ);
+    if (outbuf != NULL)
+        free(outbuf);
+    return (err);
 }
 
 /*
@@ -311,193 +322,209 @@ done:
 int
 ifc_name2unit(const char *name, int *unit)
 {
-	const char	*cp;
+    const char	*cp;
 
-	for (cp = name; *cp != '\0' && (*cp < '0' || *cp > '9'); cp++);
-	if (*cp == '\0') {
-		*unit = -1;
-	} else {
-		for (*unit = 0; *cp != '\0'; cp++) {
-			if (*cp < '0' || *cp > '9') {
-				/* Bogus unit number. */
-				return (EINVAL);
-			}
-			*unit = (*unit * 10) + (*cp - '0');
-		}
-	}
+    for (cp = name; *cp != '\0' && (*cp < '0' || *cp > '9'); cp++);
+    if (*cp == '\0')
+    {
+        *unit = -1;
+    }
+    else
+    {
+        for (*unit = 0; *cp != '\0'; cp++)
+        {
+            if (*cp < '0' || *cp > '9')
+            {
+                /* Bogus unit number. */
+                return (EINVAL);
+            }
+            *unit = (*unit * 10) + (*cp - '0');
+        }
+    }
 
-	return (0);
+    return (0);
 }
 
 int
 ifc_alloc_unit(struct if_clone *ifc, int *unit)
 {
-	int wildcard, bytoff, bitoff;
-	int err = 0;
+    int wildcard, bytoff, bitoff;
+    int err = 0;
 
-	IF_CLONE_LOCK(ifc);
+    IF_CLONE_LOCK(ifc);
 
-	bytoff = bitoff = 0;
-	wildcard = (*unit < 0);
-	/*
-	 * Find a free unit if none was given.
-	 */
-	if (wildcard) {
-		while ((bytoff < ifc->ifc_bmlen)
-		    && (ifc->ifc_units[bytoff] == 0xff))
-			bytoff++;
-		if (bytoff >= ifc->ifc_bmlen) {
-			err = ENOSPC;
-			goto done;
-		}
-		while ((ifc->ifc_units[bytoff] & (1 << bitoff)) != 0)
-			bitoff++;
-		*unit = (bytoff << 3) + bitoff;
-	}
+    bytoff = bitoff = 0;
+    wildcard = (*unit < 0);
+    /*
+     * Find a free unit if none was given.
+     */
+    if (wildcard)
+    {
+        while ((bytoff < ifc->ifc_bmlen)
+                && (ifc->ifc_units[bytoff] == 0xff))
+            bytoff++;
+        if (bytoff >= ifc->ifc_bmlen)
+        {
+            err = ENOSPC;
+            goto done;
+        }
+        while ((ifc->ifc_units[bytoff] & (1 << bitoff)) != 0)
+            bitoff++;
+        *unit = (bytoff << 3) + bitoff;
+    }
 
-	if (*unit > ifc->ifc_maxunit) {
-		err = ENOSPC;
-		goto done;
-	}
+    if (*unit > ifc->ifc_maxunit)
+    {
+        err = ENOSPC;
+        goto done;
+    }
 
-	if (!wildcard) {
-		bytoff = *unit >> 3;
-		bitoff = *unit - (bytoff << 3);
-	}
+    if (!wildcard)
+    {
+        bytoff = *unit >> 3;
+        bitoff = *unit - (bytoff << 3);
+    }
 
-	if((ifc->ifc_units[bytoff] & (1 << bitoff)) != 0) {
-		err = EEXIST;
-		goto done;
-	}
-	/*
-	 * Allocate the unit in the bitmap.
-	 */
-	ifc->ifc_units[bytoff] |= (1 << bitoff);
+    if((ifc->ifc_units[bytoff] & (1 << bitoff)) != 0)
+    {
+        err = EEXIST;
+        goto done;
+    }
+    /*
+     * Allocate the unit in the bitmap.
+     */
+    ifc->ifc_units[bytoff] |= (1 << bitoff);
 
 done:
-	IF_CLONE_UNLOCK(ifc);
-	return (err);
+    IF_CLONE_UNLOCK(ifc);
+    return (err);
 }
 
 void
 ifc_free_unit(struct if_clone *ifc, int unit)
 {
-	int bytoff, bitoff;
+    int bytoff, bitoff;
 
 
-	/*
-	 * Compute offset in the bitmap and deallocate the unit.
-	 */
-	bytoff = unit >> 3;
-	bitoff = unit - (bytoff << 3);
+    /*
+     * Compute offset in the bitmap and deallocate the unit.
+     */
+    bytoff = unit >> 3;
+    bitoff = unit - (bytoff << 3);
 
-	IF_CLONE_LOCK(ifc);
-	//KASSERT((ifc->ifc_units[bytoff] & (1 << bitoff)) != 0,
-	//    ("%s: bit is already cleared", __func__));
-	ifc->ifc_units[bytoff] &= ~(1 << bitoff);
-	IF_CLONE_UNLOCK(ifc);
+    IF_CLONE_LOCK(ifc);
+    //KASSERT((ifc->ifc_units[bytoff] & (1 << bitoff)) != 0,
+    //    ("%s: bit is already cleared", __func__));
+    ifc->ifc_units[bytoff] &= ~(1 << bitoff);
+    IF_CLONE_UNLOCK(ifc);
 }
 
 void
 ifc_simple_attach(struct if_clone *ifc)
 {
-	int err;
-	int unit;
-	char name[IFNAMSIZ];
-	struct ifc_simple_data *ifcs = ifc->ifc_data;
+    int err;
+    int unit;
+    char name[IFNAMSIZ];
+    struct ifc_simple_data *ifcs = ifc->ifc_data;
 
-	KASSERT(ifcs->ifcs_minifs - 1 <= ifc->ifc_maxunit,
-	    ("%s: %s requested more units then allowed (%d > %d)",
-	    ifc_simple_attach, ifc->ifc_name, ifcs->ifcs_minifs,
-	    ifc->ifc_maxunit + 1));
+    KASSERT(ifcs->ifcs_minifs - 1 <= ifc->ifc_maxunit,
+            ("%s: %s requested more units then allowed (%d > %d)",
+             ifc_simple_attach, ifc->ifc_name, ifcs->ifcs_minifs,
+             ifc->ifc_maxunit + 1));
 
-	for (unit = 0; unit < ifcs->ifcs_minifs; unit++) {
-		snprintf(name, IFNAMSIZ, "%s%d", ifc->ifc_name, unit);
-		err = (*ifc->ifc_create)(ifc, name, IFNAMSIZ);
-		KASSERT(err == 0,
-		    ("%s: failed to create required interface %s",
-		    ifc_simple_attach, name));
-	}
+    for (unit = 0; unit < ifcs->ifcs_minifs; unit++)
+    {
+        snprintf(name, IFNAMSIZ, "%s%d", ifc->ifc_name, unit);
+        err = (*ifc->ifc_create)(ifc, name, IFNAMSIZ);
+        KASSERT(err == 0,
+                ("%s: failed to create required interface %s",
+                 ifc_simple_attach, name));
+    }
 }
 
 int
 ifc_simple_match(struct if_clone *ifc, const char *name)
 {
-	const char *cp;
-	u_int32_t i;
-	
-	/* Match the name */
-	for (cp = name, i = 0; i < strlen(ifc->ifc_name); i++, cp++) {
-		if (ifc->ifc_name[i] != *cp)
-			return (0);
-	}
+    const char *cp;
+    u_int32_t i;
 
-	/* Make sure there's a unit number or nothing after the name */
-	for (; *cp != '\0'; cp++) {
-		if (*cp < '0' || *cp > '9')
-			return (0);
-	}
+    /* Match the name */
+    for (cp = name, i = 0; i < strlen(ifc->ifc_name); i++, cp++)
+    {
+        if (ifc->ifc_name[i] != *cp)
+            return (0);
+    }
 
-	return (1);
+    /* Make sure there's a unit number or nothing after the name */
+    for (; *cp != '\0'; cp++)
+    {
+        if (*cp < '0' || *cp > '9')
+            return (0);
+    }
+
+    return (1);
 }
 
 int
 ifc_simple_create(struct if_clone *ifc, char *name, size_t len)
 {
-	char *dp;
-	int wildcard;
-	int unit;
-	int err;
-	struct ifc_simple_data *ifcs = ifc->ifc_data;
+    char *dp;
+    int wildcard;
+    int unit;
+    int err;
+    struct ifc_simple_data *ifcs = ifc->ifc_data;
 
-	err = ifc_name2unit(name, &unit);
-	if (err != 0)
-		return (err);
+    err = ifc_name2unit(name, &unit);
+    if (err != 0)
+        return (err);
 
-	wildcard = (unit < 0);
+    wildcard = (unit < 0);
 
-	err = ifc_alloc_unit(ifc, &unit);
-	if (err != 0)
-		return (err);
+    err = ifc_alloc_unit(ifc, &unit);
+    if (err != 0)
+        return (err);
 
-	err = ifcs->ifcs_create(ifc, unit);
-	if (err != 0) {
-		ifc_free_unit(ifc, unit);
-		return (err);
-	}
+    err = ifcs->ifcs_create(ifc, unit);
+    if (err != 0)
+    {
+        ifc_free_unit(ifc, unit);
+        return (err);
+    }
 
-	/* In the wildcard case, we need to update the name. */
-	if (wildcard) {
-		for (dp = name; *dp != '\0'; dp++);
-		if (snprintf(dp, len - (dp-name), "%d", unit) >
-		    len - (dp-name) - 1) {
-			/*
-			 * This can only be a programmer error and
-			 * there's no straightforward way to recover if
-			 * it happens.
-			 */
-			panic("if_clone_create(): interface name too long");
-		}
+    /* In the wildcard case, we need to update the name. */
+    if (wildcard)
+    {
+        for (dp = name; *dp != '\0'; dp++);
+        if (snprintf(dp, len - (dp - name), "%d", unit) >
+                len - (dp - name) - 1)
+        {
+            /*
+             * This can only be a programmer error and
+             * there's no straightforward way to recover if
+             * it happens.
+             */
+            panic("if_clone_create(): interface name too long");
+        }
 
-	}
+    }
 
-	return (0);
+    return (0);
 }
 
 int
 ifc_simple_destroy(struct if_clone *ifc, struct ifnet *ifp)
 {
-	int unit;
-	struct ifc_simple_data *ifcs = ifc->ifc_data;
+    int unit;
+    struct ifc_simple_data *ifcs = ifc->ifc_data;
 
-	unit = ifp->if_dunit;
+    unit = ifp->if_dunit;
 
-	if (unit < ifcs->ifcs_minifs) 
-		return (EINVAL);
+    if (unit < ifcs->ifcs_minifs)
+        return (EINVAL);
 
-	ifcs->ifcs_destroy(ifp);
+    ifcs->ifcs_destroy(ifp);
 
-	ifc_free_unit(ifc, unit);
+    ifc_free_unit(ifc, unit);
 
-	return (0);
+    return (0);
 }

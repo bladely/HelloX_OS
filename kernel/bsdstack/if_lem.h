@@ -1,31 +1,31 @@
 /******************************************************************************
 
-  Copyright (c) 2001-2010, Intel Corporation 
+  Copyright (c) 2001-2010, Intel Corporation
   All rights reserved.
-  
-  Redistribution and use in source and binary forms, with or without 
+
+  Redistribution and use in source and binary forms, with or without
   modification, are permitted provided that the following conditions are met:
-  
-   1. Redistributions of source code must retain the above copyright notice, 
+
+   1. Redistributions of source code must retain the above copyright notice,
       this list of conditions and the following disclaimer.
-  
-   2. Redistributions in binary form must reproduce the above copyright 
-      notice, this list of conditions and the following disclaimer in the 
+
+   2. Redistributions in binary form must reproduce the above copyright
+      notice, this list of conditions and the following disclaimer in the
       documentation and/or other materials provided with the distribution.
-  
-   3. Neither the name of the Intel Corporation nor the names of its 
-      contributors may be used to endorse or promote products derived from 
+
+   3. Neither the name of the Intel Corporation nor the names of its
+      contributors may be used to endorse or promote products derived from
       this software without specific prior written permission.
-  
+
   THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
-  AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE 
-  IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE 
-  ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE 
-  LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR 
-  CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF 
-  SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS 
-  INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN 
-  CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) 
+  AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+  IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+  ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE
+  LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+  CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+  SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+  INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+  CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
   ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
   POSSIBILITY OF SUCH DAMAGE.
 
@@ -177,7 +177,7 @@
  * Micellaneous constants
  */
 #define EM_VENDOR_ID                    0x8086
-#define EM_FLASH                        0x0014 
+#define EM_FLASH                        0x0014
 
 #define EM_JUMBO_PBA                    0x00000028
 #define EM_DEFAULT_PBA                  0x00000030
@@ -211,7 +211,7 @@
 #define EM_BAR_TYPE_MASK	0x00000001
 #define EM_BAR_TYPE_MMEM	0x00000000
 #define EM_BAR_TYPE_IO		0x00000001
-#define EM_BAR_TYPE_FLASH	0x0014 
+#define EM_BAR_TYPE_FLASH	0x0014
 #define EM_BAR_MEM_TYPE(v)	((v) & EM_BAR_MEM_TYPE_MASK)
 #define EM_BAR_MEM_TYPE_MASK	0x00000006
 #define EM_BAR_MEM_TYPE_32BIT	0x00000000
@@ -270,175 +270,178 @@
  * Bus dma allocation structure used by
  * e1000_dma_malloc and e1000_dma_free.
  */
-struct em_dma_alloc {
-        bus_addr_t              dma_paddr;
-        caddr_t                 dma_vaddr;
-        bus_dma_tag_t           dma_tag;
-        bus_dmamap_t            dma_map;
-        bus_dma_segment_t       dma_seg;
-        int                     dma_nseg;
+struct em_dma_alloc
+{
+    bus_addr_t              dma_paddr;
+    caddr_t                 dma_vaddr;
+    bus_dma_tag_t           dma_tag;
+    bus_dmamap_t            dma_map;
+    bus_dma_segment_t       dma_seg;
+    int                     dma_nseg;
 };
 
 struct adapter;
 
-struct em_int_delay_info {
-	struct adapter *adapter;	/* Back-pointer to the adapter struct */
-	int offset;			/* Register offset to read/write */
-	int value;			/* Current value in usecs */
+struct em_int_delay_info
+{
+    struct adapter *adapter;	/* Back-pointer to the adapter struct */
+    int offset;			/* Register offset to read/write */
+    int value;			/* Current value in usecs */
 };
 
 /* Our adapter structure */
-struct adapter {
-	struct ifnet	*ifp;
+struct adapter
+{
+    struct ifnet	*ifp;
 #if __FreeBSD_version >= 800000
-	struct buf_ring	*br;
+    struct buf_ring	*br;
 #endif
-	struct e1000_hw	hw;
+    struct e1000_hw	hw;
 
-	/* FreeBSD operating-system-specific structures. */
-	struct e1000_osdep osdep;
-	struct device	*dev;
-	struct cdev	*led_dev;
+    /* FreeBSD operating-system-specific structures. */
+    struct e1000_osdep osdep;
+    struct device	*dev;
+    struct cdev	*led_dev;
 
-	struct resource *memory;
-	struct resource *flash;
-	struct resource *msix;
+    struct resource *memory;
+    struct resource *flash;
+    struct resource *msix;
 
-	struct resource	*ioport;
-	int		io_rid;
+    struct resource	*ioport;
+    int		io_rid;
 
-	/* 82574 may use 3 int vectors */
-	struct resource	*res[3];
-	void		*tag[3];
-	int		rid[3];
+    /* 82574 may use 3 int vectors */
+    struct resource	*res[3];
+    void		*tag[3];
+    int		rid[3];
 
-	struct ifmedia	media;
-	struct callout	timer;
-	struct callout	tx_fifo_timer;
-	bool		watchdog_check;
-	int		watchdog_time;
-	int		msi;
-	int		if_flags;
-	int		max_frame_size;
-	int		min_frame_size;
-	struct mtx	core_mtx;
-	struct mtx	tx_mtx;
-	struct mtx	rx_mtx;
-	int		em_insert_vlan_header;
+    struct ifmedia	media;
+    struct callout	timer;
+    struct callout	tx_fifo_timer;
+    bool		watchdog_check;
+    int		watchdog_time;
+    int		msi;
+    int		if_flags;
+    int		max_frame_size;
+    int		min_frame_size;
+    struct mtx	core_mtx;
+    struct mtx	tx_mtx;
+    struct mtx	rx_mtx;
+    int		em_insert_vlan_header;
 
-	/* Task for FAST handling */
-	//struct task     link_task;
-	//struct task     rxtx_task;
-	//struct task     rx_task;
-	//struct task     tx_task;
-	struct taskqueue *tq;           /* private task queue */
+    /* Task for FAST handling */
+    //struct task     link_task;
+    //struct task     rxtx_task;
+    //struct task     rx_task;
+    //struct task     tx_task;
+    struct taskqueue *tq;           /* private task queue */
 
-	//eventhandler_tag vlan_attach;
-	//eventhandler_tag vlan_detach;
-	u32	num_vlans;
+    //eventhandler_tag vlan_attach;
+    //eventhandler_tag vlan_detach;
+    u32	num_vlans;
 
-	/* Management and WOL features */
-	u32		wol;
-	bool		has_manage;
-	bool		has_amt;
+    /* Management and WOL features */
+    u32		wol;
+    bool		has_manage;
+    bool		has_amt;
 
-	/* Multicast array memory */
-	u8		*mta;
+    /* Multicast array memory */
+    u8		*mta;
 
-	/*
-	** Shadow VFTA table, this is needed because
-	** the real vlan filter table gets cleared during
-	** a soft reset and the driver needs to be able
-	** to repopulate it.
-	*/
-	u32		shadow_vfta[EM_VFTA_SIZE];
+    /*
+    ** Shadow VFTA table, this is needed because
+    ** the real vlan filter table gets cleared during
+    ** a soft reset and the driver needs to be able
+    ** to repopulate it.
+    */
+    u32		shadow_vfta[EM_VFTA_SIZE];
 
-	/* Info about the interface */
-	uint8_t		link_active;
-	uint16_t	link_speed;
-	uint16_t	link_duplex;
-	uint32_t	smartspeed;
-	uint32_t	fc_setting;
+    /* Info about the interface */
+    uint8_t		link_active;
+    uint16_t	link_speed;
+    uint16_t	link_duplex;
+    uint32_t	smartspeed;
+    uint32_t	fc_setting;
 
-	struct em_int_delay_info tx_int_delay;
-	struct em_int_delay_info tx_abs_int_delay;
-	struct em_int_delay_info rx_int_delay;
-	struct em_int_delay_info rx_abs_int_delay;
+    struct em_int_delay_info tx_int_delay;
+    struct em_int_delay_info tx_abs_int_delay;
+    struct em_int_delay_info rx_int_delay;
+    struct em_int_delay_info rx_abs_int_delay;
 
-	/*
-	 * Transmit definitions
-	 *
-	 * We have an array of num_tx_desc descriptors (handled
-	 * by the controller) paired with an array of tx_buffers
-	 * (at tx_buffer_area).
-	 * The index of the next available descriptor is next_avail_tx_desc.
-	 * The number of remaining tx_desc is num_tx_desc_avail.
-	 */
-	struct em_dma_alloc	txdma;		/* bus_dma glue for tx desc */
-	struct e1000_tx_desc	*tx_desc_base;
-	uint32_t		next_avail_tx_desc;
-	uint32_t		next_tx_to_clean;
-	volatile uint16_t	num_tx_desc_avail;
-        uint16_t		num_tx_desc;
-        uint16_t		last_hw_offload;
-        uint32_t		txd_cmd;
-	struct em_buffer	*tx_buffer_area;
-	bus_dma_tag_t		txtag;		/* dma tag for tx */
-	uint32_t	   	tx_tso;		/* last tx was tso */
+    /*
+     * Transmit definitions
+     *
+     * We have an array of num_tx_desc descriptors (handled
+     * by the controller) paired with an array of tx_buffers
+     * (at tx_buffer_area).
+     * The index of the next available descriptor is next_avail_tx_desc.
+     * The number of remaining tx_desc is num_tx_desc_avail.
+     */
+    struct em_dma_alloc	txdma;		/* bus_dma glue for tx desc */
+    struct e1000_tx_desc	*tx_desc_base;
+    uint32_t		next_avail_tx_desc;
+    uint32_t		next_tx_to_clean;
+    volatile uint16_t	num_tx_desc_avail;
+    uint16_t		num_tx_desc;
+    uint16_t		last_hw_offload;
+    uint32_t		txd_cmd;
+    struct em_buffer	*tx_buffer_area;
+    bus_dma_tag_t		txtag;		/* dma tag for tx */
+    uint32_t	   	tx_tso;		/* last tx was tso */
 
-	/* 
-	 * Receive definitions
-	 *
-	 * we have an array of num_rx_desc rx_desc (handled by the
-	 * controller), and paired with an array of rx_buffers
-	 * (at rx_buffer_area).
-	 * The next pair to check on receive is at offset next_rx_desc_to_check
-	 */
-	struct em_dma_alloc	rxdma;		/* bus_dma glue for rx desc */
-	struct e1000_rx_desc	*rx_desc_base;
-	uint32_t		next_rx_desc_to_check;
-	uint32_t		rx_buffer_len;
-	uint16_t		num_rx_desc;
-	int			rx_process_limit;
-	struct em_buffer	*rx_buffer_area;
-	bus_dma_tag_t		rxtag;
-	bus_dmamap_t		rx_sparemap;
+    /*
+     * Receive definitions
+     *
+     * we have an array of num_rx_desc rx_desc (handled by the
+     * controller), and paired with an array of rx_buffers
+     * (at rx_buffer_area).
+     * The next pair to check on receive is at offset next_rx_desc_to_check
+     */
+    struct em_dma_alloc	rxdma;		/* bus_dma glue for rx desc */
+    struct e1000_rx_desc	*rx_desc_base;
+    uint32_t		next_rx_desc_to_check;
+    uint32_t		rx_buffer_len;
+    uint16_t		num_rx_desc;
+    int			rx_process_limit;
+    struct em_buffer	*rx_buffer_area;
+    bus_dma_tag_t		rxtag;
+    bus_dmamap_t		rx_sparemap;
 
-	/*
-	 * First/last mbuf pointers, for
-	 * collecting multisegment RX packets.
-	 */
-	struct mbuf	       *fmp;
-	struct mbuf	       *lmp;
+    /*
+     * First/last mbuf pointers, for
+     * collecting multisegment RX packets.
+     */
+    struct mbuf	       *fmp;
+    struct mbuf	       *lmp;
 
-	/* Misc stats maintained by the driver */
-	unsigned long	dropped_pkts;
-	unsigned long	mbuf_alloc_failed;
-	unsigned long	mbuf_cluster_failed;
-	unsigned long	no_tx_desc_avail1;
-	unsigned long	no_tx_desc_avail2;
-	unsigned long	no_tx_map_avail;
-        unsigned long	no_tx_dma_setup;
-	unsigned long	watchdog_events;
-	unsigned long	rx_overruns;
-	unsigned long	rx_irq;
-	unsigned long	tx_irq;
-	unsigned long	link_irq;
+    /* Misc stats maintained by the driver */
+    unsigned long	dropped_pkts;
+    unsigned long	mbuf_alloc_failed;
+    unsigned long	mbuf_cluster_failed;
+    unsigned long	no_tx_desc_avail1;
+    unsigned long	no_tx_desc_avail2;
+    unsigned long	no_tx_map_avail;
+    unsigned long	no_tx_dma_setup;
+    unsigned long	watchdog_events;
+    unsigned long	rx_overruns;
+    unsigned long	rx_irq;
+    unsigned long	tx_irq;
+    unsigned long	link_irq;
 
-	/* 82547 workaround */
-	uint32_t	tx_fifo_size;
-	uint32_t	tx_fifo_head;
-	uint32_t	tx_fifo_head_addr;
-	__uint64_t	tx_fifo_reset_cnt;
-	__uint64_t	tx_fifo_wrk_cnt;
-	uint32_t	tx_head_addr;
+    /* 82547 workaround */
+    uint32_t	tx_fifo_size;
+    uint32_t	tx_fifo_head;
+    uint32_t	tx_fifo_head_addr;
+    __uint64_t	tx_fifo_reset_cnt;
+    __uint64_t	tx_fifo_wrk_cnt;
+    uint32_t	tx_head_addr;
 
-        /* For 82544 PCIX Workaround */
-	bool       pcix_82544;
-	bool       in_detach;
+    /* For 82544 PCIX Workaround */
+    bool       pcix_82544;
+    bool       in_detach;
 
 
-	struct e1000_hw_stats stats;
+    struct e1000_hw_stats stats;
 };
 
 /* ******************************************************************************
@@ -448,31 +451,33 @@ struct adapter {
  * should load.
  *
  * ******************************************************************************/
-typedef struct _em_vendor_info_t {
-	unsigned int vendor_id;
-	unsigned int device_id;
-	unsigned int subvendor_id;
-	unsigned int subdevice_id;
-	unsigned int index;
+typedef struct _em_vendor_info_t
+{
+    unsigned int vendor_id;
+    unsigned int device_id;
+    unsigned int subvendor_id;
+    unsigned int subdevice_id;
+    unsigned int index;
 } em_vendor_info_t;
 
-struct em_buffer {
-	int		next_eop;  /* Index of the desc to watch */
-        struct mbuf    *m_head;
-        bus_dmamap_t    map;         /* bus_dma map for packet */
+struct em_buffer
+{
+    int		next_eop;  /* Index of the desc to watch */
+    struct mbuf    *m_head;
+    bus_dmamap_t    map;         /* bus_dma map for packet */
 };
 
 /* For 82544 PCIX  Workaround */
 typedef struct _ADDRESS_LENGTH_PAIR
 {
-	__uint64_t   address;
-	uint32_t   length;
+    __uint64_t   address;
+    uint32_t   length;
 } ADDRESS_LENGTH_PAIR, *PADDRESS_LENGTH_PAIR;
 
 typedef struct _DESCRIPTOR_PAIR
 {
-	ADDRESS_LENGTH_PAIR descriptor[4];
-	uint32_t   elements;
+    ADDRESS_LENGTH_PAIR descriptor[4];
+    uint32_t   elements;
 } DESC_ARRAY, *PDESC_ARRAY;
 
 #define	EM_CORE_LOCK_INIT(_sc, _name) \
@@ -496,7 +501,7 @@ typedef struct _DESCRIPTOR_PAIR
 /*********************************************************************
  *  Function prototypes
  *********************************************************************/
-int	lem_probe(__PHYSICAL_DEVICE*);
+int	lem_probe(__PHYSICAL_DEVICE *);
 int	lem_attach(device_t);
 int	lem_detach(device_t);
 int	lem_shutdown(device_t);
@@ -536,9 +541,9 @@ bool	lem_rxeof(struct adapter *, int, int *);
 static int	lem_fixup_rx(struct adapter *);
 #endif
 void	lem_receive_checksum(struct adapter *, struct e1000_rx_desc *,
-    struct mbuf *);
+                             struct mbuf *);
 void	lem_transmit_checksum_setup(struct adapter *, struct mbuf *,
-    u32 *, u32 *);
+                                    u32 *, u32 *);
 void	lem_set_promisc(struct adapter *);
 void	lem_disable_promisc(struct adapter *);
 void	lem_set_multi(struct adapter *);
@@ -554,18 +559,18 @@ void	lem_82547_update_fifo_head(struct adapter *, int);
 int	lem_82547_tx_fifo_reset(struct adapter *);
 void	lem_82547_move_tail(void *);
 int	lem_dma_malloc(struct adapter *, bus_size_t,
-    struct em_dma_alloc *, int);
+                   struct em_dma_alloc *, int);
 void	lem_dma_free(struct adapter *, struct em_dma_alloc *);
 int	lem_sysctl_nvm_info(SYSCTL_HANDLER_ARGS);
 void	lem_print_nvm_info(struct adapter *);
 int 	lem_is_valid_ether_addr(u8 *);
 u32	lem_fill_descriptors (bus_addr_t address, u32 length,
-    PDESC_ARRAY desc_array);
+                          PDESC_ARRAY desc_array);
 int	lem_sysctl_int_delay(SYSCTL_HANDLER_ARGS);
 void	lem_add_int_delay_sysctl(struct adapter *, const char *,
-    const char *, struct em_int_delay_info *, int, int);
+                                 const char *, struct em_int_delay_info *, int, int);
 void	lem_set_flow_cntrl(struct adapter *, const char *,
-		    const char *, int *, int);
+                           const char *, int *, int);
 /* Management and WOL Support */
 void	lem_init_manageability(struct adapter *);
 void	lem_release_manageability(struct adapter *);
@@ -584,7 +589,7 @@ int	lem_irq_fast(void *);
 void	lem_handle_rxtx(void *context, int pending);
 void	lem_handle_link(void *context, int pending);
 void	lem_add_rx_process_limit(struct adapter *, const char *,
-		    const char *, int *, int);
+                                 const char *, int *, int);
 #endif /* ~EM_LEGACY_IRQ */
 
 #endif /* _LEM_H_DEFINED_ */

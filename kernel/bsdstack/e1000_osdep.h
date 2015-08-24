@@ -1,31 +1,31 @@
 /******************************************************************************
 
-  Copyright (c) 2001-2010, Intel Corporation 
+  Copyright (c) 2001-2010, Intel Corporation
   All rights reserved.
-  
-  Redistribution and use in source and binary forms, with or without 
+
+  Redistribution and use in source and binary forms, with or without
   modification, are permitted provided that the following conditions are met:
-  
-   1. Redistributions of source code must retain the above copyright notice, 
+
+   1. Redistributions of source code must retain the above copyright notice,
       this list of conditions and the following disclaimer.
-  
-   2. Redistributions in binary form must reproduce the above copyright 
-      notice, this list of conditions and the following disclaimer in the 
+
+   2. Redistributions in binary form must reproduce the above copyright
+      notice, this list of conditions and the following disclaimer in the
       documentation and/or other materials provided with the distribution.
-  
-   3. Neither the name of the Intel Corporation nor the names of its 
-      contributors may be used to endorse or promote products derived from 
+
+   3. Neither the name of the Intel Corporation nor the names of its
+      contributors may be used to endorse or promote products derived from
       this software without specific prior written permission.
-  
+
   THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
-  AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE 
-  IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE 
-  ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE 
-  LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR 
-  CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF 
-  SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS 
-  INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN 
-  CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) 
+  AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+  IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+  ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE
+  LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+  CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+  SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+  INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+  CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
   ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
   POSSIBILITY OF SUCH DAMAGE.
 
@@ -69,7 +69,7 @@
 #define msec_delay_irq(x) DELAY(1000*(x))
 
 #define MSGOUT(S, A, B)     printf(S "\n", A, B)
-#define DEBUGFUNC(F)        
+#define DEBUGFUNC(F)
 #define DEBUGOUT(S)			do {} while (0)
 #define DEBUGOUT1(S,A)			do {} while (0)
 #define DEBUGOUT2(S,A,B)		do {} while (0)
@@ -78,7 +78,7 @@
 
 #define STATIC			static
 //#define FALSE			0
-#define false			FALSE 
+#define false			FALSE
 //#define TRUE			1
 #define true			TRUE
 #define CMD_MEM_WRT_INVALIDATE	0x0010  /* BIT_4 */
@@ -123,7 +123,7 @@ typedef __int32_t	bool;
 static __inline
 void prefetch(void *x)
 {
-	__asm volatile("prefetcht0 %0" :: "m" (*(unsigned long *)x));
+    __asm volatile("prefetcht0 %0" :: "m" (*(unsigned long *)x));
 }
 #else
 #define prefetch(x)
@@ -131,13 +131,13 @@ void prefetch(void *x)
 
 struct e1000_osdep
 {
-	bus_space_tag_t    mem_bus_space_tag;
-	bus_space_handle_t mem_bus_space_handle;
-	bus_space_tag_t    io_bus_space_tag;
-	bus_space_handle_t io_bus_space_handle;
-	bus_space_tag_t    flash_bus_space_tag;
-	bus_space_handle_t flash_bus_space_handle;
-	struct device     *dev;
+    bus_space_tag_t    mem_bus_space_tag;
+    bus_space_handle_t mem_bus_space_handle;
+    bus_space_tag_t    io_bus_space_tag;
+    bus_space_handle_t io_bus_space_handle;
+    bus_space_tag_t    flash_bus_space_tag;
+    bus_space_handle_t flash_bus_space_handle;
+    struct device     *dev;
 };
 
 #define E1000_REGISTER(hw, reg) (((hw)->mac.type >= e1000_82543) \

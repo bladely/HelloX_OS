@@ -86,231 +86,246 @@ devclass_t miibus_devclass;
 
 int
 miibus_probe(dev)
-	device_t		dev;
+device_t		dev;
 {
-	struct mii_attach_args	ma, *args;
-	struct mii_data		*mii;
-	device_t		child = NULL, parent;
-	int			bmsr, capmask = 0xFFFFFFFF;
+    struct mii_attach_args	ma, *args;
+    struct mii_data		*mii;
+    device_t		child = NULL, parent;
+    int			bmsr, capmask = 0xFFFFFFFF;
 
-	mii = device_get_softc(dev);
-	parent = device_get_parent(dev);
-	LIST_INIT(&mii->mii_phys);
+    mii = device_get_softc(dev);
+    parent = device_get_parent(dev);
+    LIST_INIT(&mii->mii_phys);
 
-	for (ma.mii_phyno = 0; ma.mii_phyno < MII_NPHY; ma.mii_phyno++) {
-		/*
-		 * Check to see if there is a PHY at this address.  Note,
-		 * many braindead PHYs report 0/0 in their ID registers,
-		 * so we test for media in the BMSR.
-	 	 */
-		bmsr = MIIBUS_READREG(parent, ma.mii_phyno, MII_BMSR);
-		if (bmsr == 0 || bmsr == 0xffff ||
-		    (bmsr & BMSR_MEDIAMASK) == 0) {
-			/* Assume no PHY at this address. */
-			continue;
-		}
+    for (ma.mii_phyno = 0; ma.mii_phyno < MII_NPHY; ma.mii_phyno++)
+    {
+        /*
+         * Check to see if there is a PHY at this address.  Note,
+         * many braindead PHYs report 0/0 in their ID registers,
+         * so we test for media in the BMSR.
+         */
+        bmsr = MIIBUS_READREG(parent, ma.mii_phyno, MII_BMSR);
+        if (bmsr == 0 || bmsr == 0xffff ||
+                (bmsr & BMSR_MEDIAMASK) == 0)
+        {
+            /* Assume no PHY at this address. */
+            continue;
+        }
 
-		/*
-		 * Extract the IDs. Braindead PHYs will be handled by
-		 * the `ukphy' driver, as we have no ID information to
-		 * match on.
-	 	 */
-		ma.mii_id1 = MIIBUS_READREG(parent, ma.mii_phyno,
-		    MII_PHYIDR1);
-		ma.mii_id2 = MIIBUS_READREG(parent, ma.mii_phyno,
-		    MII_PHYIDR2);
+        /*
+         * Extract the IDs. Braindead PHYs will be handled by
+         * the `ukphy' driver, as we have no ID information to
+         * match on.
+         */
+        ma.mii_id1 = MIIBUS_READREG(parent, ma.mii_phyno,
+                                    MII_PHYIDR1);
+        ma.mii_id2 = MIIBUS_READREG(parent, ma.mii_phyno,
+                                    MII_PHYIDR2);
 
-		ma.mii_data = mii;
-		ma.mii_capmask = capmask;
+        ma.mii_data = mii;
+        ma.mii_capmask = capmask;
 
-		args = malloc(sizeof(struct mii_attach_args));
-		bcopy((char *)&ma, (char *)args, sizeof(ma));
-		child = device_add_child(dev, NULL, -1);
-		device_set_ivars(child, args);
-	}
+        args = malloc(sizeof(struct mii_attach_args));
+        bcopy((char *)&ma, (char *)args, sizeof(ma));
+        child = device_add_child(dev, NULL, -1);
+        device_set_ivars(child, args);
+    }
 
-	if (child == NULL)
-		return(ENXIO);
+    if (child == NULL)
+        return(ENXIO);
 
-	device_set_desc(dev, "MII bus");
+    device_set_desc(dev, "MII bus");
 
-	return(0);
+    return(0);
 }
 
 int
 miibus_attach(dev)
-	device_t		dev;
+device_t		dev;
 {
-	void			**v;
-	ifm_change_cb_t		ifmedia_upd;
-	ifm_stat_cb_t		ifmedia_sts;
-	struct mii_data		*mii;
+    void			**v;
+    ifm_change_cb_t		ifmedia_upd;
+    ifm_stat_cb_t		ifmedia_sts;
+    struct mii_data		*mii;
 
-	mii = device_get_softc(dev);
-	/*
-	 * Note that each NIC's softc must start with an ifnet structure.
-	 */
-	mii->mii_ifp = device_get_softc(device_get_parent(dev));
-	v = device_get_ivars(dev);
-	ifmedia_upd = v[0];
-	ifmedia_sts = v[1];
-	ifmedia_init(&mii->mii_media, IFM_IMASK, ifmedia_upd, ifmedia_sts);
-	bus_generic_attach(dev);
+    mii = device_get_softc(dev);
+    /*
+     * Note that each NIC's softc must start with an ifnet structure.
+     */
+    mii->mii_ifp = device_get_softc(device_get_parent(dev));
+    v = device_get_ivars(dev);
+    ifmedia_upd = v[0];
+    ifmedia_sts = v[1];
+    ifmedia_init(&mii->mii_media, IFM_IMASK, ifmedia_upd, ifmedia_sts);
+    bus_generic_attach(dev);
 
-	return(0);
+    return(0);
 }
 
 int
 miibus_detach(dev)
-	device_t		dev;
+device_t		dev;
 {
-	struct mii_data		*mii;
+    struct mii_data		*mii;
 
-	bus_generic_detach(dev);
-	mii = device_get_softc(dev);
-	ifmedia_removeall(&mii->mii_media);
-	mii->mii_ifp = NULL;
+    bus_generic_detach(dev);
+    mii = device_get_softc(dev);
+    ifmedia_removeall(&mii->mii_media);
+    mii->mii_ifp = NULL;
 
-	return(0);
+    return(0);
 }
 
- int
+int
 miibus_readreg(dev, phy, reg)
-	device_t		dev;
-	int			phy, reg;
+device_t		dev;
+int			phy, reg;
 {
-	device_t		parent;
+    device_t		parent;
 
-	parent = device_get_parent(dev);
-	return(MIIBUS_READREG(parent, phy, reg));
+    parent = device_get_parent(dev);
+    return(MIIBUS_READREG(parent, phy, reg));
 }
 
- int
+int
 miibus_writereg(dev, phy, reg, data)
-	device_t		dev;
-	int			phy, reg, data;
+device_t		dev;
+int			phy, reg, data;
 {
-	device_t		parent;
+    device_t		parent;
 
-	parent = device_get_parent(dev);
-	return(MIIBUS_WRITEREG(parent, phy, reg, data));
+    parent = device_get_parent(dev);
+    return(MIIBUS_WRITEREG(parent, phy, reg, data));
 }
 
- void
+void
 miibus_statchg(dev)
-	device_t		dev;
+device_t		dev;
 {
-	device_t		parent;
+    device_t		parent;
 
-	parent = device_get_parent(dev);
-	MIIBUS_STATCHG(parent);
-	return;
+    parent = device_get_parent(dev);
+    MIIBUS_STATCHG(parent);
+    return;
 }
 
 void	(*vlan_link_state_p)(struct ifnet *, int);	/* XXX: private from if_vlan */
 
- void
+void
 miibus_linkchg(dev)
-	device_t dev;
+device_t dev;
 {
-	struct mii_data *mii;
-	struct ifnet *ifp;
-	device_t parent;
-	int link, link_state;
+    struct mii_data *mii;
+    struct ifnet *ifp;
+    device_t parent;
+    int link, link_state;
 
-	parent = device_get_parent(dev);
-	MIIBUS_LINKCHG(parent);
+    parent = device_get_parent(dev);
+    MIIBUS_LINKCHG(parent);
 
-	mii = device_get_softc(dev);
-	/*
-	 * Note that each NIC's softc must start with an ifnet structure.
-	 */
-	ifp = device_get_softc(parent);
-	
-	if (mii->mii_media_status & IFM_AVALID) {
-		if (mii->mii_media_status & IFM_ACTIVE) {
-			link = NOTE_LINKUP;
-			link_state = LINK_STATE_UP;
-		} else {
-			link = NOTE_LINKDOWN;
-			link_state = LINK_STATE_DOWN;
-		}
-	} else {
-		link = NOTE_LINKINV;
-		link_state = LINK_STATE_UNKNOWN;
-	}
+    mii = device_get_softc(dev);
+    /*
+     * Note that each NIC's softc must start with an ifnet structure.
+     */
+    ifp = device_get_softc(parent);
 
-	/* Notify that the link state has changed. */
-	if (ifp->if_link_state != link_state) {
-		ifp->if_link_state = link_state;
-		rt_ifmsg(ifp);
-		KNOTE_UNLOCKED(&ifp->if_klist, link);
-		if (ifp->if_nvlans != 0)
-			(*vlan_link_state_p)(ifp, link);
-	}
+    if (mii->mii_media_status & IFM_AVALID)
+    {
+        if (mii->mii_media_status & IFM_ACTIVE)
+        {
+            link = NOTE_LINKUP;
+            link_state = LINK_STATE_UP;
+        }
+        else
+        {
+            link = NOTE_LINKDOWN;
+            link_state = LINK_STATE_DOWN;
+        }
+    }
+    else
+    {
+        link = NOTE_LINKINV;
+        link_state = LINK_STATE_UNKNOWN;
+    }
+
+    /* Notify that the link state has changed. */
+    if (ifp->if_link_state != link_state)
+    {
+        ifp->if_link_state = link_state;
+        rt_ifmsg(ifp);
+        KNOTE_UNLOCKED(&ifp->if_klist, link);
+        if (ifp->if_nvlans != 0)
+            (*vlan_link_state_p)(ifp, link);
+    }
 }
 
- void
+void
 miibus_mediainit(dev)
-	device_t		dev;
+device_t		dev;
 {
-	struct mii_data		*mii;
-	struct ifmedia_entry	*m;
-	int			media = 0;
+    struct mii_data		*mii;
+    struct ifmedia_entry	*m;
+    int			media = 0;
 
-	/* Poke the parent in case it has any media of its own to add. */
-	MIIBUS_MEDIAINIT(device_get_parent(dev));
+    /* Poke the parent in case it has any media of its own to add. */
+    MIIBUS_MEDIAINIT(device_get_parent(dev));
 
-	mii = device_get_softc(dev);
-	LIST_FOREACH(m, &mii->mii_media.ifm_list, ifm_list) {
-		media = m->ifm_media;
-		if (media == (IFM_ETHER|IFM_AUTO))
-			break;
-	}
+    mii = device_get_softc(dev);
+    LIST_FOREACH(m, &mii->mii_media.ifm_list, ifm_list)
+    {
+        media = m->ifm_media;
+        if (media == (IFM_ETHER | IFM_AUTO))
+            break;
+    }
 
-	ifmedia_set(&mii->mii_media, media);
+    ifmedia_set(&mii->mii_media, media);
 
-	return;
+    return;
 }
 
 int
 mii_phy_probe(dev, child, ifmedia_upd, ifmedia_sts)
-	device_t		dev;
-	device_t		*child;
-	ifm_change_cb_t		ifmedia_upd;
-	ifm_stat_cb_t		ifmedia_sts;
+device_t		dev;
+device_t		*child;
+ifm_change_cb_t		ifmedia_upd;
+ifm_stat_cb_t		ifmedia_sts;
 {
-	void			**v;
-	int			bmsr, i;
+    void			**v;
+    int			bmsr, i;
 
-	v = malloc(sizeof(vm_offset_t) * 2, M_DEVBUF, M_NOWAIT);
-	if (v == 0) {
-		return (ENOMEM);
-	}
-	v[0] = ifmedia_upd;
-	v[1] = ifmedia_sts;
-	*child = device_add_child(dev, "miibus", -1);
-	device_set_ivars(*child, v);
+    v = malloc(sizeof(vm_offset_t) * 2, M_DEVBUF, M_NOWAIT);
+    if (v == 0)
+    {
+        return (ENOMEM);
+    }
+    v[0] = ifmedia_upd;
+    v[1] = ifmedia_sts;
+    *child = device_add_child(dev, "miibus", -1);
+    device_set_ivars(*child, v);
 
-	for (i = 0; i < MII_NPHY; i++) {
-		bmsr = MIIBUS_READREG(dev, i, MII_BMSR);
-                if (bmsr == 0 || bmsr == 0xffff ||
-                    (bmsr & BMSR_MEDIAMASK) == 0) {
-                        /* Assume no PHY at this address. */
-                        continue;
-                } else
-			break;
-	}
+    for (i = 0; i < MII_NPHY; i++)
+    {
+        bmsr = MIIBUS_READREG(dev, i, MII_BMSR);
+        if (bmsr == 0 || bmsr == 0xffff ||
+                (bmsr & BMSR_MEDIAMASK) == 0)
+        {
+            /* Assume no PHY at this address. */
+            continue;
+        }
+        else
+            break;
+    }
 
-	if (i == MII_NPHY) {
-		device_delete_child(dev, *child);
-		*child = NULL;
-		return(ENXIO);
-	}
+    if (i == MII_NPHY)
+    {
+        device_delete_child(dev, *child);
+        *child = NULL;
+        return(ENXIO);
+    }
 
-	bus_generic_attach(dev);
+    bus_generic_attach(dev);
 
-	return(0);
+    return(0);
 }
 
 /*
@@ -318,20 +333,21 @@ mii_phy_probe(dev, child, ifmedia_upd, ifmedia_sts)
  */
 int
 mii_mediachg(mii)
-	struct mii_data *mii;
+struct mii_data *mii;
 {
-	struct mii_softc *child;
-	int rv;
+    struct mii_softc *child;
+    int rv;
 
-	mii->mii_media_status = 0;
-	mii->mii_media_active = IFM_NONE;
+    mii->mii_media_status = 0;
+    mii->mii_media_active = IFM_NONE;
 
-	LIST_FOREACH(child, &mii->mii_phys, mii_list) {
-		rv = (*child->mii_service)(child, mii, MII_MEDIACHG);
-		if (rv)
-			return (rv);
-	}
-	return (0);
+    LIST_FOREACH(child, &mii->mii_phys, mii_list)
+    {
+        rv = (*child->mii_service)(child, mii, MII_MEDIACHG);
+        if (rv)
+            return (rv);
+    }
+    return (0);
 }
 
 /*
@@ -339,12 +355,12 @@ mii_mediachg(mii)
  */
 void
 mii_tick(mii)
-	struct mii_data *mii;
+struct mii_data *mii;
 {
-	struct mii_softc *child;
+    struct mii_softc *child;
 
-	LIST_FOREACH(child, &mii->mii_phys, mii_list)
-		(void) (*child->mii_service)(child, mii, MII_TICK);
+    LIST_FOREACH(child, &mii->mii_phys, mii_list)
+    (void) (*child->mii_service)(child, mii, MII_TICK);
 }
 
 /*
@@ -352,15 +368,15 @@ mii_tick(mii)
  */
 void
 mii_pollstat(mii)
-	struct mii_data *mii;
+struct mii_data *mii;
 {
-	struct mii_softc *child;
+    struct mii_softc *child;
 
-	mii->mii_media_status = 0;
-	mii->mii_media_active = IFM_NONE;
+    mii->mii_media_status = 0;
+    mii->mii_media_active = IFM_NONE;
 
-	LIST_FOREACH(child, &mii->mii_phys, mii_list)
-		(void) (*child->mii_service)(child, mii, MII_POLLSTAT);
+    LIST_FOREACH(child, &mii->mii_phys, mii_list)
+    (void) (*child->mii_service)(child, mii, MII_POLLSTAT);
 }
 
 /*
@@ -369,8 +385,8 @@ mii_pollstat(mii)
 void
 mii_down(struct mii_data *mii)
 {
-	struct mii_softc *child;
+    struct mii_softc *child;
 
-	LIST_FOREACH(child, &mii->mii_phys, mii_list)
-		mii_phy_down(child);
+    LIST_FOREACH(child, &mii->mii_phys, mii_list)
+    mii_phy_down(child);
 }

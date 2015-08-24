@@ -41,44 +41,44 @@ extern void arp_init(void);
 //extern IPS_ALL g_ips_all;
 void DOMAIN_SET(struct domain *name)
 {
-	net_add_domain(name);
-	
+    net_add_domain(name);
+
 }
 void BISStartup()
 {
-	int i = 0;
-	
-	//IPS_CFG_IFA *ifCfg;
-	
-	init_param1();
-	init_param2(1000);
-	init_param3(1000);
-	
-	//OSAL_Startup();
-	if_init(NULL);
-	//ifCfg = g_ips_all.config.ifa;
-	/*for( ;ifCfg != NULL; )
-	{
-		install_dev(ifCfg);
-		ifCfg = ifCfg->next;
-		i ++;
-	}*/
-	PciMatchDriver();
-	uma_startup(NULL);
-	mbuf_init(NULL);
-	domaininit(NULL);
-	
-	//rip_init();在net_add_domain中初始化
-	//udp_init();
-	DOMAIN_SET(&inetdomain);
-	DOMAIN_SET(&routedomain);
-	
-	rts_init();
-	
-	route_init();
-	arp_init();
-	
-	BISConfig();
-	test_ping("10.1.1.2");
+    int i = 0;
+
+    //IPS_CFG_IFA *ifCfg;
+
+    init_param1();
+    init_param2(1000);
+    init_param3(1000);
+
+    //OSAL_Startup();
+    if_init(NULL);
+    //ifCfg = g_ips_all.config.ifa;
+    /*for( ;ifCfg != NULL; )
+    {
+    	install_dev(ifCfg);
+    	ifCfg = ifCfg->next;
+    	i ++;
+    }*/
+    PciMatchDriver();
+    uma_startup(NULL);
+    mbuf_init(NULL);
+    domaininit(NULL);
+
+    //rip_init();在net_add_domain中初始化
+    //udp_init();
+    DOMAIN_SET(&inetdomain);
+    DOMAIN_SET(&routedomain);
+
+    rts_init();
+
+    route_init();
+    arp_init();
+
+    BISConfig();
+    //test_ping("10.1.1.2");
 }
 

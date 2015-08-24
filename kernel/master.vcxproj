@@ -180,6 +180,7 @@
     <ClCompile Include="bsdstack\in_rmx.c" />
     <ClCompile Include="bsdstack\ips_config.c" />
     <ClCompile Include="bsdstack\ips_lib.c" />
+    <ClCompile Include="bsdstack\ips_netstat.c" />
     <ClCompile Include="bsdstack\ip_fastfwd.c" />
     <ClCompile Include="bsdstack\ip_icmp.c" />
     <ClCompile Include="bsdstack\ip_input.c" />

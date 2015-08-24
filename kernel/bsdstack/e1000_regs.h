@@ -1,31 +1,31 @@
 /******************************************************************************
 
-  Copyright (c) 2001-2010, Intel Corporation 
+  Copyright (c) 2001-2010, Intel Corporation
   All rights reserved.
-  
-  Redistribution and use in source and binary forms, with or without 
+
+  Redistribution and use in source and binary forms, with or without
   modification, are permitted provided that the following conditions are met:
-  
-   1. Redistributions of source code must retain the above copyright notice, 
+
+   1. Redistributions of source code must retain the above copyright notice,
       this list of conditions and the following disclaimer.
-  
-   2. Redistributions in binary form must reproduce the above copyright 
-      notice, this list of conditions and the following disclaimer in the 
+
+   2. Redistributions in binary form must reproduce the above copyright
+      notice, this list of conditions and the following disclaimer in the
       documentation and/or other materials provided with the distribution.
-  
-   3. Neither the name of the Intel Corporation nor the names of its 
-      contributors may be used to endorse or promote products derived from 
+
+   3. Neither the name of the Intel Corporation nor the names of its
+      contributors may be used to endorse or promote products derived from
       this software without specific prior written permission.
-  
+
   THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
-  AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE 
-  IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE 
-  ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE 
-  LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR 
-  CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF 
-  SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS 
-  INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN 
-  CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) 
+  AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+  IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+  ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE
+  LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+  CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+  SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+  INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+  CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
   ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
   POSSIBILITY OF SUCH DAMAGE.
 
@@ -440,15 +440,15 @@
 #define E1000_IMIREXT(_i)   (0x05AA0 + ((_i) * 4))  /* Immediate Interrupt Ext*/
 #define E1000_IMIRVP    0x05AC0 /* Immediate Interrupt Rx VLAN Priority - RW */
 #define E1000_MSIXBM(_i)    (0x01600 + ((_i) * 4)) /* MSI-X Allocation Register
-                                                    * (_i) - RW */
+* (_i) - RW */
 #define E1000_MSIXTADD(_i)  (0x0C000 + ((_i) * 0x10)) /* MSI-X Table entry addr
-                                                       * low reg - RW */
+* low reg - RW */
 #define E1000_MSIXTUADD(_i) (0x0C004 + ((_i) * 0x10)) /* MSI-X Table entry addr
-                                                       * upper reg - RW */
+* upper reg - RW */
 #define E1000_MSIXTMSG(_i)  (0x0C008 + ((_i) * 0x10)) /* MSI-X Table entry
-                                                       * message reg - RW */
+* message reg - RW */
 #define E1000_MSIXVCTRL(_i) (0x0C00C + ((_i) * 0x10)) /* MSI-X Table entry
-                                                       * vector ctrl reg - RW */
+* vector ctrl reg - RW */
 #define E1000_MSIXPBA    0x0E000 /* MSI-X Pending bit array */
 #define E1000_RETA(_i)  (0x05C00 + ((_i) * 4)) /* Redirection Table - RW */
 #define E1000_RSSRK(_i) (0x05C80 + ((_i) * 4)) /* RSS Random Key - RW */
@@ -483,7 +483,7 @@
 #define E1000_VFVMBMEM(_n)     (0x00800 + (_n))
 #define E1000_VMOLR(_n)        (0x05AD0 + (4 * (_n)))
 #define E1000_VLVF(_n)         (0x05D00 + (4 * (_n))) /* VLAN Virtual Machine
-                                                       * Filter - RW */
+* Filter - RW */
 #define E1000_VMVIR(_n)        (0x03700 + (4 * (_n)))
 #define E1000_DVMOLR(_n)       (0x0C038 + (0x40 * (_n))) /* DMA VM offload */
 /* Time Sync */

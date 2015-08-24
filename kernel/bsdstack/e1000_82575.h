@@ -1,31 +1,31 @@
 /******************************************************************************
 
-  Copyright (c) 2001-2010, Intel Corporation 
+  Copyright (c) 2001-2010, Intel Corporation
   All rights reserved.
-  
-  Redistribution and use in source and binary forms, with or without 
+
+  Redistribution and use in source and binary forms, with or without
   modification, are permitted provided that the following conditions are met:
-  
-   1. Redistributions of source code must retain the above copyright notice, 
+
+   1. Redistributions of source code must retain the above copyright notice,
       this list of conditions and the following disclaimer.
-  
-   2. Redistributions in binary form must reproduce the above copyright 
-      notice, this list of conditions and the following disclaimer in the 
+
+   2. Redistributions in binary form must reproduce the above copyright
+      notice, this list of conditions and the following disclaimer in the
       documentation and/or other materials provided with the distribution.
-  
-   3. Neither the name of the Intel Corporation nor the names of its 
-      contributors may be used to endorse or promote products derived from 
+
+   3. Neither the name of the Intel Corporation nor the names of its
+      contributors may be used to endorse or promote products derived from
       this software without specific prior written permission.
-  
+
   THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
-  AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE 
-  IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE 
-  ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE 
-  LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR 
-  CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF 
-  SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS 
-  INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN 
-  CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) 
+  AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+  IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+  ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE
+  LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+  CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+  SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+  INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+  CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
   ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
   POSSIBILITY OF SUCH DAMAGE.
 
@@ -58,26 +58,31 @@
 #define E1000_CTRL_DEV_RST             0x20000000
 
 #ifdef E1000_BIT_FIELDS
-struct e1000_adv_data_desc {
-	__le64 buffer_addr;    /* Address of the descriptor's data buffer */
-	union {
-		u32 data;
-		struct {
-			u32 datalen :16; /* Data buffer length */
-			u32 rsvd    :4;
-			u32 dtyp    :4;  /* Descriptor type */
-			u32 dcmd    :8;  /* Descriptor command */
-		} config;
-	} lower;
-	union {
-		u32 data;
-		struct {
-			u32 status  :4;  /* Descriptor status */
-			u32 idx     :4;
-			u32 popts   :6;  /* Packet Options */
-			u32 paylen  :18; /* Payload length */
-		} options;
-	} upper;
+struct e1000_adv_data_desc
+{
+    __le64 buffer_addr;    /* Address of the descriptor's data buffer */
+    union
+    {
+        u32 data;
+        struct
+        {
+            u32 datalen : 16; /* Data buffer length */
+            u32 rsvd    : 4;
+            u32 dtyp    : 4; /* Descriptor type */
+            u32 dcmd    : 8; /* Descriptor command */
+        } config;
+    } lower;
+    union
+    {
+        u32 data;
+        struct
+        {
+            u32 status  : 4; /* Descriptor status */
+            u32 idx     : 4;
+            u32 popts   : 6; /* Packet Options */
+            u32 paylen  : 18; /* Payload length */
+        } options;
+    } upper;
 };
 
 #define E1000_TXD_DTYP_ADV_C    0x2  /* Advanced Context Descriptor */
@@ -96,29 +101,34 @@ struct e1000_adv_data_desc {
 /* Extended Device Control */
 #define E1000_CTRL_EXT_NSICR    0x00000001 /* Disable Intr Clear all on read */
 
-struct e1000_adv_context_desc {
-	union {
-		u32 ip_config;
-		struct {
-			u32 iplen    :9;
-			u32 maclen   :7;
-			u32 vlan_tag :16;
-		} fields;
-	} ip_setup;
-	u32 seq_num;
-	union {
-		u64 l4_config;
-		struct {
-			u32 mkrloc :9;
-			u32 tucmd  :11;
-			u32 dtyp   :4;
-			u32 adv    :8;
-			u32 rsvd   :4;
-			u32 idx    :4;
-			u32 l4len  :8;
-			u32 mss    :16;
-		} fields;
-	} l4_setup;
+struct e1000_adv_context_desc
+{
+    union
+    {
+        u32 ip_config;
+        struct
+        {
+            u32 iplen    : 9;
+            u32 maclen   : 7;
+            u32 vlan_tag : 16;
+        } fields;
+    } ip_setup;
+    u32 seq_num;
+    union
+    {
+        u64 l4_config;
+        struct
+        {
+            u32 mkrloc : 9;
+            u32 tucmd  : 11;
+            u32 dtyp   : 4;
+            u32 adv    : 8;
+            u32 rsvd   : 4;
+            u32 idx    : 4;
+            u32 l4len  : 8;
+            u32 mss    : 16;
+        } fields;
+    } l4_setup;
 };
 #endif
 
@@ -190,35 +200,44 @@ struct e1000_adv_context_desc {
 #define E1000_IMIREXT_CTRL_BP     0x00080000  /* Bypass check of ctrl bits */
 
 /* Receive Descriptor - Advanced */
-union e1000_adv_rx_desc {
-	struct {
-		__le64 pkt_addr;             /* Packet buffer address */
-		__le64 hdr_addr;             /* Header buffer address */
-	} read;
-	struct {
-		struct {
-			union {
-				__le32 data;
-				struct {
-					__le16 pkt_info; /*RSS type, Pkt type*/
-					/* Split Header, header buffer len */
-					__le16 hdr_info;
-				} hs_rss;
-			} lo_dword;
-			union {
-				__le32 rss;          /* RSS Hash */
-				struct {
-					__le16 ip_id;    /* IP id */
-					__le16 csum;     /* Packet Checksum */
-				} csum_ip;
-			} hi_dword;
-		} lower;
-		struct {
-			__le32 status_error;     /* ext status/error */
-			__le16 length;           /* Packet length */
-			__le16 vlan;             /* VLAN tag */
-		} upper;
-	} wb;  /* writeback */
+union e1000_adv_rx_desc
+{
+    struct
+    {
+        __le64 pkt_addr;             /* Packet buffer address */
+        __le64 hdr_addr;             /* Header buffer address */
+    } read;
+    struct
+    {
+        struct
+        {
+            union
+            {
+                __le32 data;
+                struct
+                {
+                    __le16 pkt_info; /*RSS type, Pkt type*/
+                    /* Split Header, header buffer len */
+                    __le16 hdr_info;
+                } hs_rss;
+            } lo_dword;
+            union
+            {
+                __le32 rss;          /* RSS Hash */
+                struct
+                {
+                    __le16 ip_id;    /* IP id */
+                    __le16 csum;     /* Packet Checksum */
+                } csum_ip;
+            } hi_dword;
+        } lower;
+        struct
+        {
+            __le32 status_error;     /* ext status/error */
+            __le16 length;           /* Packet length */
+            __le16 vlan;             /* VLAN tag */
+        } upper;
+    } wb;  /* writeback */
 };
 
 #define E1000_RXDADV_RSSTYPE_MASK        0x0000000F
@@ -276,17 +295,20 @@ union e1000_adv_rx_desc {
 #define E1000_RXDADV_IPSEC_ERROR_AUTHENTICATION_FAILED  0x18000000
 
 /* Transmit Descriptor - Advanced */
-union e1000_adv_tx_desc {
-	struct {
-		__le64 buffer_addr;    /* Address of descriptor's data buf */
-		__le32 cmd_type_len;
-		__le32 olinfo_status;
-	} read;
-	struct {
-		__le64 rsvd;       /* Reserved */
-		__le32 nxtseq_seed;
-		__le32 status;
-	} wb;
+union e1000_adv_tx_desc
+{
+    struct
+    {
+        __le64 buffer_addr;    /* Address of descriptor's data buf */
+        __le32 cmd_type_len;
+        __le32 olinfo_status;
+    } read;
+    struct
+    {
+        __le64 rsvd;       /* Reserved */
+        __le32 nxtseq_seed;
+        __le32 status;
+    } wb;
 };
 
 /* Adv Transmit Descriptor Config Masks */
@@ -311,11 +333,12 @@ union e1000_adv_tx_desc {
 #define E1000_ADVTXD_PAYLEN_SHIFT    14 /* Adv desc PAYLEN shift */
 
 /* Context descriptors */
-struct e1000_adv_tx_context_desc {
-	__le32 vlan_macip_lens;
-	__le32 seqnum_seed;
-	__le32 type_tucmd_mlhl;
-	__le32 mss_l4len_idx;
+struct e1000_adv_tx_context_desc
+{
+    __le32 vlan_macip_lens;
+    __le32 seqnum_seed;
+    __le32 type_tucmd_mlhl;
+    __le32 mss_l4len_idx;
 };
 
 #define E1000_ADVTXD_MACLEN_SHIFT    9  /* Adv ctxt desc mac len shift */
@@ -471,12 +494,13 @@ void e1000_vmdq_set_anti_spoofing_pf(struct e1000_hw *hw, bool enable, int pf);
 void e1000_vmdq_set_replication_pf(struct e1000_hw *hw, bool enable);
 s32 e1000_init_nvm_params_82575(struct e1000_hw *hw);
 
-enum e1000_promisc_type {
-	e1000_promisc_disabled = 0,   /* all promisc modes disabled */
-	e1000_promisc_unicast = 1,    /* unicast promiscuous enabled */
-	e1000_promisc_multicast = 2,  /* multicast promiscuous enabled */
-	e1000_promisc_enabled = 3,    /* both uni and multicast promisc */
-	e1000_num_promisc_types
+enum e1000_promisc_type
+{
+    e1000_promisc_disabled = 0,   /* all promisc modes disabled */
+    e1000_promisc_unicast = 1,    /* unicast promiscuous enabled */
+    e1000_promisc_multicast = 2,  /* multicast promiscuous enabled */
+    e1000_promisc_enabled = 3,    /* both uni and multicast promisc */
+    e1000_num_promisc_types
 };
 
 void e1000_vfta_set_vf(struct e1000_hw *, u16, bool);

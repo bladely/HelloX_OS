@@ -92,25 +92,25 @@ void
 init_param1(void)
 {
 
-	hz = HZ;
-	TUNABLE_INT_FETCH("kern.hz", &hz);
-	tick = 1000000 / hz;
+    hz = HZ;
+    TUNABLE_INT_FETCH("kern.hz", &hz);
+    tick = 1000000 / hz;
 
 #ifdef VM_SWZONE_SIZE_MAX
-	maxswzone = VM_SWZONE_SIZE_MAX;
+    maxswzone = VM_SWZONE_SIZE_MAX;
 #endif
-	TUNABLE_INT_FETCH("kern.maxswzone", &maxswzone);
+    TUNABLE_INT_FETCH("kern.maxswzone", &maxswzone);
 #ifdef VM_BCACHE_SIZE_MAX
-	maxbcache = VM_BCACHE_SIZE_MAX;
+    maxbcache = VM_BCACHE_SIZE_MAX;
 #endif
-	TUNABLE_INT_FETCH("kern.maxbcache", &maxbcache);
+    TUNABLE_INT_FETCH("kern.maxbcache", &maxbcache);
 
-	maxtsiz = MAXTSIZ;
-	dfldsiz = DFLDSIZ;
-	maxdsiz = MAXDSIZ;
-	dflssiz = DFLSSIZ;
-	maxssiz = MAXSSIZ;
-	sgrowsiz = SGROWSIZ;
+    maxtsiz = MAXTSIZ;
+    dfldsiz = DFLDSIZ;
+    maxdsiz = MAXDSIZ;
+    dflssiz = DFLSSIZ;
+    maxssiz = MAXSSIZ;
+    sgrowsiz = SGROWSIZ;
 }
 
 /*
@@ -120,38 +120,39 @@ void
 init_param2(long physpages)
 {
 
-	/* Base parameters */
-	maxusers = MAXUSERS;
-	TUNABLE_INT_FETCH("kern.maxusers", &maxusers);
-	if (maxusers == 0) {
-		maxusers = physpages / (2 * 1024 * 1024 / PAGE_SIZE);
-		if (maxusers < 32)
-			maxusers = 32;
-		if (maxusers > 384)
-			maxusers = 384;
-	}
+    /* Base parameters */
+    maxusers = MAXUSERS;
+    TUNABLE_INT_FETCH("kern.maxusers", &maxusers);
+    if (maxusers == 0)
+    {
+        maxusers = physpages / (2 * 1024 * 1024 / PAGE_SIZE);
+        if (maxusers < 32)
+            maxusers = 32;
+        if (maxusers > 384)
+            maxusers = 384;
+    }
 
-	/*
-	 * The following can be overridden after boot via sysctl.  Note:
-	 * unless overriden, these macros are ultimately based on maxusers.
-	 */
-	maxproc = NPROC;
-	/*
-	 * Limit maxproc so that kmap entries cannot be exhausted by
-	 * processes.
-	 */
-	if (maxproc > (physpages / 12))
-		maxproc = physpages / 12;
-	maxfiles = MAXFILES;
-	maxprocperuid = (maxproc * 9) / 10;
-	maxfilesperproc = (maxfiles * 9) / 10;
-	
-	/*
-	 * Cannot be changed after boot.
-	 */
-	nbuf = NBUF;
+    /*
+     * The following can be overridden after boot via sysctl.  Note:
+     * unless overriden, these macros are ultimately based on maxusers.
+     */
+    maxproc = NPROC;
+    /*
+     * Limit maxproc so that kmap entries cannot be exhausted by
+     * processes.
+     */
+    if (maxproc > (physpages / 12))
+        maxproc = physpages / 12;
+    maxfiles = MAXFILES;
+    maxprocperuid = (maxproc * 9) / 10;
+    maxfilesperproc = (maxfiles * 9) / 10;
 
-	ncallout = 16 + maxproc;//LUOYU delete + maxfiles;
+    /*
+     * Cannot be changed after boot.
+     */
+    nbuf = NBUF;
+
+    ncallout = 16 + maxproc;//LUOYU delete + maxfiles;
 }
 
 /*
@@ -161,11 +162,11 @@ void
 init_param3(long kmempages)
 {
 
-	/*
-	 * The default for maxpipekva is max(5% of the kernel map, 512KB).
-	 * See sys_pipe.c for more details.
-	 */
-	maxpipekva = (kmempages / 20) * PAGE_SIZE;
-	if (maxpipekva < 512 * 1024)
-		maxpipekva = 512 * 1024;
+    /*
+     * The default for maxpipekva is max(5% of the kernel map, 512KB).
+     * See sys_pipe.c for more details.
+     */
+    maxpipekva = (kmempages / 20) * PAGE_SIZE;
+    if (maxpipekva < 512 * 1024)
+        maxpipekva = 512 * 1024;
 }

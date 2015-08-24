@@ -74,29 +74,29 @@ const static u_long	raw_recvspace = RAWRCVQ;
  */
 int
 raw_attach(so, proto)
-	register struct socket *so;
-	int proto;
+register struct socket *so;
+int proto;
 {
-	register struct rawcb *rp = sotorawcb(so);
-	int error;
+    register struct rawcb *rp = sotorawcb(so);
+    int error;
 
-	/*
-	 * It is assumed that raw_attach is called
-	 * after space has been allocated for the
-	 * rawcb.
-	 */
-	if (rp == 0)
-		return (ENOBUFS);
-	error = soreserve(so, raw_sendspace, raw_recvspace);
-	if (error)
-		return (error);
-	rp->rcb_socket = so;
-	rp->rcb_proto.sp_family = so->so_proto->pr_domain->dom_family;
-	rp->rcb_proto.sp_protocol = proto;
-	mtx_lock(&rawcb_mtx);
-	LIST_INSERT_HEAD(&rawcb_list, rp, list);
-	mtx_unlock(&rawcb_mtx);
-	return (0);
+    /*
+     * It is assumed that raw_attach is called
+     * after space has been allocated for the
+     * rawcb.
+     */
+    if (rp == 0)
+        return (ENOBUFS);
+    error = soreserve(so, raw_sendspace, raw_recvspace);
+    if (error)
+        return (error);
+    rp->rcb_socket = so;
+    rp->rcb_proto.sp_family = so->so_proto->pr_domain->dom_family;
+    rp->rcb_proto.sp_protocol = proto;
+    mtx_lock(&rawcb_mtx);
+    LIST_INSERT_HEAD(&rawcb_list, rp, list);
+    mtx_unlock(&rawcb_mtx);
+    return (0);
 }
 
 /*
@@ -105,21 +105,21 @@ raw_attach(so, proto)
  */
 void
 raw_detach(rp)
-	register struct rawcb *rp;
+register struct rawcb *rp;
 {
-	struct socket *so = rp->rcb_socket;
+    struct socket *so = rp->rcb_socket;
 
-	ACCEPT_LOCK();
-	SOCK_LOCK(so);
-	so->so_pcb = 0;
-	sotryfree(so);
-	LIST_REMOVE(rp, list);
+    ACCEPT_LOCK();
+    SOCK_LOCK(so);
+    so->so_pcb = 0;
+    sotryfree(so);
+    LIST_REMOVE(rp, list);
 #ifdef notdef
-	if (rp->rcb_laddr)
-		m_freem(dtom(rp->rcb_laddr));
-	rp->rcb_laddr = 0;
+    if (rp->rcb_laddr)
+        m_freem(dtom(rp->rcb_laddr));
+    rp->rcb_laddr = 0;
 #endif
-	free((caddr_t)(rp));
+    free((caddr_t)(rp));
 }
 
 /*
@@ -127,16 +127,16 @@ raw_detach(rp)
  */
 void
 raw_disconnect(rp)
-	struct rawcb *rp;
+struct rawcb *rp;
 {
 
 #ifdef notdef
-	if (rp->rcb_faddr)
-		m_freem(dtom(rp->rcb_faddr));
-	rp->rcb_faddr = 0;
+    if (rp->rcb_faddr)
+        m_freem(dtom(rp->rcb_faddr));
+    rp->rcb_faddr = 0;
 #endif
-	if (rp->rcb_socket->so_state & SS_NOFDREF)
-		raw_detach(rp);
+    if (rp->rcb_socket->so_state & SS_NOFDREF)
+        raw_detach(rp);
 }
 
 #ifdef notdef
@@ -144,17 +144,17 @@ raw_disconnect(rp)
 
 int
 raw_bind(so, nam)
-	register struct socket *so;
-	struct mbuf *nam;
+register struct socket *so;
+struct mbuf *nam;
 {
-	struct sockaddr *addr = mtod(nam, struct sockaddr *);
-	register struct rawcb *rp;
+    struct sockaddr *addr = mtod(nam, struct sockaddr *);
+    register struct rawcb *rp;
 
-	if (ifnet_head == 0)
-		return (EADDRNOTAVAIL);
-	rp = sotorawcb(so);
-	nam = m_copym(nam, 0, M_COPYALL, M_TRYWAIT);
-	rp->rcb_laddr = mtod(nam, struct sockaddr *);
-	return (0);
+    if (ifnet_head == 0)
+        return (EADDRNOTAVAIL);
+    rp = sotorawcb(so);
+    nam = m_copym(nam, 0, M_COPYALL, M_TRYWAIT);
+    rp->rcb_laddr = mtod(nam, struct sockaddr *);
+    return (0);
 }
 #endif

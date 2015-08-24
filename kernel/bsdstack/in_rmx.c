@@ -31,65 +31,73 @@ extern int	in_inithead(void **head, int off);
  */
 static struct radix_node *
 in_addroute(void *v_arg, void *n_arg, struct radix_node_head *head,
-	    struct radix_node *treenodes)
+            struct radix_node *treenodes)
 {
-	struct rtentry *rt = (struct rtentry *)treenodes;
-	struct sockaddr_in *sin = (struct sockaddr_in *)rt_key(rt);
-	struct radix_node *ret;
+    struct rtentry *rt = (struct rtentry *)treenodes;
+    struct sockaddr_in *sin = (struct sockaddr_in *)rt_key(rt);
+    struct radix_node *ret;
 
-	/*
-	 * A little bit of help for both IP output and input:
-	 *   For host routes, we make sure that RTF_BROADCAST
-	 *   is set for anything that looks like a broadcast address.
-	 *   This way, we can avoid an expensive call to in_broadcast()
-	 *   in ip_output() most of the time (because the route passed
-	 *   to ip_output() is almost always a host route).
-	 *
-	 *   We also do the same for local addresses, with the thought
-	 *   that this might one day be used to speed up ip_input().
-	 *
-	 * We also mark routes to multicast addresses as such, because
-	 * it's easy to do and might be useful (but this is much more
-	 * dubious since it's so easy to inspect the address).
-	 */
-	if (rt->rt_flags & RTF_HOST) {
-		if (in_broadcast(sin->sin_addr, rt->rt_ifp)) {
-			rt->rt_flags |= RTF_BROADCAST;
-		} else if (satosin(rt->rt_ifa->ifa_addr)->sin_addr.s_addr ==
-		    sin->sin_addr.s_addr) {
-			rt->rt_flags |= RTF_LOCAL;
-		}
-	}
-	if (IN_MULTICAST(ntohl(sin->sin_addr.s_addr)))
-		rt->rt_flags |= RTF_MULTICAST;
+    /*
+     * A little bit of help for both IP output and input:
+     *   For host routes, we make sure that RTF_BROADCAST
+     *   is set for anything that looks like a broadcast address.
+     *   This way, we can avoid an expensive call to in_broadcast()
+     *   in ip_output() most of the time (because the route passed
+     *   to ip_output() is almost always a host route).
+     *
+     *   We also do the same for local addresses, with the thought
+     *   that this might one day be used to speed up ip_input().
+     *
+     * We also mark routes to multicast addresses as such, because
+     * it's easy to do and might be useful (but this is much more
+     * dubious since it's so easy to inspect the address).
+     */
+    if (rt->rt_flags &RTF_HOST)
+    {
+        if (in_broadcast(sin->sin_addr, rt->rt_ifp))
+        {
+            rt->rt_flags |= RTF_BROADCAST;
+        }
+        else if (satosin(rt->rt_ifa->ifa_addr)->sin_addr.s_addr ==
+                 sin->sin_addr.s_addr)
+        {
+            rt->rt_flags |= RTF_LOCAL;
+        }
+    }
+    if (IN_MULTICAST(ntohl(sin->sin_addr.s_addr)))
+        rt->rt_flags |= RTF_MULTICAST;
 
-	if (!rt->rt_rmx.rmx_mtu && rt->rt_ifp)
-		rt->rt_rmx.rmx_mtu = rt->rt_ifp->if_mtu;
+    if (!rt->rt_rmx.rmx_mtu && rt->rt_ifp)
+        rt->rt_rmx.rmx_mtu = rt->rt_ifp->if_mtu;
 
-	ret = rn_addroute(v_arg, n_arg, head, treenodes);
-	if (ret == NULL && rt->rt_flags & RTF_HOST) {
-		struct rtentry *rt2;
-		/*
-		 * We are trying to add a host route, but can't.
-		 * Find out if it is because of an
-		 * ARP entry and delete it if so.
-		 */
-		rt2 = rtalloc1((struct sockaddr *)sin, 0, RTF_CLONING);
-		if (rt2) {
-			if (rt2->rt_flags & RTF_LLINFO &&
-			    rt2->rt_flags & RTF_HOST &&
-			    rt2->rt_gateway &&
-			    rt2->rt_gateway->sa_family == AF_LINK) {
-				rtexpunge(rt2);
-				RTFREE_LOCKED(rt2);
-				ret = rn_addroute(v_arg, n_arg, head,
-						  treenodes);
-			} else
-				RTFREE_LOCKED(rt2);
-		}
-	}
+    ret = rn_addroute(v_arg, n_arg, head, treenodes);
+    if (ret == NULL && rt->rt_flags &RTF_HOST)
+    {
+        struct rtentry *rt2;
+        /*
+         * We are trying to add a host route, but can't.
+         * Find out if it is because of an
+         * ARP entry and delete it if so.
+         */
+        rt2 = rtalloc1((struct sockaddr *)sin, 0, RTF_CLONING);
+        if (rt2)
+        {
+            if (rt2->rt_flags & RTF_LLINFO &&
+                    rt2->rt_flags & RTF_HOST &&
+                    rt2->rt_gateway &&
+                    rt2->rt_gateway->sa_family == AF_LINK)
+            {
+                rtexpunge(rt2);
+                RTFREE_LOCKED(rt2);
+                ret = rn_addroute(v_arg, n_arg, head,
+                                  treenodes);
+            }
+            else
+                RTFREE_LOCKED(rt2);
+        }
+    }
 
-	return ret;
+    return ret;
 }
 
 /*
@@ -100,20 +108,22 @@ in_addroute(void *v_arg, void *n_arg, struct radix_node_head *head,
 static struct radix_node *
 in_matroute(void *v_arg, struct radix_node_head *head)
 {
-	struct radix_node *rn = rn_match(v_arg, head);
-	struct rtentry *rt = (struct rtentry *)rn;
+    struct radix_node *rn = rn_match(v_arg, head);
+    struct rtentry *rt = (struct rtentry *)rn;
 
-	/*XXX locking? */
-	if (rt && rt->rt_refcnt == 0) {		/* this is first reference */
-		if (rt->rt_flags & RTPRF_OURS) {
-			rt->rt_flags &= ~RTPRF_OURS;
-			rt->rt_rmx.rmx_expire = 0;
-		}
-	}
-	return rn;
+    /*XXX locking? */
+    if (rt && rt->rt_refcnt == 0)  		/* this is first reference */
+    {
+        if (rt->rt_flags & RTPRF_OURS)
+        {
+            rt->rt_flags &= ~RTPRF_OURS;
+            rt->rt_rmx.rmx_expire = 0;
+        }
+    }
+    return rn;
 }
 
-static int rtq_reallyold = 60*60;		/* one hour is "really old" */
+static int rtq_reallyold = 60 * 60;		/* one hour is "really old" */
 static int rtq_minreallyold = 10;  /* never automatically crank down to less */
 static int rtq_toomany = 128;		/* 128 cached routes is "too many" */
 
@@ -125,37 +135,41 @@ static int rtq_toomany = 128;		/* 128 cached routes is "too many" */
 static void
 in_clsroute(struct radix_node *rn, struct radix_node_head *head)
 {
-	struct rtentry *rt = (struct rtentry *)rn;
+    struct rtentry *rt = (struct rtentry *)rn;
 
-	RT_LOCK_ASSERT(rt);
+    RT_LOCK_ASSERT(rt);
 
-	if (!(rt->rt_flags & RTF_UP))
-		return;			/* prophylactic measures */
+    if (!(rt->rt_flags & RTF_UP))
+        return;			/* prophylactic measures */
 
-	if ((rt->rt_flags & (RTF_LLINFO | RTF_HOST)) != RTF_HOST)
-		return;
+    if ((rt->rt_flags & (RTF_LLINFO | RTF_HOST)) != RTF_HOST)
+        return;
 
-	if ((rt->rt_flags & (RTF_WASCLONED | RTPRF_OURS)) != RTF_WASCLONED)
-		return;
+    if ((rt->rt_flags & (RTF_WASCLONED | RTPRF_OURS)) != RTF_WASCLONED)
+        return;
 
-	/*
-	 * If rtq_reallyold is 0, just delete the route without
-	 * waiting for a timeout cycle to kill it.
-	 */
-	if (rtq_reallyold != 0) {
-		rt->rt_flags |= RTPRF_OURS;
-		rt->rt_rmx.rmx_expire = time_second + rtq_reallyold;
-	} else {
-		rtexpunge(rt);
-	}
+    /*
+     * If rtq_reallyold is 0, just delete the route without
+     * waiting for a timeout cycle to kill it.
+     */
+    if (rtq_reallyold != 0)
+    {
+        rt->rt_flags |= RTPRF_OURS;
+        rt->rt_rmx.rmx_expire = time_second + rtq_reallyold;
+    }
+    else
+    {
+        rtexpunge(rt);
+    }
 }
-struct rtqk_arg {
-	struct radix_node_head *rnh;
-	int draining;
-	int killed;
-	int found;
-	int updating;
-	time_t nextstop;
+struct rtqk_arg
+{
+    struct radix_node_head *rnh;
+    int draining;
+    int killed;
+    int found;
+    int updating;
+    time_t nextstop;
 };
 /*
  * Get rid of old routes.  When draining, this deletes everything, even when
@@ -165,39 +179,47 @@ struct rtqk_arg {
 static int
 in_rtqkill(struct radix_node *rn, void *rock)
 {
-	struct rtqk_arg *ap = rock;
-	struct rtentry *rt = (struct rtentry *)rn;
-	int err;
+    struct rtqk_arg *ap = rock;
+    struct rtentry *rt = (struct rtentry *)rn;
+    int err;
 
-	if (rt->rt_flags & RTPRF_OURS) {
-		ap->found++;
+    if (rt->rt_flags & RTPRF_OURS)
+    {
+        ap->found++;
 
-		if (ap->draining || rt->rt_rmx.rmx_expire <= time_second) {
-			if (rt->rt_refcnt > 0)
-				panic("rtqkill route really not free");
+        if (ap->draining || rt->rt_rmx.rmx_expire <= time_second)
+        {
+            if (rt->rt_refcnt > 0)
+                panic("rtqkill route really not free");
 
-			err = rtrequest(RTM_DELETE,
-					(struct sockaddr *)rt_key(rt),
-					rt->rt_gateway, rt_mask(rt),
-					rt->rt_flags, 0);
-			if (err) {
-				//log(LOG_WARNING, "in_rtqkill: error %d\n", err);
-			} else {
-				ap->killed++;
-			}
-		} else {
-			if (ap->updating &&
-			    (rt->rt_rmx.rmx_expire - time_second >
-			     rtq_reallyold)) {
-				rt->rt_rmx.rmx_expire =
-				    time_second + rtq_reallyold;
-			}
-			ap->nextstop = lmin(ap->nextstop,
-					    rt->rt_rmx.rmx_expire);
-		}
-	}
+            err = rtrequest(RTM_DELETE,
+                            (struct sockaddr *)rt_key(rt),
+                            rt->rt_gateway, rt_mask(rt),
+                            rt->rt_flags, 0);
+            if (err)
+            {
+                //log(LOG_WARNING, "in_rtqkill: error %d\n", err);
+            }
+            else
+            {
+                ap->killed++;
+            }
+        }
+        else
+        {
+            if (ap->updating &&
+                    (rt->rt_rmx.rmx_expire - time_second >
+                     rtq_reallyold))
+            {
+                rt->rt_rmx.rmx_expire =
+                    time_second + rtq_reallyold;
+            }
+            ap->nextstop = lmin(ap->nextstop,
+                                rt->rt_rmx.rmx_expire);
+        }
+    }
 
-	return 0;
+    return 0;
 }
 
 #define RTQ_TIMEOUT	60*10	/* run no less than once every ten minutes */
@@ -207,50 +229,52 @@ static int rtq_timeout = RTQ_TIMEOUT;
 static void
 in_rtqtimo(void *rock)
 {
-	struct radix_node_head *rnh = rock;
-	struct rtqk_arg arg;
-	struct timeval atv;
-	static time_t last_adjusted_timeout = 0;
+    struct radix_node_head *rnh = rock;
+    struct rtqk_arg arg;
+    struct timeval atv;
+    static time_t last_adjusted_timeout = 0;
 
-	arg.found = arg.killed = 0;
-	arg.rnh = rnh;
-	arg.nextstop = time_second + rtq_timeout;
-	arg.draining = arg.updating = 0;
-	RADIX_NODE_HEAD_LOCK(rnh);
-	rnh->rnh_walktree(rnh, in_rtqkill, &arg);
-	RADIX_NODE_HEAD_UNLOCK(rnh);
+    arg.found = arg.killed = 0;
+    arg.rnh = rnh;
+    arg.nextstop = time_second + rtq_timeout;
+    arg.draining = arg.updating = 0;
+    RADIX_NODE_HEAD_LOCK(rnh);
+    rnh->rnh_walktree(rnh, in_rtqkill, &arg);
+    RADIX_NODE_HEAD_UNLOCK(rnh);
 
-	/*
-	 * Attempt to be somewhat dynamic about this:
-	 * If there are ``too many'' routes sitting around taking up space,
-	 * then crank down the timeout, and see if we can't make some more
-	 * go away.  However, we make sure that we will never adjust more
-	 * than once in rtq_timeout seconds, to keep from cranking down too
-	 * hard.
-	 */
-	if ((arg.found - arg.killed > rtq_toomany) &&
-	    (time_second - last_adjusted_timeout >= rtq_timeout) &&
-	    rtq_reallyold > rtq_minreallyold) {
-		rtq_reallyold = 2 * rtq_reallyold / 3;
-		if (rtq_reallyold < rtq_minreallyold) {
-			rtq_reallyold = rtq_minreallyold;
-		}
+    /*
+     * Attempt to be somewhat dynamic about this:
+     * If there are ``too many'' routes sitting around taking up space,
+     * then crank down the timeout, and see if we can't make some more
+     * go away.  However, we make sure that we will never adjust more
+     * than once in rtq_timeout seconds, to keep from cranking down too
+     * hard.
+     */
+    if ((arg.found - arg.killed > rtq_toomany) &&
+            (time_second - last_adjusted_timeout >= rtq_timeout) &&
+            rtq_reallyold > rtq_minreallyold)
+    {
+        rtq_reallyold = 2 * rtq_reallyold / 3;
+        if (rtq_reallyold < rtq_minreallyold)
+        {
+            rtq_reallyold = rtq_minreallyold;
+        }
 
-		last_adjusted_timeout = time_second;
+        last_adjusted_timeout = time_second;
 #ifdef DIAGNOSTIC
-		log(LOG_DEBUG, "in_rtqtimo: adjusted rtq_reallyold to %d\n",
-		    rtq_reallyold);
+        log(LOG_DEBUG, "in_rtqtimo: adjusted rtq_reallyold to %d\n",
+            rtq_reallyold);
 #endif
-		arg.found = arg.killed = 0;
-		arg.updating = 1;
-		RADIX_NODE_HEAD_LOCK(rnh);
-		rnh->rnh_walktree(rnh, in_rtqkill, &arg);
-		RADIX_NODE_HEAD_UNLOCK(rnh);
-	}
+        arg.found = arg.killed = 0;
+        arg.updating = 1;
+        RADIX_NODE_HEAD_LOCK(rnh);
+        rnh->rnh_walktree(rnh, in_rtqkill, &arg);
+        RADIX_NODE_HEAD_UNLOCK(rnh);
+    }
 
-	atv.tv_usec = 0;
-	atv.tv_sec = arg.nextstop - time_second;
-	//callout_reset(&rtq_timer, tvtohz(&atv), in_rtqtimo, rock);LUOYU
+    atv.tv_usec = 0;
+    atv.tv_sec = arg.nextstop - time_second;
+    //callout_reset(&rtq_timer, tvtohz(&atv), in_rtqtimo, rock);LUOYU
 }
 /*
  * This zaps old routes when the interface goes down or interface
@@ -261,69 +285,71 @@ in_rtqtimo(void *rock)
  * the interface, walk over to a completely different network, and
  * plug back in.
  */
-struct in_ifadown_arg {
-	struct radix_node_head *rnh;
-	struct ifaddr *ifa;
-	int del;
+struct in_ifadown_arg
+{
+    struct radix_node_head *rnh;
+    struct ifaddr *ifa;
+    int del;
 };
 
 static int
 in_ifadownkill(struct radix_node *rn, void *xap)
 {
-	struct in_ifadown_arg *ap = xap;
-	struct rtentry *rt = (struct rtentry *)rn;
+    struct in_ifadown_arg *ap = xap;
+    struct rtentry *rt = (struct rtentry *)rn;
 
-	RT_LOCK(rt);
-	if (rt->rt_ifa == ap->ifa &&
-	    (ap->del || !(rt->rt_flags & RTF_STATIC))) {
-		/*
-		 * We need to disable the automatic prune that happens
-		 * in this case in rtrequest() because it will blow
-		 * away the pointers that rn_walktree() needs in order
-		 * continue our descent.  We will end up deleting all
-		 * the routes that rtrequest() would have in any case,
-		 * so that behavior is not needed there.
-		 */
-		rt->rt_flags &= ~RTF_CLONING;
-		rtexpunge(rt);
-	}
-	RT_UNLOCK(rt);
-	return 0;
+    RT_LOCK(rt);
+    if (rt->rt_ifa == ap->ifa &&
+            (ap->del || !(rt->rt_flags & RTF_STATIC)))
+    {
+        /*
+         * We need to disable the automatic prune that happens
+         * in this case in rtrequest() because it will blow
+         * away the pointers that rn_walktree() needs in order
+         * continue our descent.  We will end up deleting all
+         * the routes that rtrequest() would have in any case,
+         * so that behavior is not needed there.
+         */
+        rt->rt_flags &= ~RTF_CLONING;
+        rtexpunge(rt);
+    }
+    RT_UNLOCK(rt);
+    return 0;
 }
 
 int
 in_ifadown(struct ifaddr *ifa, int delete)
 {
-	struct in_ifadown_arg arg;
-	struct radix_node_head *rnh;
+    struct in_ifadown_arg arg;
+    struct radix_node_head *rnh;
 
-	if (ifa->ifa_addr->sa_family != AF_INET)
-		return 1;
+    if (ifa->ifa_addr->sa_family != AF_INET)
+        return 1;
 
-	arg.rnh = rnh = rt_tables[AF_INET];
-	arg.ifa = ifa;
-	arg.del = delete;
-	RADIX_NODE_HEAD_LOCK(rnh);
-	rnh->rnh_walktree(rnh, in_ifadownkill, &arg);
-	RADIX_NODE_HEAD_UNLOCK(rnh);
-	ifa->ifa_flags &= ~IFA_ROUTE;		/* XXXlocking? */
-	return 0;
+    arg.rnh = rnh = rt_tables[AF_INET];
+    arg.ifa = ifa;
+    arg.del = delete;
+    RADIX_NODE_HEAD_LOCK(rnh);
+    rnh->rnh_walktree(rnh, in_ifadownkill, &arg);
+    RADIX_NODE_HEAD_UNLOCK(rnh);
+    ifa->ifa_flags &= ~IFA_ROUTE;		/* XXXlocking? */
+    return 0;
 }
 
 void
 in_rtqdrain(void)
 {
-	struct radix_node_head *rnh = rt_tables[AF_INET];
-	struct rtqk_arg arg;
+    struct radix_node_head *rnh = rt_tables[AF_INET];
+    struct rtqk_arg arg;
 
-	arg.found = arg.killed = 0;
-	arg.rnh = rnh;
-	arg.nextstop = 0;
-	arg.draining = 1;
-	arg.updating = 0;
-	RADIX_NODE_HEAD_LOCK(rnh);
-	rnh->rnh_walktree(rnh, in_rtqkill, &arg);
-	RADIX_NODE_HEAD_UNLOCK(rnh);
+    arg.found = arg.killed = 0;
+    arg.rnh = rnh;
+    arg.nextstop = 0;
+    arg.draining = 1;
+    arg.updating = 0;
+    RADIX_NODE_HEAD_LOCK(rnh);
+    rnh->rnh_walktree(rnh, in_rtqkill, &arg);
+    RADIX_NODE_HEAD_UNLOCK(rnh);
 }
 
 /*
@@ -332,20 +358,20 @@ in_rtqdrain(void)
 int
 in_inithead(void **head, int off)
 {
-	struct radix_node_head *rnh;
+    struct radix_node_head *rnh;
 
-	if (!rn_inithead(head, off))
-		return 0;
+    if (!rn_inithead(head, off))
+        return 0;
 
-	if (head != (void **)&rt_tables[AF_INET])	/* BOGUS! */
-		return 1;	/* only do this for the real routing table */
+    if (head != (void **)&rt_tables[AF_INET])	/* BOGUS! */
+        return 1;	/* only do this for the real routing table */
 
-	rnh = *head;
-	rnh->rnh_addaddr = in_addroute;
-	rnh->rnh_matchaddr = in_matroute;
-	rnh->rnh_close = in_clsroute;
-	callout_init(&rtq_timer, CALLOUT_MPSAFE);
-	in_rtqtimo(rnh);	/* kick off timeout first time */
-	return 1;
+    rnh = *head;
+    rnh->rnh_addaddr = in_addroute;
+    rnh->rnh_matchaddr = in_matroute;
+    rnh->rnh_close = in_clsroute;
+    callout_init(&rtq_timer, CALLOUT_MPSAFE);
+    in_rtqtimo(rnh);	/* kick off timeout first time */
+    return 1;
 }
 

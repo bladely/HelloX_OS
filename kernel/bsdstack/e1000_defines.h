@@ -1,31 +1,31 @@
 /******************************************************************************
 
-  Copyright (c) 2001-2010, Intel Corporation 
+  Copyright (c) 2001-2010, Intel Corporation
   All rights reserved.
-  
-  Redistribution and use in source and binary forms, with or without 
+
+  Redistribution and use in source and binary forms, with or without
   modification, are permitted provided that the following conditions are met:
-  
-   1. Redistributions of source code must retain the above copyright notice, 
+
+   1. Redistributions of source code must retain the above copyright notice,
       this list of conditions and the following disclaimer.
-  
-   2. Redistributions in binary form must reproduce the above copyright 
-      notice, this list of conditions and the following disclaimer in the 
+
+   2. Redistributions in binary form must reproduce the above copyright
+      notice, this list of conditions and the following disclaimer in the
       documentation and/or other materials provided with the distribution.
-  
-   3. Neither the name of the Intel Corporation nor the names of its 
-      contributors may be used to endorse or promote products derived from 
+
+   3. Neither the name of the Intel Corporation nor the names of its
+      contributors may be used to endorse or promote products derived from
       this software without specific prior written permission.
-  
+
   THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
-  AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE 
-  IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE 
-  ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE 
-  LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR 
-  CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF 
-  SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS 
-  INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN 
-  CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) 
+  AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+  IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+  ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE
+  LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+  CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+  SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+  INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+  CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
   ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
   POSSIBILITY OF SUCH DAMAGE.
 
@@ -197,9 +197,9 @@
 /* IAME enable bit (27) was removed in >= 82575 */
 #define E1000_CTRL_EXT_IAME          0x08000000 /* Int acknowledge Auto-mask */
 #define E1000_CRTL_EXT_PB_PAREN       0x01000000 /* packet buffer parity error
-                                                  * detection enabled */
+* detection enabled */
 #define E1000_CTRL_EXT_DF_PAREN       0x02000000 /* descriptor FIFO parity
-                                                  * error detection enable */
+* error detection enable */
 #define E1000_CTRL_EXT_GHOST_PAREN    0x40000000
 #define E1000_CTRL_EXT_PBA_CLR        0x80000000 /* PBA Clear */
 #define E1000_CTRL_EXT_LSECCK         0x00001000
@@ -438,11 +438,11 @@
 #define E1000_CTRL_FRCDPX   0x00001000  /* Force Duplex */
 #define E1000_CTRL_D_UD_EN  0x00002000  /* Dock/Undock enable */
 #define E1000_CTRL_D_UD_POLARITY 0x00004000 /* Defined polarity of Dock/Undock
-                                             * indication in SDP[0] */
+* indication in SDP[0] */
 #define E1000_CTRL_FORCE_PHY_RESET 0x00008000 /* Reset both PHY ports, through
-                                               * PHYRST_N pin */
+* PHYRST_N pin */
 #define E1000_CTRL_EXT_LINK_EN 0x00010000 /* enable link status from external
-                                           * LINK_0 and LINK_1 pins */
+* LINK_0 and LINK_1 pins */
 #define E1000_CTRL_LANPHYPC_OVERRIDE 0x00010000 /* SW control of LANPHYPC */
 #define E1000_CTRL_LANPHYPC_VALUE    0x00020000 /* SW value of LANPHYPC */
 #define E1000_CTRL_SWDPIN0  0x00040000  /* SWDPIN 0 value */
@@ -526,7 +526,7 @@
 #define E1000_STATUS_ASDV       0x00000300      /* Auto speed detect value */
 #define E1000_STATUS_PHYRA      0x00000400      /* PHY Reset Asserted */
 #define E1000_STATUS_DOCK_CI    0x00000800      /* Change in Dock/Undock state.
-                                                 * Clear on write '0'. */
+* Clear on write '0'. */
 #define E1000_STATUS_GIO_MASTER_ENABLE 0x00080000 /* Master request status */
 #define E1000_STATUS_MTXCKOK    0x00000400      /* MTX clock running OK */
 #define E1000_STATUS_PCI66      0x00000800      /* In 66Mhz slot */
@@ -538,7 +538,7 @@
 #define E1000_STATUS_BMC_SKU_2  0x00400000 /* BMC SDRAM disabled */
 #define E1000_STATUS_BMC_CRYPTO 0x00800000 /* BMC crypto disabled */
 #define E1000_STATUS_BMC_LITE   0x01000000 /* BMC external code execution
-                                            * disabled */
+* disabled */
 #define E1000_STATUS_RGMII_ENABLE 0x02000000 /* RGMII disabled */
 #define E1000_STATUS_FUSE_8       0x04000000
 #define E1000_STATUS_FUSE_9       0x08000000
@@ -804,7 +804,7 @@
 #define E1000_ICR_DOCK          0x00080000 /* Dock/Undock */
 #define E1000_ICR_DRSTA         0x40000000 /* Device Reset Asserted */
 #define E1000_ICR_INT_ASSERTED  0x80000000 /* If this bit asserted, the driver
-                                            * should claim the interrupt */
+* should claim the interrupt */
 #define E1000_ICR_RXD_FIFO_PAR0 0x00100000 /* Q0 Rx desc FIFO parity error */
 #define E1000_ICR_TXD_FIFO_PAR0 0x00200000 /* Q0 Tx desc FIFO parity error */
 #define E1000_ICR_HOST_ARB_PAR 0x00400000 /* host arb read buffer parity err */
@@ -813,9 +813,9 @@
 #define E1000_ICR_TXD_FIFO_PAR1 0x02000000 /* Q1 Tx desc FIFO parity error */
 #define E1000_ICR_ALL_PARITY    0x03F00000 /* all parity error bits */
 #define E1000_ICR_DSW           0x00000020 /* FW changed the status of DISSW
-                                            * bit in the FWSM */
+* bit in the FWSM */
 #define E1000_ICR_PHYINT        0x00001000 /* LAN connected device generates
-                                            * an interrupt */
+* an interrupt */
 #define E1000_ICR_DOUTSYNC      0x10000000 /* NIC DMA out of sync */
 #define E1000_ICR_EPRST         0x00100000 /* ME hardware reset occurs */
 #define E1000_ICR_RXQ0          0x00100000 /* Rx Queue 0 Interrupt */
@@ -899,17 +899,17 @@
 #define E1000_IMS_DOCK      E1000_ICR_DOCK      /* Dock/Undock */
 #define E1000_IMS_DRSTA     E1000_ICR_DRSTA     /* Device Reset Asserted */
 #define E1000_IMS_RXD_FIFO_PAR0 E1000_ICR_RXD_FIFO_PAR0 /* Q0 Rx desc FIFO
-                                                         * parity error */
+* parity error */
 #define E1000_IMS_TXD_FIFO_PAR0 E1000_ICR_TXD_FIFO_PAR0 /* Q0 Tx desc FIFO
-                                                         * parity error */
+* parity error */
 #define E1000_IMS_HOST_ARB_PAR  E1000_ICR_HOST_ARB_PAR  /* host arb read buffer
-                                                         * parity error */
+* parity error */
 #define E1000_IMS_PB_PAR        E1000_ICR_PB_PAR        /* packet buffer parity
-                                                         * error */
+* error */
 #define E1000_IMS_RXD_FIFO_PAR1 E1000_ICR_RXD_FIFO_PAR1 /* Q1 Rx desc FIFO
-                                                         * parity error */
+* parity error */
 #define E1000_IMS_TXD_FIFO_PAR1 E1000_ICR_TXD_FIFO_PAR1 /* Q1 Tx desc FIFO
-                                                         * parity error */
+* parity error */
 #define E1000_IMS_DSW       E1000_ICR_DSW
 #define E1000_IMS_PHYINT    E1000_ICR_PHYINT
 #define E1000_IMS_DOUTSYNC  E1000_ICR_DOUTSYNC /* NIC DMA out of sync */
@@ -956,17 +956,17 @@
 #define E1000_ICS_DOCK      E1000_ICR_DOCK      /* Dock/Undock */
 #define E1000_ICS_DRSTA     E1000_ICR_DRSTA     /* Device Reset Aserted */
 #define E1000_ICS_RXD_FIFO_PAR0 E1000_ICR_RXD_FIFO_PAR0 /* Q0 Rx desc FIFO
-                                                         * parity error */
+* parity error */
 #define E1000_ICS_TXD_FIFO_PAR0 E1000_ICR_TXD_FIFO_PAR0 /* Q0 Tx desc FIFO
-                                                         * parity error */
+* parity error */
 #define E1000_ICS_HOST_ARB_PAR  E1000_ICR_HOST_ARB_PAR  /* host arb read buffer
-                                                         * parity error */
+* parity error */
 #define E1000_ICS_PB_PAR        E1000_ICR_PB_PAR        /* packet buffer parity
-                                                         * error */
+* error */
 #define E1000_ICS_RXD_FIFO_PAR1 E1000_ICR_RXD_FIFO_PAR1 /* Q1 Rx desc FIFO
-                                                         * parity error */
+* parity error */
 #define E1000_ICS_TXD_FIFO_PAR1 E1000_ICR_TXD_FIFO_PAR1 /* Q1 Tx desc FIFO
-                                                         * parity error */
+* parity error */
 #define E1000_ICS_DSW       E1000_ICR_DSW
 #define E1000_ICS_DOUTSYNC  E1000_ICR_DOUTSYNC /* NIC DMA out of sync */
 #define E1000_ICS_PHYINT    E1000_ICR_PHYINT
@@ -1246,11 +1246,11 @@
 #define CR_1000T_HD_CAPS         0x0100 /* Advertise 1000T HD capability */
 #define CR_1000T_FD_CAPS         0x0200 /* Advertise 1000T FD capability  */
 #define CR_1000T_REPEATER_DTE    0x0400 /* 1=Repeater/switch device port */
-                                        /* 0=DTE device */
+/* 0=DTE device */
 #define CR_1000T_MS_VALUE        0x0800 /* 1=Configure PHY as Master */
-                                        /* 0=Configure PHY as Slave */
+/* 0=Configure PHY as Slave */
 #define CR_1000T_MS_ENABLE      0x1000 /* 1=Master/Slave manual config value */
-                                        /* 0=Automatic Master/Slave config */
+/* 0=Automatic Master/Slave config */
 #define CR_1000T_TEST_MODE_NORMAL 0x0000 /* Normal Operation */
 #define CR_1000T_TEST_MODE_1     0x2000 /* Transmit Waveform test */
 #define CR_1000T_TEST_MODE_2     0x4000 /* Master Transmit Jitter test */
@@ -1517,7 +1517,7 @@
 /* 1=CLK125 low, 0=CLK125 toggling */
 #define M88E1000_PSCR_CLK125_DISABLE    0x0010
 #define M88E1000_PSCR_MDI_MANUAL_MODE  0x0000 /* MDI Crossover Mode bits 6:5 */
-                                               /* Manual MDI configuration */
+/* Manual MDI configuration */
 #define M88E1000_PSCR_MDIX_MANUAL_MODE 0x0020  /* Manual MDIX configuration */
 /* 1000BASE-T: Auto crossover, 100BASE-TX/10BASE-T: MDI Mode */
 #define M88E1000_PSCR_AUTO_X_1000T     0x0040
@@ -1768,54 +1768,54 @@
 
 /* DMA Coalescing register fields */
 #define E1000_DMACR_DMACWT_MASK         0x00003FFF /* DMA Coalescing
-                                                    * Watchdog Timer */
+* Watchdog Timer */
 #define E1000_DMACR_DMACTHR_MASK        0x00FF0000 /* DMA Coalescing Rx
-                                                    * Threshold */
+* Threshold */
 #define E1000_DMACR_DMACTHR_SHIFT       16
 #define E1000_DMACR_DMAC_LX_MASK        0x30000000 /* Lx when no PCIe
-                                                    * transactions */
+* transactions */
 #define E1000_DMACR_DMAC_LX_SHIFT       28
 #define E1000_DMACR_DMAC_EN             0x80000000 /* Enable DMA Coalescing */
 
 #define E1000_DMCTXTH_DMCTTHR_MASK      0x00000FFF /* DMA Coalescing Transmit
-                                                    * Threshold */
+* Threshold */
 
 #define E1000_DMCTLX_TTLX_MASK          0x00000FFF /* Time to LX request */
 
 #define E1000_DMCRTRH_UTRESH_MASK       0x0007FFFF /* Rx Traffic Rate
-                                                    * Threshold */
+* Threshold */
 #define E1000_DMCRTRH_LRPRCW            0x80000000 /* Rx packet rate in
-                                                    * current window */
+* current window */
 
 #define E1000_DMCCNT_CCOUNT_MASK        0x01FFFFFF /* DMA Coal Rx Traffic
-                                                    * Current Cnt */
+* Current Cnt */
 
 #define E1000_FCRTC_RTH_COAL_MASK       0x0003FFF0 /* Flow ctrl Rx Threshold
-                                                    * High val */
+* High val */
 #define E1000_FCRTC_RTH_COAL_SHIFT      4
 #define E1000_PCIEMISC_LX_DECISION      0x00000080 /* Lx power decision based
-                                                      on DMA coal */
+on DMA coal */
 
 /* Proxy Filer Control */
 #define E1000_PROXYFC_D0               0x00000001  /* Enable offload in D0 */
 #define E1000_PROXYFC_EX               0x00000004  /* Directed exact proxy */
 #define E1000_PROXYFC_MC               0x00000008  /* Directed Multicast
-                                                    * Proxy */
+* Proxy */
 #define E1000_PROXYFC_BC               0x00000010  /* Broadcast Proxy Enable */
 #define E1000_PROXYFC_ARP_DIRECTED     0x00000020  /* Directed ARP Proxy
-                                                    * Enable */
+* Enable */
 #define E1000_PROXYFC_IPV4             0x00000040  /* Directed IPv4 Enable */
 #define E1000_PROXYFC_IPV6             0x00000080  /* Directed IPv6 Enable */
 #define E1000_PROXYFC_NS               0x00000200  /* IPv4 Neighborhood
-                                                    * Solicitation */
+* Solicitation */
 #define E1000_PROXYFC_ARP              0x00000800  /* ARP Request Proxy
-                                                    * Enable */
+* Enable */
 /* Proxy Status */
 #define E1000_PROXYS_CLEAR             0xFFFFFFFF  /* Clear */
 
 /* Firmware Status */
 #define E1000_FWSTS_FWRI               0x80000000 /* Firmware Reset
-                                                   * Indication */
+* Indication */
 
 
 #endif /* _E1000_DEFINES_H_ */
