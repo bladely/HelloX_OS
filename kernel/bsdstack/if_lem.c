@@ -266,7 +266,7 @@ lem_attach(device_t dev)
         error = ENXIO;
         goto err_pci;
     }
-
+	
     /* Do Shared Code initialization */
     if (e1000_setup_init_funcs(&adapter->hw, TRUE))
     {
@@ -274,7 +274,7 @@ lem_attach(device_t dev)
         error = ENXIO;
         goto err_pci;
     }
-
+	
     e1000_get_bus_info(&adapter->hw);
 
     /* Set up some sysctls for the tunable interrupt delays */
@@ -679,7 +679,7 @@ lem_start_locked(struct ifnet *ifp)
     struct mbuf	*m_head;
 
     EM_TX_LOCK_ASSERT(adapter);
-    printf("%s %d\n", __FUNCTION__, __LINE__);
+    
     /*if ((ifp->if_drv_flags & (IFF_DRV_RUNNING|IFF_DRV_OACTIVE)) !=
         IFF_DRV_RUNNING)
     	return;*/
@@ -697,33 +697,35 @@ lem_start_locked(struct ifnet *ifp)
         if (adapter->num_tx_desc_avail <= EM_TX_OP_THRESHOLD)
         {
             adapter->no_tx_desc_avail1++;
+            printf("%s %d \n", __FUNCTION__, __LINE__);
             return;
         }
     }
-
+	printf("%s %d \n", __FUNCTION__, __LINE__);
     //while (!IFQ_DRV_IS_EMPTY(&ifp->if_snd)) {
 
-    //               IFQ_DRV_DEQUEUE(&ifp->if_snd, m_head);
-    //	if (m_head == NULL)
-    //		break;
-    //	/*
-    //	 *  Encapsulation can modify our pointer, and or make it
-    //	 *  NULL on failure.  In that event, we can't requeue.
-    //	 */
-    //	if (lem_xmit(adapter, &m_head)) {
-    //		if (m_head == NULL)
-    //			break;
-    //		ifp->if_drv_flags |= IFF_DRV_OACTIVE;
-    //		IFQ_DRV_PREPEND(&ifp->if_snd, m_head);
-    //		break;
-    //	}
+	    IFQ_DRV_DEQUEUE(&ifp->if_snd, m_head);
+	    if (m_head == NULL)
+	    	return;
+	    
+	    /*
+	     *  Encapsulation can modify our pointer, and or make it
+	     *  NULL on failure.  In that event, we can't requeue.
+	     */
+	    if (lem_xmit(adapter, &m_head)) {
+	    	if (m_head == NULL)
+	    		return;
+	    	//ifp->if_drv_flags |= IFF_DRV_OACTIVE;
+	    	//IFQ_DRV_PREPEND(&ifp->if_snd, m_head);
+	    	return;
+	    }
 
-    //	/* Send a copy of the frame to the BPF listener */
-    //	ETHER_BPF_MTAP(ifp, m_head);
+	    /* Send a copy of the frame to the BPF listener */
+	    //ETHER_BPF_MTAP(ifp, m_head);
 
-    //	/* Set timeout in case hardware has problems transmitting. */
-    //	adapter->watchdog_check = TRUE;
-    //	adapter->watchdog_time = ticks;
+	    /* Set timeout in case hardware has problems transmitting. */
+	    adapter->watchdog_check = TRUE;
+	    adapter->watchdog_time = ticks;
     //}
     //if (adapter->num_tx_desc_avail <= EM_TX_OP_THRESHOLD)
     //	ifp->if_drv_flags |= IFF_DRV_OACTIVE;
@@ -2087,9 +2089,9 @@ lem_allocate_pci_resources(struct adapter *adapter)
         device_printf(dev, "Unable to allocate bus resource: memory\n");
         return (ENXIO);
     }
-    //adapter->osdep.mem_bus_space_tag =
+    adapter->osdep.mem_bus_space_tag = I386_BUS_SPACE_MEM;
     //    rman_get_bustag(adapter->memory);
-    //adapter->osdep.mem_bus_space_handle =
+    adapter->osdep.mem_bus_space_handle = adapter->memory->r_virtual;//0xf0000000;//LUOYU
     //    rman_get_bushandle(adapter->memory);
     adapter->hw.hw_addr = (u8 *)&adapter->osdep.mem_bus_space_handle;
 #if 0
@@ -2625,8 +2627,8 @@ fail:
 void
 lem_setup_transmit_structures(struct adapter *adapter)
 {
-#if 0
-    LUOYU
+#if 1
+   
     struct em_buffer *tx_buffer;
     int i;
     /* Clear the old ring contents */
@@ -2637,9 +2639,9 @@ lem_setup_transmit_structures(struct adapter *adapter)
     for (i = 0; i < adapter->num_tx_desc; i++, tx_buffer++)
     {
         tx_buffer = &adapter->tx_buffer_area[i];
-        bus_dmamap_sync(adapter->txtag, tx_buffer->map,
-                        BUS_DMASYNC_POSTWRITE);
-        bus_dmamap_unload(adapter->txtag, tx_buffer->map);
+        //bus_dmamap_sync(adapter->txtag, tx_buffer->map,
+        //                BUS_DMASYNC_POSTWRITE);
+        //bus_dmamap_unload(adapter->txtag, tx_buffer->map);
         m_freem(tx_buffer->m_head);
         tx_buffer->m_head = NULL;
         tx_buffer->next_eop = -1;
@@ -2651,8 +2653,8 @@ lem_setup_transmit_structures(struct adapter *adapter)
     adapter->next_tx_to_clean = 0;
     adapter->num_tx_desc_avail = adapter->num_tx_desc;
 
-    bus_dmamap_sync(adapter->txdma.dma_tag, adapter->txdma.dma_map,
-                    BUS_DMASYNC_PREREAD | BUS_DMASYNC_PREWRITE);
+    //bus_dmamap_sync(adapter->txdma.dma_tag, adapter->txdma.dma_map,
+    //                BUS_DMASYNC_PREREAD | BUS_DMASYNC_PREWRITE);
 #endif
     return;
 }
@@ -2681,7 +2683,7 @@ lem_initialize_transmit_unit(struct adapter *adapter)
     E1000_WRITE_REG(&adapter->hw, E1000_TDT(0), 0);
     E1000_WRITE_REG(&adapter->hw, E1000_TDH(0), 0);
 
-    HW_DEBUGOUT2("Base = %x, Length = %x\n",
+    HW_DEBUGOUT2("lem_initialize_transmit_unit Base = %x, Length = %x\n",
                  E1000_READ_REG(&adapter->hw, E1000_TDBAL(0)),
                  E1000_READ_REG(&adapter->hw, E1000_TDLEN(0)));
 

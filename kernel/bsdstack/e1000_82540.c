@@ -131,7 +131,7 @@ static s32 e1000_init_nvm_params_82540(struct e1000_hw *hw)
     struct e1000_nvm_info *nvm = &hw->nvm;
     u32 eecd = E1000_READ_REG(hw, E1000_EECD);
 
-    DEBUGFUNC("e1000_init_nvm_params_82540");
+    printf("e1000_init_nvm_params_82540 eecd=0x%x\n", eecd);
 
     nvm->type               = e1000_nvm_eeprom_microwire;
     nvm->delay_usec         = 50;

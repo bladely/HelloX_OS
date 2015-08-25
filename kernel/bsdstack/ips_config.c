@@ -686,7 +686,7 @@ int BISConfig()
     show_ip_interface();
 
     add_static_route();
-    show_route_statistic();
+    //show_route_statistic();
     return 0;
 }
 //extern IPS_ALL g_ips_all;

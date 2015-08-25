@@ -457,7 +457,7 @@ s32 e1000_setup_init_funcs(struct e1000_hw *hw, bool init_device)
         ret_val = -E1000_ERR_CONFIG;
         break;
     }
-
+	
     /*
      * Initialize the rest of the function pointers. These require some
      * register reads/writes in some cases.
@@ -471,10 +471,9 @@ s32 e1000_setup_init_funcs(struct e1000_hw *hw, bool init_device)
         ret_val = e1000_init_nvm_params(hw);
         if (ret_val)
             goto out;
-        // LUOYU delete @2015/8/12
-        //ret_val = e1000_init_phy_params(hw);
-        //if (ret_val)
-        //	goto out;
+        ret_val = e1000_init_phy_params(hw);
+        if (ret_val)
+        	goto out;
 
         //ret_val = e1000_init_mbx_params(hw);
         //if (ret_val)

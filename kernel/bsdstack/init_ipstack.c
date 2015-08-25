@@ -79,6 +79,6 @@ void BISStartup()
     arp_init();
 
     BISConfig();
-    //test_ping("10.1.1.2");
+    //test_ping("192.168.56.1");
 }
 
