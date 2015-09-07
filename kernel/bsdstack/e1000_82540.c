@@ -723,7 +723,7 @@ s32 e1000_read_mac_addr_82540(struct e1000_hw *hw)
 {
     s32  ret_val = E1000_SUCCESS;
     u16 offset, nvm_data, i;
-#if 0
+
     DEBUGFUNC("e1000_read_mac_addr");
 
     for (i = 0; i < ETH_ADDR_LEN; i += 2)
@@ -738,16 +738,10 @@ s32 e1000_read_mac_addr_82540(struct e1000_hw *hw)
         hw->mac.perm_addr[i] = (u8)(nvm_data & 0xFF);
         hw->mac.perm_addr[i + 1] = (u8)(nvm_data >> 8);
     }
-
+	
     /* Flip last bit of mac address if we're on second port */
     if (hw->bus.func == E1000_FUNC_1)
         hw->mac.perm_addr[5] ^= 1;
-#endif
-
-    // LUOYU add the following 2 lines
-    for (i = 0; i < ETH_ADDR_LEN; i++)
-        hw->mac.perm_addr[i] = i + 0x22;
-
     for (i = 0; i < ETH_ADDR_LEN; i++)
         hw->mac.addr[i] = hw->mac.perm_addr[i];
 

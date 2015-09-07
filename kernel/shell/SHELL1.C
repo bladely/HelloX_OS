@@ -198,6 +198,7 @@ VOID HlpHandler(__CMD_PARA_OBJ* pCmdParaObj)           //Command 'help' 's handl
 #endif  //__CFG_APP_JVM
 	LPSTR strReboot      = "    reboot       : Reboot the system.";
 	LPSTR strCls         = "    cls          : Clear the whole screen.";
+	LPSTR strBsdCmd      = "    bsdcmd       : Bsd IP stack command";
 
 	PrintLine(strHelpTitle);              //Print out the help information line by line.
 	PrintLine(strHelpVer);
@@ -210,6 +211,7 @@ VOID HlpHandler(__CMD_PARA_OBJ* pCmdParaObj)           //Command 'help' 's handl
 	PrintLine(strRunTime);
 	PrintLine(strIoCtrlApp);
 	PrintLine(strSysDiagApp);
+	PrintLine(strBsdCmd);
 	PrintLine(strFsApp);
 	PrintLine(strNetApp);
 	PrintLine(strFdiskApp);

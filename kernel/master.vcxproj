@@ -299,6 +299,7 @@
     <ClCompile Include="lib\string.c" />
     <ClCompile Include="lib\sysmem.c" />
     <ClCompile Include="lib\time.c" />
+    <ClCompile Include="shell\BSDCMD.c" />
     <ClCompile Include="shell\EXTCMD.C" />
     <ClCompile Include="shell\FDISK.C" />
     <ClCompile Include="shell\FDISK2.C" />

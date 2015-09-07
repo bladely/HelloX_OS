@@ -19,6 +19,7 @@
 #include "shell.h"
 #include "ioctrl_s.h"
 #include "sysd_s.h"
+#include "bsdcmd.h"
 #include "extcmd.h"
 #include "debug.h"
 #include "modmgr.h"
@@ -104,6 +105,7 @@ __CMD_OBJ  CmdObj[] = {
 	 {"fr"      ,   FileReadTest},
 	
 	{"debug"    ,    DebugHandler},
+	{"bsdcmd"   ,   BsdStackCmdEntry},
 //	{"test"    ,    FileWriteTest},
 	//The last element of this array must be NULL.
 	{NULL       ,    NULL}
@@ -567,6 +569,17 @@ DWORD CpuHandler(__CMD_PARA_OBJ* pCmdParaObj)
 	return SHELL_CMD_PARSER_SUCCESS;
 }
 
+//Handler for 'cpu' command.
+DWORD PingHandler(__CMD_PARA_OBJ* pCmdParaObj)
+{
+	/*GotoHome();
+	ChangeLine();
+	PrintStr("Cpu Handler called.");*/
+
+	CD_PrintString("ping Handler called.",TRUE);
+
+	return SHELL_CMD_PARSER_SUCCESS;
+}
 //Handler for 'support' command.
 DWORD SptHandler(__CMD_PARA_OBJ* pCmdParaObj)
 {

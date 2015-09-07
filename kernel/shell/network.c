@@ -54,7 +54,7 @@ static struct __FDISK_CMD_MAP{
 	LPSTR                lpszCommand;
 	DWORD                (*CommandHandler)(__CMD_PARA_OBJ*);
 	LPSTR                lpszHelpInfo;
-}SysDiagCmdMap[] = {
+}NetworkCmdMap[] = {
 	{"iflist",     iflist,    "  iflist   : Show all network interface(s) in system."},
 	{"ping",       ping,      "  ping     : Check a specified host's reachbility."},
 	{"route",      route,     "  route    : List all route entry(ies) in system."},
@@ -78,13 +78,13 @@ static DWORD QueryCmdName(LPSTR pMatchBuf,INT nBufLen)
 		return SHELL_QUERY_CONTINUE;
 	}
 
-	if(NULL == SysDiagCmdMap[dwIndex].lpszCommand)
+	if(NULL == NetworkCmdMap[dwIndex].lpszCommand)
 	{
 		dwIndex = 0;
 		return SHELL_QUERY_CANCEL;	
 	}
 
-	strncpy(pMatchBuf,SysDiagCmdMap[dwIndex].lpszCommand,nBufLen);
+	strncpy(pMatchBuf,NetworkCmdMap[dwIndex].lpszCommand,nBufLen);
 	dwIndex ++;
 
 	return SHELL_QUERY_CONTINUE;	
@@ -125,14 +125,14 @@ static DWORD CommandParser(LPCSTR lpszCmdLine)
 	//
 	while(TRUE)
 	{
-		if(NULL == SysDiagCmdMap[dwIndex].lpszCommand)
+		if(NULL == NetworkCmdMap[dwIndex].lpszCommand)
 		{
 			dwRetVal = SHELL_CMD_PARSER_INVALID;
 			break;
 		}
-		if(StrCmp(SysDiagCmdMap[dwIndex].lpszCommand,lpCmdParamObj->Parameter[0]))  //Find the handler.
+		if(StrCmp(NetworkCmdMap[dwIndex].lpszCommand,lpCmdParamObj->Parameter[0]))  //Find the handler.
 		{
-			dwRetVal = SysDiagCmdMap[dwIndex].CommandHandler(lpCmdParamObj);
+			dwRetVal = NetworkCmdMap[dwIndex].CommandHandler(lpCmdParamObj);
 			break;
 		}
 		else
@@ -175,10 +175,10 @@ static DWORD help(__CMD_PARA_OBJ* lpCmdObj)
 
 	while(TRUE)
 	{
-		if(NULL == SysDiagCmdMap[dwIndex].lpszHelpInfo)
+		if(NULL == NetworkCmdMap[dwIndex].lpszHelpInfo)
 			break;
 
-		PrintLine(SysDiagCmdMap[dwIndex].lpszHelpInfo);
+		PrintLine(NetworkCmdMap[dwIndex].lpszHelpInfo);
 		dwIndex ++;
 	}
 	return SHELL_CMD_PARSER_SUCCESS;

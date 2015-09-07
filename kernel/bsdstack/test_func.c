@@ -101,7 +101,7 @@ void test_ping(char *ipAddr)
 {
     struct sockaddr_in dst;
     int icmpSocketId = -1;
-    printf("Start Testing ping....\n");
+    printf("Start Testing ping %s....\n", ipAddr);
 
     icmpSocketId = socket(AF_INET, SOCK_RAW, IPPROTO_ICMP);
 
@@ -112,7 +112,7 @@ void test_ping(char *ipAddr)
     dst.sin_addr.s_addr = bsd_inet_addr(ipAddr);
 
     send_echo_req(icmpSocketId, &dst);
-    return;
+    //return;
     Sleep(1000);
     //ISleep(1000);
     recv_echo_reply(icmpSocketId);

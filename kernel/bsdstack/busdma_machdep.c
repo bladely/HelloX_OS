@@ -126,14 +126,18 @@ struct bounce_zone
     char		zoneid[8];
     char		lowaddrid[20];
     //struct sysctl_ctx_list sysctl_tree;
-    struct sysctl_oid *sysctl_tree_top;
+    //struct sysctl_oid *sysctl_tree_top;
 };
 
 static struct mtx bounce_lock;
 static int total_bpages;
 static int busdma_zonecount;
-static STAILQ_HEAD(, bounce_zone) bounce_zone_list;
+//static STAILQ_HEAD(, bounce_zone) bounce_zone_list;
 
+struct {								\
+	struct bounce_zone *stqh_first;/* first element */			\
+	struct bounce_zone **stqh_last;/* addr of last next element */		\
+}bounce_zone_list;
 
 struct bus_dmamap
 {
@@ -525,7 +529,7 @@ bus_dmamap_destroy(bus_dma_tag_t dmat, bus_dmamap_t map)
         }
         if (dmat->bounce_zone)
             dmat->bounce_zone->map_count--;
-        free(map, M_DEVBUF);
+        free(map);
     }
     dmat->map_count--;
     CTR2(KTR_BUSDMA, "%s: tag %p error 0", __func__, dmat);
@@ -731,7 +735,7 @@ _bus_dmamap_load_buffer(bus_dma_tag_t dmat,
     bus_addr_t curaddr, lastaddr, baddr, bmask;
     vm_offset_t vaddr;
     int seg, error;
-    _hx_printf("%s:%d\n", __FUNCTION__, __LINE__);
+
     if (map == NULL)
         map = &nobounce_dmamap;
 
@@ -748,10 +752,11 @@ _bus_dmamap_load_buffer(bus_dma_tag_t dmat,
     vaddr = (vm_offset_t)buf;
     lastaddr = *lastaddrp;
     bmask = ~(dmat->boundary - 1);
-#if 0
+
     for (seg = *segp; buflen > 0 ; )
     {
-        bus_size_t max_sgsize;
+#if 0        
+		bus_size_t max_sgsize;
         _hx_printf("%s:%d\n", __FUNCTION__, __LINE__);
         /*
          * Get the physical address for this segment.
@@ -813,12 +818,14 @@ _bus_dmamap_load_buffer(bus_dma_tag_t dmat,
                 segs[seg].ds_len = sgsize;
             }
         }
-
-        lastaddr = curaddr + sgsize;
-        vaddr += sgsize;
-        buflen -= sgsize;
-    }
 #endif
+		segs[seg].ds_addr = malloc(buflen); // LUOYU added
+        segs[seg].ds_len = buflen;           // LUOYU added
+        //lastaddr = curaddr + sgsize;
+        //vaddr += sgsize;
+        buflen -= buflen;
+        seg ++; // LUOYU added 
+    }
 
     *segp = seg;
     *lastaddrp = lastaddr;
@@ -889,6 +896,7 @@ _bus_dmamap_load_mbuf_sg(bus_dma_tag_t dmat, bus_dmamap_t map,
     flags |= BUS_DMA_NOWAIT;
     *nsegs = 0;
     error = 0;
+
     if (m0->m_pkthdr.len <= dmat->maxsize)
     {
         int first = 1;
@@ -926,7 +934,7 @@ bus_dmamap_load_mbuf(bus_dma_tag_t dmat, bus_dmamap_t map,
                      int flags)
 {
     int nsegs, error;
-
+	printf("%s:%d\n", __FUNCTION__, __LINE__);
     error = _bus_dmamap_load_mbuf_sg(dmat, map, m0, dmat->segments, &nsegs,
                                      flags);
 
@@ -971,7 +979,7 @@ bus_dmamap_load_uio(bus_dma_tag_t dmat, bus_dmamap_t map,
     flags |= BUS_DMA_NOWAIT;
     resid = uio->uio_resid;
     iov = uio->uio_iov;
-
+	printf("%s:%d\n", __FUNCTION__, __LINE__);
     if (uio->uio_segflg == UIO_USERSPACE)
     {
         KASSERT(uio->uio_td != NULL,
@@ -1056,7 +1064,7 @@ _bus_dmamap_sync(bus_dma_tag_t dmat, bus_dmamap_t map, bus_dmasync_op_t op)
                 bcopy((void *)bpage->datavaddr,
                       (void *)bpage->vaddr,
                       bpage->datacount);
-                //bpage = STAILQ_NEXT(bpage, links);
+                bpage = NULL;//STAILQ_NEXT(bpage, links);
             }
             dmat->bounce_zone->total_bounced++;
         }
@@ -1068,7 +1076,7 @@ _bus_dmamap_sync(bus_dma_tag_t dmat, bus_dmamap_t map, bus_dmasync_op_t op)
                 bcopy((void *)bpage->vaddr,
                       (void *)bpage->datavaddr,
                       bpage->datacount);
-                //bpage = STAILQ_NEXT(bpage, links);
+                bpage = NULL;//STAILQ_NEXT(bpage, links);
             }
             dmat->bounce_zone->total_bounced++;
         }

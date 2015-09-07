@@ -21,7 +21,7 @@
 #include <process.h>
 //#include "ips_config.h"
 
-const char TEST_IP_ADDR[] = "10.0.2.15";
+const char TEST_IP_ADDR[] = "192.168.56.101";
 typedef unsigned short u_short;
 void routepr();
 void pmsg_addrs(char *cp, int addrs);

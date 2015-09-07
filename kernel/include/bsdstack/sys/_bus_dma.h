@@ -42,11 +42,6 @@ typedef int bus_dmasync_op_t;
  */
 typedef struct bus_dma_tag	*bus_dma_tag_t;
 
-/*
- *	bus_dmamap_t
- *
- *	DMA mapping instance information.
- */
 typedef struct bus_dmamap	*bus_dmamap_t;
 
 /*

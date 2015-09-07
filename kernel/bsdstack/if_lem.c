@@ -377,7 +377,7 @@ lem_attach(device_t dev)
         error = ENOMEM;
         goto err_tx_desc;
     }
-
+	
     adapter->tx_desc_base =
         (struct e1000_tx_desc *)adapter->txdma.dma_vaddr;
 
@@ -409,7 +409,6 @@ lem_attach(device_t dev)
     ** mac from that.
     */
     e1000_reset_hw(&adapter->hw);
-
     /* Make sure we have a good EEPROM before we read from it */
     if (e1000_validate_nvm_checksum(&adapter->hw) < 0)
     {
@@ -426,7 +425,7 @@ lem_attach(device_t dev)
             goto err_hw_init;
         }
     }
-
+	
     /* Copy the permanent MAC address out of the EEPROM */
     if (e1000_read_mac_addr(&adapter->hw) < 0)
     {
@@ -435,7 +434,7 @@ lem_attach(device_t dev)
         error = EIO;
         goto err_hw_init;
     }
-
+	
     if (!lem_is_valid_ether_addr(adapter->hw.mac.addr))
     {
         device_printf(dev, "Invalid MAC address\n");
@@ -450,7 +449,7 @@ lem_attach(device_t dev)
         error = EIO;
         goto err_hw_init;
     }
-
+	
     /* Allocate transmit descriptors and buffers */
     if (lem_allocate_transmit_structures(adapter))
     {
@@ -701,7 +700,6 @@ lem_start_locked(struct ifnet *ifp)
             return;
         }
     }
-	printf("%s %d \n", __FUNCTION__, __LINE__);
     //while (!IFQ_DRV_IS_EMPTY(&ifp->if_snd)) {
 
 	    IFQ_DRV_DEQUEUE(&ifp->if_snd, m_head);
@@ -1447,7 +1445,7 @@ lem_xmit(struct adapter *adapter, struct mbuf **m_headp)
     struct e1000_tx_desc	*ctxd = NULL;
     struct mbuf		*m_head;
     u32			txd_upper, txd_lower, txd_used, txd_saved;
-    int			error, nsegs, i, j, first, last = 0;
+    int			error, nsegs = 0, i, j, first, last = 0;
 
     m_head = *m_headp;
     txd_upper = txd_lower = txd_used = txd_saved = 0;
@@ -1478,7 +1476,7 @@ lem_xmit(struct adapter *adapter, struct mbuf **m_headp)
     tx_buffer = &adapter->tx_buffer_area[first];
     tx_buffer_mapped = tx_buffer;
     map = tx_buffer->map;
-
+	
     error = bus_dmamap_load_mbuf_sg(adapter->txtag, map,
                                     *m_headp, segs, &nsegs, BUS_DMA_NOWAIT);
 
@@ -1506,11 +1504,13 @@ lem_xmit(struct adapter *adapter, struct mbuf **m_headp)
         *m_headp = m;
 
         /* Try it again */
+        
         error = bus_dmamap_load_mbuf_sg(adapter->txtag, map,
                                         *m_headp, segs, &nsegs, BUS_DMA_NOWAIT);
 
         if (error)
         {
+        	printf("%s:%d error=%d\n", __FUNCTION__, __LINE__, error);
             adapter->no_tx_dma_setup++;
             m_freem(*m_headp);
             *m_headp = NULL;
@@ -1519,6 +1519,7 @@ lem_xmit(struct adapter *adapter, struct mbuf **m_headp)
     }
     else if (error != 0)
     {
+    	printf("%s:%d error=%d\n", __FUNCTION__, __LINE__, error);
         adapter->no_tx_dma_setup++;
         return (error);
     }
@@ -1527,6 +1528,7 @@ lem_xmit(struct adapter *adapter, struct mbuf **m_headp)
     {
         adapter->no_tx_desc_avail2++;
         bus_dmamap_unload(adapter->txtag, map);
+        printf("%s:%d nsegs=%d\n", __FUNCTION__, __LINE__, nsegs);
         return (ENOBUFS);
     }
     m_head = *m_headp;
@@ -1647,6 +1649,7 @@ lem_xmit(struct adapter *adapter, struct mbuf **m_headp)
         lem_82547_move_tail(adapter);
     else
     {
+    	printf("%s %d i=%d\n",  __FUNCTION__, __LINE__, i);
         E1000_WRITE_REG(&adapter->hw, E1000_TDT(0), i);
         if (adapter->hw.mac.type == e1000_82547)
             lem_82547_update_fifo_head(adapter,
@@ -2284,7 +2287,7 @@ lem_hardware_init(struct adapter *adapter)
         return (EIO);
     }
 
-    //e1000_check_for_link(&adapter->hw);
+    e1000_check_for_link(&adapter->hw);
 
     return (0);
 }

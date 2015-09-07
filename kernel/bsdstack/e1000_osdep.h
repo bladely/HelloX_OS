@@ -64,8 +64,8 @@
 #include "pcireg.h"
 #define ASSERT(x) if(!(x)) panic("EM: x")
 
-#define usec_delay(x) DELAY(x)
-#define msec_delay(x) DELAY(1000*(x))
+#define usec_delay(x) DELAY(x/100)
+#define msec_delay(x) DELAY(10*(x))
 #define msec_delay_irq(x) DELAY(1000*(x))
 
 #define MSGOUT(S, A, B)     printf(S "\n", A, B)

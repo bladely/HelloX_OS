@@ -656,6 +656,9 @@
     <ClCompile Include="bsdstack\ips_netstat.c">
       <Filter>Source Files\kernel\bsdstack</Filter>
     </ClCompile>
+    <ClCompile Include="shell\BSDCMD.c">
+      <Filter>Source Files\shell</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\arch\bpstruct.h">
