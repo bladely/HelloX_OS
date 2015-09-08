@@ -37,22 +37,17 @@
 #include "excep.h"
 #include "symbol.h"
 #include "frame.h"
-
+#include <limits.h>
 #include "interp.h"
-
+#if 0
 //For ntohl routine.
 #ifndef ntohl
-#ifdef __CFG_NET_IPv4
 #define ntohl lwip_ntohl
-#endif
-#ifdef __CFG_BSD_NET
-#include "kin.h"
-#define ntohl __ntohl
-#endif
 #endif
 
 extern long lwip_ntohl(long);
-
+#endif
+#include "kin.h"
 uintptr_t *executeJava() {
 
     /* Definitions specific to the particular
@@ -1108,16 +1103,18 @@ uintptr_t *executeJava() {
     DEF_OPC_FLOAT(OPC_D2I,
         OPC_fp2int(double)
     )
-
+#define _I64_MIN    (-9223372036854775807i64 - 1)
+	/* maximum signed 64 bit value */
+#define _I64_MAX      9223372036854775807i64
 #define OPC_fp2long(SRC_TYPE)             \
 {                                         \
     int64_t res;                          \
     SRC_TYPE value = STACK_POP(SRC_TYPE); \
                                           \
-    if(value >= (SRC_TYPE)LLONG_MAX)      \
-        res = LLONG_MAX;                  \
-    else if(value <= (SRC_TYPE)LLONG_MIN) \
-        res = LLONG_MIN;                  \
+    if(value >= (SRC_TYPE)_I64_MAX)      \
+        res = _I64_MAX;                  \
+    else if(value <= (SRC_TYPE)_I64_MIN) \
+        res = _I64_MIN;                  \
     else if(value != value)               \
         res = 0;                          \
     else                                  \

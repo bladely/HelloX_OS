@@ -18,7 +18,9 @@
 #include "StdAfx.h"
 #endif
 
-#include "PCI_DRV.H"
+#include "pci_drv.h"
+#include "kapi.h"
+
 
 //Only DDF(Device Driver Framework) is enabled the following code
 //will be included in OS kernel.
@@ -54,6 +56,7 @@ static BOOL DevMgrInitialize(__DEVICE_MANAGER* lpDevMgr)
 
 	//lpRes = (__RESOURCE*)malloc(sizeof(__RESOURCE));
 	lpRes = (__RESOURCE*)KMemAlloc(sizeof(__RESOURCE),KMEM_SIZE_TYPE_ANY);
+
 	if(NULL == lpRes)    //Can not allocate memory.
 	{
 		return FALSE;
@@ -91,9 +94,10 @@ static BOOL DevMgrInitialize(__DEVICE_MANAGER* lpDevMgr)
 	//
 	//Load system bus drivers here.
 	//
-#ifdef __CFG_SYS_BM
-	PciBusDriver(lpDevMgr);
-#endif
+
+	#ifdef __CFG_SYS_BM
+		PciBusDriver(lpDevMgr);
+	#endif
 
 	return TRUE;
 }
@@ -461,7 +465,6 @@ static __PHYSICAL_DEVICE* GetDevice(__DEVICE_MANAGER*   lpDevMgr,
 				if(DEVICE_ID_MATCH(lpId,&lpPhyDev->DevId))  //ID match.
 				{
 					__LEAVE_CRITICAL_SECTION(NULL,dwFlags);
-					PrintLine("GetDevice : Reach 2st position.");  //---- DEBUG ----
 					return lpPhyDev;    //Find a device object statisfying the request.
 				}
 				lpPhyDev = lpPhyDev->lpNext;

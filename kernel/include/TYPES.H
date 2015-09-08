@@ -28,6 +28,7 @@ extern "C" {
 //
 //Hello China's basic data type.
 //
+
 typedef unsigned char       BYTE;
 typedef unsigned short      WORD;
 typedef unsigned long       DWORD;
@@ -39,6 +40,7 @@ typedef int                 INT;
 typedef unsigned char       UCHAR;
 typedef short               WCHAR;
 typedef short               TCHAR;
+typedef long                LONG;
 
 typedef unsigned long       ULONG;
 typedef unsigned int        UINT;
@@ -55,12 +57,17 @@ typedef const char*         LPCSTR;
 typedef void                VOID;
 typedef void*               LPVOID;
 
+typedef unsigned char*      LPBYTE;
+
 //Extra definitions maybe used by some GPL code,or you can
 //add your specific data type definitions here to comply your
 //code requirement,such as __uint8,...
 typedef unsigned char       __U8;
 typedef unsigned short      __U16;
 typedef unsigned long       __U32;
+typedef signed char         __S8;
+typedef signed short        __S16;
+typedef signed long         __S32;
 
 //size_t for ANSI C library.
 typedef unsigned int size_t;
@@ -95,6 +102,7 @@ typedef struct{
 	unsigned long dwLowPart;
 	unsigned long dwHighPart;
 }__U64;
+
 
 //
 //Add operations for unsigned 64 bits integer.

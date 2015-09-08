@@ -15,18 +15,13 @@
 //    Lines number              :
 //***********************************************************************/
 
-#ifndef __STDAFX_H__
-#include "../INCLUDE/StdAfx.h"
-#endif
+#include <StdAfx.h>
+#include <stdio.h>
 
 #include "shell.h"
-#include "SYSD_S.H"
-#include "STAT_S.H"
-
-#ifndef __PCI_DRV_H__
-#include "../INCLUDE/PCI_DRV.H"
-#endif
-
+#include "sysd_s.h"
+#include "stat_s.h"
+#include "pci_drv.h"
 
 #define  SYSD_PROMPT_STR   "[sysdiag_view]"
 
@@ -44,6 +39,7 @@ static DWORD pcilist(__CMD_PARA_OBJ*);
 static DWORD devinfo(__CMD_PARA_OBJ*);
 static DWORD cpuload(__CMD_PARA_OBJ*);
 static DWORD devlist(__CMD_PARA_OBJ*);
+static DWORD showint(__CMD_PARA_OBJ*);
 
 //
 //The following is a map between command and it's handler.
@@ -61,24 +57,16 @@ static struct __SHELL_CMD_MAP{
 	{"devinfo",           devinfo,          "  devinfo              : Print out information about a PCI device."},
 	{"cpuload",           cpuload,          "  cpuload              : Display CPU statistics information."},
 	{"devlist",           devlist,          "  devlist              : List all devices' information in the system."},
+	{ "showint",          showint,          "  showint              : Show interrupt statistics information." },
 	{"exit",              exit,             "  exit                 : Exit the application."},
 	{"help",              help,             "  help                 : Print out this screen."},
 	{NULL,				  NULL,             NULL}
 };
 
 //
-//The following is a helper routine,it only prints out a "#" character as prompt.
-//
-//
-//This is the application's entry point.
-//
-
-
-//
 //The following routine processes the input command string.
 //It is called by SysDiagStart.
 //
-
 static DWORD CommandParser(LPSTR lpszCmdLine)
 {
 	DWORD                  dwRetVal          = SHELL_CMD_PARSER_INVALID;
@@ -169,7 +157,6 @@ static DWORD exit(__CMD_PARA_OBJ* lpCmdObj)
 //
 //The memcheck command's handler.
 //
-
 static DWORD memcheck(__CMD_PARA_OBJ* lpCmdObj)
 {
 	return SHELL_CMD_PARSER_SUCCESS;
@@ -178,7 +165,6 @@ static DWORD memcheck(__CMD_PARA_OBJ* lpCmdObj)
 //
 //The help command's handler.
 //
-
 static DWORD help(__CMD_PARA_OBJ* lpCmdObj)
 {
 	DWORD               dwIndex = 0;
@@ -197,7 +183,6 @@ static DWORD help(__CMD_PARA_OBJ* lpCmdObj)
 //
 //The cintperf command's handler.
 //
-
 static DWORD cintperf(__CMD_PARA_OBJ* lpCmdObj)
 {
 	CHAR              strBuffer[18];
@@ -221,7 +206,6 @@ static DWORD cintperf(__CMD_PARA_OBJ* lpCmdObj)
 //
 //The overload command's handler.
 //
-
 static DWORD overload(__CMD_PARA_OBJ* lpCmdObj)
 {
 	DWORD            dwTimerNum       = 10;
@@ -264,7 +248,6 @@ static DWORD overload(__CMD_PARA_OBJ* lpCmdObj)
 //
 //The beep command's handler.
 //
-
 static DWORD beep(__CMD_PARA_OBJ* lpCmdObj)
 {
 	__KERNEL_THREAD_MESSAGE       Msg;
@@ -334,7 +317,6 @@ __TERMINAL:
 //The implementation of pcilist.
 //This routine is the handler of 'pcilist' command.
 //
-
 static VOID  OutputDevInfo(__PHYSICAL_DEVICE* lpPhyDev);  //Helper routine.
 
 static DWORD pcilist(__CMD_PARA_OBJ* lpParamObj)
@@ -343,7 +325,7 @@ static DWORD pcilist(__CMD_PARA_OBJ* lpParamObj)
 	DWORD                  dwLoop          = 0;
 	__PHYSICAL_DEVICE*     lpPhyDev        = NULL;
 
-	PrintLine("    Device ID/Vendor ID    Bus Number    Description");
+	_hx_printf("    Device ID/Vendor ID\t  Bus Number\t  Description\r\n");
 
 	for(dwLoop = 0;dwLoop < MAX_BUS_NUM;dwLoop ++)
 	{
@@ -454,17 +436,17 @@ static struct __PCI_DEV_DESC{
 
 static VOID OutputDevInfo(__PHYSICAL_DEVICE* lpPhyDev)
 {
-	CHAR                 strBuff[80];
 	DWORD                dwVendor          = 0;
 	DWORD                dwDevice          = 0;
 	DWORD                dwBusNum          = 0;
 	LPSTR                lpszDes           = NULL;
 	WORD                 wClassCode        = 0;
 	DWORD                dwLoop            = 0;
-	LPVOID               lpParam[4];
 
-	if(NULL == lpPhyDev)
+	if (NULL == lpPhyDev)
+	{
 		return;
+	}
 	dwDevice = (DWORD)lpPhyDev->DevId.Bus_ID.PCI_Identifier.wDevice;
 	dwVendor = (DWORD)lpPhyDev->DevId.Bus_ID.PCI_Identifier.wVendor;
 	dwBusNum = lpPhyDev->lpHomeBus->dwBusNum;
@@ -479,16 +461,13 @@ static VOID OutputDevInfo(__PHYSICAL_DEVICE* lpPhyDev)
 		}
 		dwLoop ++;
 	}
-	if(NULL == lpszDes)
+	if (NULL == lpszDes)
+	{
 		lpszDes = DEFAULT_PCI_DESC;
+	}
 
-	lpParam[0]  = (LPVOID)&dwDevice;
-	lpParam[1]  = (LPVOID)&dwVendor;
-	lpParam[2]  = (LPVOID)&dwBusNum;
-	lpParam[3]  = (LPVOID)lpszDes;
-
-	FormString(strBuff,"    %x/%x      %d             %s",lpParam);
-	PrintLine(strBuff);
+	//Show PCI device information.
+	_hx_printf("    %08X/%08X\t\t  %d\t  %s\r\n", dwDevice, dwVendor, dwBusNum, lpszDes);
 }
 
 //
@@ -497,7 +476,6 @@ static VOID OutputDevInfo(__PHYSICAL_DEVICE* lpPhyDev)
 static VOID PrintDevInfo(__PHYSICAL_DEVICE* lpPhyDev)
 {
 	__PCI_DEVICE_INFO*   lpPciInfo           = NULL;
-	CHAR                 strBuff[80];
 	DWORD                dwLoop              = 0;
 	DWORD                dwDevNum            = 0;
 	DWORD                dwFuncNum           = 0;
@@ -505,7 +483,6 @@ static VOID PrintDevInfo(__PHYSICAL_DEVICE* lpPhyDev)
 	UCHAR                ucResType           = 0;
 	DWORD                dwStartAddr         = 0;
 	DWORD                dwEndAddr           = 0;
-	LPVOID               lppParam[6];
 	
 	if(NULL == lpPhyDev)  //Invalid parameter.
 		return;
@@ -531,7 +508,7 @@ static VOID PrintDevInfo(__PHYSICAL_DEVICE* lpPhyDev)
 			dwEndAddr   = (DWORD)lpPhyDev->Resource[0].Dev_Res.MemoryRegion.lpEndAddr;
 			break;
 		case RESOURCE_TYPE_IO:
-			ucResType = 'I';        //Memory.
+			ucResType = 'P';        //Memory.
 			dwStartAddr = (DWORD)lpPhyDev->Resource[0].Dev_Res.IOPort.wStartPort;
 			dwEndAddr   = (DWORD)lpPhyDev->Resource[0].Dev_Res.IOPort.wEndPort;
 			break;
@@ -539,19 +516,14 @@ static VOID PrintDevInfo(__PHYSICAL_DEVICE* lpPhyDev)
 			break;
 		}
 	}
-	//
-	//Now,we shall print out all device information.
-	//
-	lppParam[0] = (LPVOID)&dwDevNum;
-	lppParam[1] = (LPVOID)&dwFuncNum;
-	lppParam[2] = (LPVOID)&dwVector;
-	lppParam[3] = (LPVOID)&ucResType;
-	lppParam[4] = (LPVOID)&dwStartAddr;
-	lppParam[5] = (LPVOID)&dwEndAddr;
+	
+	//Print out device information.
+	_hx_printf("    Device id = %d,function id = %d,resource as:\r\n",
+		dwDevNum, dwFuncNum);
+	_hx_printf("    [resource] type = I,interrupt = %d\r\n", dwVector);
+	_hx_printf("    [resource] type = %c,startaddr = 0x%0X,endaddr = 0x%0X\r\n",
+		ucResType, dwStartAddr, dwEndAddr);
 
-	PrintLine("    Dev/Func    IntVector    ResType    ResStart      ResEnd");
-	FormString(strBuff,"         %d/%d           %d          %c    0x%x    0x%x",lppParam);
-	PrintLine(strBuff);
 	//
 	//Print out the rest resource information.
 	//
@@ -568,19 +540,18 @@ static VOID PrintDevInfo(__PHYSICAL_DEVICE* lpPhyDev)
 			dwEndAddr   = (DWORD)lpPhyDev->Resource[dwLoop].Dev_Res.MemoryRegion.lpEndAddr;
 			break;
 		case RESOURCE_TYPE_IO:
-			ucResType = 'I';        //Memory.
+			ucResType = 'P';        //Memory.
 			dwStartAddr = (DWORD)lpPhyDev->Resource[dwLoop].Dev_Res.IOPort.wStartPort;
 			dwEndAddr   = (DWORD)lpPhyDev->Resource[dwLoop].Dev_Res.IOPort.wEndPort;
 			break;
 		default:
 			continue;    //Continue to process another.
 		}
-		lppParam[0] = (LPVOID)&ucResType;
-		lppParam[1] = (LPVOID)&dwStartAddr;
-		lppParam[2] = (LPVOID)&dwEndAddr;
-		FormString(strBuff,"                                   %c    0x%x    0x%x",lppParam);
-		PrintLine(strBuff);
+		_hx_printf("    [resource] type = %c,startaddr = 0x%0X,endaddr = 0x%0X\r\n",
+			ucResType, dwStartAddr, dwEndAddr);
 	}
+	//Change a new line.
+	_hx_printf("\r\n");
 	return;
 }
 
@@ -665,3 +636,41 @@ static DWORD devlist(__CMD_PARA_OBJ* pcpo)
 	return SHELL_CMD_PARSER_SUCCESS;
 }
 
+//Show interrupt statistics information.
+static DWORD showint(__CMD_PARA_OBJ* pParamObj)
+{
+	__INTERRUPT_VECTOR_STAT ivs;
+	int i = 0;
+
+	_hx_printf("    Int Vector\t  Total Obj\t  Total Num\t  Succ Num\r\n");
+	for (i = 0; i < MAX_INTERRUPT_VECTOR; i++)
+	{
+		if (!System.GetInterruptStat((__COMMON_OBJECT*)&System,
+			(UCHAR)i, &ivs))
+		{
+			break;
+		}
+		//Only dumpout the interrupt statistics info for used vector.
+		if (ivs.dwTotalIntObject)
+		{
+			_hx_printf("    %d\t\t  %d\t\t  %d\t\t  %d\r\n",
+				i,
+				ivs.dwTotalIntObject,
+				ivs.dwTotalInt,
+				ivs.dwSuccHandledInt);
+		}
+	}
+
+#ifdef __I386__
+	//Show fixed interrupt vector and it's usage.
+	_hx_printf("\r\n");
+	_hx_printf("    %03d: System timer.\r\n", INTERRUPT_VECTOR_TIMER);
+	_hx_printf("    %03d: Keyboard.\r\n", INTERRUPT_VECTOR_KEYBOARD);
+	_hx_printf("    %03d: Mouse.\r\n", INTERRUPT_VECTOR_MOUSE);
+	_hx_printf("    %03d: COM1.\r\n", INTERRUPT_VECTOR_COM1);
+	_hx_printf("    %03d: COM2.\r\n", INTERRUPT_VECTOR_COM2);
+	_hx_printf("    %03d: IDE Harddisk.\r\n", INTERRUPT_VECTOR_IDE);
+	_hx_printf("    %03d: System Call Entry.\r\n", EXCEPTION_VECTOR_SYSCALL);
+#endif
+	return SHELL_CMD_PARSER_SUCCESS;
+}

@@ -13,9 +13,7 @@
 //    Lines number              :
 //***********************************************************************/
 
-#ifndef __STDAFX_H__
 #include "StdAfx.h"
-#endif
 
 #include "stdio.h"
 
@@ -114,7 +112,6 @@ VOID PageUninitialize(__COMMON_OBJECT* lpThis)
 //
 //The implementation of GetPhysicalAddress.
 //
-
 static LPVOID GetPhysicalAddress(__COMMON_OBJECT* lpThis,LPVOID lpVirtualAddr)
 {
 	__PAGE_INDEX_MANAGER*        lpIndexMgr    = (__PAGE_INDEX_MANAGER*)lpThis;

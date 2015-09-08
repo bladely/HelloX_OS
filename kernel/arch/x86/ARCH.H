@@ -23,6 +23,9 @@
 //Kernel thread wrapper routine.
 typedef VOID (*__KERNEL_THREAD_WRAPPER)(__COMMON_OBJECT*);
 
+//Processor specified exception handler,for x86.
+VOID PSExcepHandler(LPVOID pESP, UCHAR ucVector);
+
 //
 //Initializes the context of a kernel thread.
 //The initialization process is different on different platforms,so
@@ -72,5 +75,14 @@ WORD __inw(WORD wPort);
 VOID __outw(WORD wVal,WORD wPort);
 VOID __inws(BYTE* pBuffer,DWORD dwBuffLen,WORD wPort);
 VOID __outws(BYTE* pBuffer,DWORD dwBuffLen,WORD wPort);
+
+//Read or write to device maped space,in some architecture,it may
+//different compare to normal memory access.
+#define __readb(addr) (*(volatile unsigned char*)addr)
+#define __readw(addr) (*(volatile unsigned short*)addr)
+#define __readl(addr) (*(volatile unsigned short*)addr)
+#define __writeb(v,addr) (*(volatile unsigned char*)addr  = v)
+#define __writew(v,addr) (*(volatile unsigned short*)addr = v)
+#define __writel(v,addr) (*(volatile unsigned long*)addr  = v)
 
 #endif  //__ARCH_H__

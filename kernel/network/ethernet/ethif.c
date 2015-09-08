@@ -14,13 +14,8 @@
 //    Lines number              :
 //***********************************************************************/
  
- #ifndef __STDAFX_H__
- #include "StdAfx.h"
- #endif
- 
- #ifndef __KAPI_H__
- #include "kapi.h"
- #endif
+#include <StdAfx.h>
+#include <kapi.h>
 
 #include "lwip/opt.h"
 #include "lwip/def.h"
@@ -146,12 +141,61 @@ static void netifConfig(struct netif* pif,__ETH_INTERFACE_STATE* pifState,__ETH_
 *
 */
 
+//Try to receive a packet from a specified interface.This routine maybe called by the
+//ethernet core thread when processing DELIVERY message.
+static void _eth_if_input(__ETHERNET_INTERFACE* pEthInt)
+{
+	struct pbuf*    p     = NULL;
+	struct netif*   netif = NULL;
+	err_t           err   = 0;
+	
+	if (NULL == pEthInt)
+	{
+		return;
+	}
+
+	if (pEthInt->RecvFrame)
+	{
+		netif = (struct netif*)pEthInt->pL3Interface;
+		if (NULL == netif)  //Should not occur.
+		{
+			BUG();
+		}
+		while (TRUE)
+		{
+			p = pEthInt->RecvFrame(pEthInt);
+			if (NULL == p)  //No available frames.
+			{
+				break;
+			}
+			//Update interface statistics.
+			pEthInt->ifState.dwFrameRecv++;
+			pEthInt->ifState.dwTotalRecvSize += p->tot_len;
+			//Delivery the frame to layer 3.
+			err = netif->input(p, netif);
+			if (err != ERR_OK)
+			{
+#ifdef __ETH_DEBUG
+				_hx_printf("  _eth_if_input: Can not delivery [%s]'s frame to IP,err = %d.\r\n",
+					pEthInt->ethName, err);
+#endif
+				pbuf_free(p);
+				p = NULL;
+			}
+			else
+			{
+				pEthInt->ifState.dwFrameRecvSuccess++;
+			}
+		}
+	}
+}
+
 //A helper routine,to poll all ethernet interface(s) to check if there is frame availabe,
 //and delivery it to layer 3 if so.
 static void _ethernet_if_input()
 {
 	__ETHERNET_INTERFACE*  pEthInt  = NULL;
-  struct pbuf*           p        = NULL;
+	struct pbuf*           p        = NULL;
 	struct netif*          netif    = NULL;
 	err_t                  err      = 0;
 	int                    index    = 0;
@@ -238,6 +282,13 @@ static void _dhcpAssist()
 #ifdef __ETH_DEBUG
 				_hx_printf("  _dhcpAssist: Get interface [%s]'s configuration from DHCP server.\r\n",pEthInt->ethName);
 #endif
+				//Save the IP information to layer2 interface object.
+				memcpy(&pEthInt->ifState.IpConfig.ipaddr, &netif->dhcp->offered_ip_addr,
+					sizeof(struct ip_addr));
+				memcpy(&pEthInt->ifState.IpConfig.defgw, &netif->dhcp->offered_gw_addr,
+					sizeof(struct ip_addr));
+				memcpy(&pEthInt->ifState.IpConfig.mask, &netif->dhcp->offered_sn_mask,
+					sizeof(struct ip_addr));
 				//Stop DHCP process in the interface.
 				dhcp_stop(netif);
 				pEthInt->ifState.dwDhcpLeasedTime = 0;  //Start to count DHCP time.
@@ -297,10 +348,10 @@ static DWORD EthCoreThreadEntry(LPVOID pData)
 				
 				case ETH_MSG_SETCONF:             //Configure a given interface.
 					pifConfig = (__ETH_IP_CONFIG*)msg.dwParam;
-          if(NULL == pifConfig)
-          {
+					if(NULL == pifConfig)
+					{
 						break;
-          }
+					}
 					//Locate the ethernet interface object by it's name.
 					pif = NULL;
 					for(index = 0;index < EthernetManager.nIntIndex;index ++)
@@ -355,6 +406,9 @@ static DWORD EthCoreThreadEntry(LPVOID pData)
 					break;
 					
 				case ETH_MSG_RECEIVE:              //Receive frame,may triggered by interrupt.
+					pEthInt = (__ETHERNET_INTERFACE*)msg.dwParam;
+					_eth_if_input(pEthInt);
+					break;
 				case KERNEL_MESSAGE_TIMER:
 					if(WIFI_TIMER_ID == msg.dwParam) //Must match the receiving timer ID.
 					{
@@ -426,6 +480,19 @@ __TERMINAL:
 	return bResult;
 }
 
+//Trigger the ethernet core thread to launch a receiving poll.Mainly used by
+//device drivers.
+static BOOL _TriggerReceive(__ETHERNET_INTERFACE* pEthInt)
+{
+	__KERNEL_THREAD_MESSAGE msg;
+
+	msg.wCommand = ETH_MSG_RECEIVE;
+	msg.wParam = 0;
+	msg.dwParam = (DWORD)pEthInt;
+	SendMessage((HANDLE)EthernetManager.EthernetCoreThread, &msg);
+	return TRUE;
+}
+
 //Send out a ethernet frame through the specified ethernet interface.
 static BOOL SendFrame(__ETHERNET_INTERFACE* pEthInt,struct pbuf* p)
 {
@@ -471,6 +538,13 @@ static BOOL SendFrame(__ETHERNET_INTERFACE* pEthInt,struct pbuf* p)
 	bResult = TRUE;
 	
 __TERMINAL:
+	if (!bResult)
+	{
+		if (pAssoc)
+		{
+			KMemFree(pAssoc, KMEM_SIZE_TYPE_ANY, 0);
+		}
+	}
 	return bResult;
 }
 
@@ -520,29 +594,29 @@ static err_t _ethernet_if_init(struct netif *netif)
    * from it if you have to do some checks before sending (e.g. if link
    * is available...) */
   netif->output       = etharp_output;
-	netif->hwaddr_len   = ETH_MAC_LEN;
+  netif->hwaddr_len   = ETH_MAC_LEN;
   netif->linkoutput   = eth_level_output;
 	
   /* maximum transfer unit */
-  netif->mtu          = 1500;
+  netif->mtu          = ETH_DEFAULT_MTU;
   /* device capabilities */
   /* don't set NETIF_FLAG_ETHARP if this device is not an ethernet one */
   netif->flags        = NETIF_FLAG_BROADCAST | NETIF_FLAG_ETHARP | NETIF_FLAG_LINK_UP;
-	//Set the MAC address of this interface.
-	memcpy(netif->hwaddr,pEthInt->ethMac,ETH_MAC_LEN);
-	
+  //Set the MAC address of this interface.
+  memcpy(netif->hwaddr,pEthInt->ethMac,ETH_MAC_LEN);
+
   return ERR_OK;
 }
 
 //Implementation of AddEthernetInterface,which is called by Ethernet Driver to register an interface
 //object.
 static __ETHERNET_INTERFACE*   AddEthernetInterface(char* ethName,
-                                                  char* mac,
-	                                                LPVOID pIntExtension,
-	                                                __ETHOPS_INITIALIZE Init,
-	                                                __ETHOPS_SEND_FRAME SendFrame,
-	                                                __ETHOPS_RECV_FRAME RecvFrame,
-	                                                __ETHOPS_INT_CONTROL IntCtrl)
+	char* mac,
+	LPVOID pIntExtension,
+	__ETHOPS_INITIALIZE Init,
+	__ETHOPS_SEND_FRAME SendFrame,
+	__ETHOPS_RECV_FRAME RecvFrame,
+	__ETHOPS_INT_CONTROL IntCtrl)
 {
 	__ETHERNET_INTERFACE*        pEthInt            = NULL;
 	BOOL                         bResult            = FALSE;
@@ -844,6 +918,39 @@ static BOOL UnshutInterface(char* ethName)
 	return TRUE;
 }
 
+//Return a specified ethernet interface's state.@nIndex parameter specifies the interface
+//index which state will be returned,and @pnNextInt contains the next interface index which
+//can be used as nIndex parameter when next call of this routine is invoked.
+static BOOL _GetEthernetInterfaceState(__ETH_INTERFACE_STATE* pState, int nIndex, int* pnNextInt)
+{
+	BOOL bResult = FALSE;
+
+	if ((NULL == pState) || (nIndex >= MAX_ETH_INTERFACE_NUM))
+	{
+		goto __TERMINAL;
+	}
+	if (EthernetManager.EthInterfaces[nIndex].pL3Interface == NULL)  //Interface is not exist.
+	{
+		goto __TERMINAL;
+	}
+	memcpy(pState, &EthernetManager.EthInterfaces[nIndex].ifState, sizeof(*pState));
+	//Return the next interface's index whose state can be got.
+	if (pnNextInt)
+	{
+		if (nIndex + 1 >= MAX_ETH_INTERFACE_NUM)
+		{
+			*pnNextInt = MAX_ETH_INTERFACE_NUM;
+		}
+		else
+		{
+			*pnNextInt = nIndex + 1;
+		}
+	}
+	bResult = TRUE;
+__TERMINAL:
+	return bResult;
+}
+
 /*
 *
 *  Definition of Ethernet Manager object.
@@ -851,19 +958,21 @@ static BOOL UnshutInterface(char* ethName)
 */
 
 struct __ETHERNET_MANAGER EthernetManager = {
-	{0},                    //Ethernet interface array.
-  0,                      //Index of free slot.
-  NULL,                   //Handle of ethernet core thread.
-  FALSE,                  //Not initialized yet.
+	{ 0 },                    //Ethernet interface array.
+	0,                      //Index of free slot.
+	NULL,                   //Handle of ethernet core thread.
+	FALSE,                  //Not initialized yet.
 
-  Initialize,             //Initialize.
-  AddEthernetInterface,   //AddEthernetInterface.
-  ConfigInterface,        //ConfigInterface.
-  Rescan,                 //Rescan.
-  Assoc,                  //Assoc.
-  Delivery,                   //Delivery.
-  SendFrame,              //SendFrame.
-  ShowInt,                //ShowInt.
-  ShutdownInterface,      //ShutdownInterface.
-  UnshutInterface         //UnshutInterface.
+	Initialize,             //Initialize.
+	AddEthernetInterface,   //AddEthernetInterface.
+	ConfigInterface,        //ConfigInterface.
+	Rescan,                 //Rescan.
+	Assoc,                  //Assoc.
+	Delivery,               //Delivery.
+	SendFrame,              //SendFrame.
+	_TriggerReceive,        //TriggerReceive.
+	ShowInt,                //ShowInt.
+	ShutdownInterface,      //ShutdownInterface.
+	UnshutInterface,        //UnshutInterface.
+	_GetEthernetInterfaceState  //GetEthernetInterfaceState.
 };

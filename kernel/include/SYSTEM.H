@@ -27,6 +27,10 @@
 #ifndef __SYSTEM_H__
 #define __SYSTEM_H__
 
+#include "perf.h"
+#include "ktmgr2.h"
+#include "kmemmgr.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -48,8 +52,9 @@ typedef BOOL (*__INTERRUPT_HANDLER)(LPVOID lpEsp,LPVOID);    //Interrupt handler
 #define INTERRUPT_VECTOR_TIMER         0x0F
 #endif
 
+#define INTERRUPT_VECTOR_BASE          0x20    //Base of all hardware interrupt.
 #define INTERRUPT_VECTOR_KEYBOARD      0x21
-#define INTERRUPT_VECTOR_MOUSE         0x22
+#define INTERRUPT_VECTOR_MOUSE         0x2C
 #define INTERRUPT_VECTOR_COM1          0x23
 #define INTERRUPT_VECTOR_COM2          0x24
 #define INTERRUPT_VECTOR_CLOCK         0x25
@@ -73,7 +78,6 @@ VOID InterruptUninitialize(__COMMON_OBJECT* lpThis);  //Uninitializing routine.
 //Timer object's definition.
 //The timer object is used to manage the system timer.
 //
-
 typedef DWORD    (*__DIRECT_TIMER_HANDLER)(LPVOID);    //Timer handler's protype.
 
 BEGIN_DEFINE_OBJECT(__TIMER_OBJECT)
@@ -103,17 +107,34 @@ VOID  TimerUninitialize(__COMMON_OBJECT* lpThis);  //Uninitializing routine of t
 #define IS_EXCEPTION(vector) (FALSE)
 #endif
 
+//Interrupt slot object,corresponding a general interrupt vector.Many interrupt
+//objects may belong to one interrupt slot,and they are linked together by a 
+//link list.
+BEGIN_DEFINE_OBJECT(__INTERRUPT_SLOT)
+    volatile DWORD dwTotalInt;            //Total interrupt times since boot.
+    volatile DWORD dwSuccHandledInt;      //Successfully handled interrupt number.
+	__INTERRUPT_OBJECT* lpFirstIntObject; //First interrupt object belong to this slot.
+	END_DEFINE_OBJECT(__INTERRUPT_SLOT)
+
+//Contains interrupt related statistics information for a specified interrupt vector.
+BEGIN_DEFINE_OBJECT(__INTERRUPT_VECTOR_STAT)
+    DWORD dwTotalInt;
+	DWORD dwSuccHandledInt;
+	DWORD dwTotalIntObject;
+END_DEFINE_OBJECT(__INTERRUPT_VECTOR_STAT)
+
 //
 //The following is the definition of system object.
 //
 BEGIN_DEFINE_OBJECT(__SYSTEM)
-    __INTERRUPT_OBJECT*                   lpInterruptVector[MAX_INTERRUPT_VECTOR];
+    //__INTERRUPT_OBJECT*                   lpInterruptVector[MAX_INTERRUPT_VECTOR];
     __PRIORITY_QUEUE*                     lpTimerQueue;
+	__INTERRUPT_SLOT                      InterruptSlotArray[MAX_INTERRUPT_VECTOR];
 
-	DWORD                                 dwClockTickCounter;    //Records how many clock
+	volatile DWORD                        dwClockTickCounter;    //Records how many clock
 	                                                             //tickes have occured since
 	                                                             //system start.
-	DWORD                                 dwNextTimerTick;       //When dwClockTickCounter
+	volatile DWORD                        dwNextTimerTick;       //When dwClockTickCounter
 	                                                             //reaches this number,
 	                                                             //one or many timer event
 	                                                             //set by kernel thread
@@ -169,7 +190,8 @@ BEGIN_DEFINE_OBJECT(__SYSTEM)
 											          );
 	VOID                                  (*CancelTimer)(__COMMON_OBJECT* lpThis,
 		                                                 __COMMON_OBJECT* lpTimer);
-
+	BOOL                                  (*GetInterruptStat)(__COMMON_OBJECT* lpThis, UCHAR ucVector,
+		                                                      __INTERRUPT_VECTOR_STAT* pStat);
 END_DEFINE_OBJECT(__SYSTEM)
 
 #define TIMER_FLAGS_ONCE        0x00000001    //Set a timer with this flags,the timer only

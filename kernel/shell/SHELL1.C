@@ -6,23 +6,25 @@
 //                                This module countains shell procedures.
 //                                Some functions in shell.cpp originally are moved to this file to reduce the
 //                                shell.cpp's size.
-//    Last modified Author      :
-//    Last modified Date        :
-//    Last modified Content     :
+//    Last modified Author      :tywind
+//    Last modified Date        :Aug 25,2015
+//    Last modified Content     :modify loadapp and gui route 
 //                                1.
 //                                2.
 //    Lines number              :
 //***********************************************************************/
-#ifndef __STDAFX_H__
+
 #include "StdAfx.h"
-#endif
 #include "kapi.h"
 #include "shell.h"
 #include "string.h"
 #include "stdio.h"
+#include "stdlib.h"
+#include "../appldr/AppLoader.h"
+
 
 //Handler of version command.
-VOID VerHandler(__CMD_PARA_OBJ* pCmdParaObj)
+DWORD VerHandler(__CMD_PARA_OBJ* pCmdParaObj)
 {
 	/*GotoHome();
 	ChangeLine();
@@ -34,10 +36,12 @@ VOID VerHandler(__CMD_PARA_OBJ* pCmdParaObj)
 	//CD_ChangeLine();
 	PrintLine(VERSION_INFO);
 	PrintLine(SLOGAN_INFO);
+
+	return S_OK;
 }
 
 //Handler for memory,this routine print out the memory layout and memory usage status.
-VOID MemHandler(__CMD_PARA_OBJ* pCmdParaObj)
+DWORD  MemHandler(__CMD_PARA_OBJ* pCmdParaObj)
 {
 	CHAR   buff[256];
 	DWORD  dwFlags;
@@ -78,6 +82,8 @@ VOID MemHandler(__CMD_PARA_OBJ* pCmdParaObj)
 	PrintLine(buff);
 	_hx_sprintf(buff,"    Free operation times  : %d/%d",dwFreeTimesH,dwFreeTimesL);
 	PrintLine(buff);
+
+	return S_OK;
 }
 
 //Local variables for sysinfo command.
@@ -102,11 +108,53 @@ LPSTR strHdr[] = {               //I have put the defination of this strings
 //#endif
 
 //Handler for sysinfo command.
-VOID SysInfoHandler(__CMD_PARA_OBJ* pCmdParaObj)
+DWORD SysInfoHandler(__CMD_PARA_OBJ* pCmdParaObj)
 {
 #ifdef __I386__
 	DWORD sysContext[11] = {0};
 	DWORD bt;
+
+#ifdef __GCC__
+	asm __volatile__ (
+			".code32			;"
+			"pusha				;"
+			"pushl	%%eax		;"
+			"movl	0x04(%%esp),	%%eax	;"
+			"movl	%%eax,		-0x30(%%ebp);"
+			"movl	0x08(%%esp),	%%eax	;"
+			"movl	%%eax,		-0x2c(%%ebp);"
+			"movl	0x0c(%%esp),	%%eax	;"
+			"movl	%%eax,	-0x28(%%ebp)	;"
+			"movl	0x10(%%esp),	%%eax	;"
+			"movl	%%eax,		-0x24(%%ebp);"
+			"movl	0x14(%%esp),	%%eax	;"
+			"movl	%%eax,			-0x20(%%ebp);"
+			"movl	0x18(%%esp),		%%eax	;"
+			"movl	%%eax,			-0x1c(%%ebp);"
+			"movl	0x1c(%%esp),	%%eax		;"
+			"movl	%%eax,		-0x18(%%ebp)	;"
+			"movl	0x20(%%esp),	%%eax		;"
+			"movl	%%eax,	-0x14(%%ebp)		;"
+
+			"movw	%%cs,	%%ax	;"
+			"shll	$0x10,	%%eax	;"
+			"movw	%%ds,	%%ax	;"
+			"movl	%%eax,	-0x10(%%ebp)	;"
+			"movw	%%fs, 	%%ax			;"
+			"shll	$0x10,	%%eax			;"
+			"movw	%%gs,	%%ax			;"
+			"movl	%%eax,	-0x0c(%%ebp)	;"
+			"movw	%%es,	%%ax			;"
+			"shll	$0x10,	%%eax			;"
+			"movw	%%ss,	%%ax			;"
+			"movl	%%eax,	-0x08(%%ebp)	;"
+
+			"popl	%%eax					;"
+			"popa							;"
+			::
+	);
+#else
+
 
 	__asm{                       //Get the system information.
 		pushad                   //Save all the general registers.
@@ -148,7 +196,7 @@ VOID SysInfoHandler(__CMD_PARA_OBJ* pCmdParaObj)
 		pop eax
 		popad                    //Restore the stack frame.
 	}
-
+#endif
 	//All system registers are got,then print out them.
    /*GotoHome();
 	ChangeLine();
@@ -164,18 +212,18 @@ VOID SysInfoHandler(__CMD_PARA_OBJ* pCmdParaObj)
 		Hex2Str(sysContext[bt],szTemp);
 		CD_PrintString(szTemp,TRUE);	
 	}
-	return;
+	return S_OK;
 #else   //Only x86 platform is supported yet.
 	//GotoHome();
 	//ChangeLine();
 	CD_PrintString("    This operation can not supported on no-I386 platform.",TRUE);
 	
-	return;
+	return S_OK;
 #endif
 }
 
 //Handler for help command.
-VOID HlpHandler(__CMD_PARA_OBJ* pCmdParaObj)           //Command 'help' 's handler.
+DWORD HlpHandler(__CMD_PARA_OBJ* pCmdParaObj)           //Command 'help' 's handler.
 {
 	LPSTR strHelpTitle   = "    The following commands are available currently:";
 	LPSTR strHelpVer     = "    version      : Print out the version information.";
@@ -222,211 +270,135 @@ VOID HlpHandler(__CMD_PARA_OBJ* pCmdParaObj)           //Command 'help' 's handl
 #endif //__CFG_APP_JVM
 	PrintLine(strReboot);
 	PrintLine(strCls);
-}
 
-//A helper routine used to load the specified binary application module into memory.
-//  @hBinFile       : The handle of the module file;
-//  @dwStartAddress : Load address.
-//
-static BOOL LoadBinModule(HANDLE hBinFile,DWORD dwStartAddress)
-{
-	BYTE*   pBuffer    = (BYTE*)dwStartAddress;
-	BYTE*   pTmpBuff   = NULL;
-	DWORD   dwReadSize = 0;
-	BOOL    bResult    = FALSE;
-
-	//Parameter check.
-	if(dwStartAddress <= 0x00100000)  //End 1M space is reserved.
-	{
-		goto __TERMINAL;
-	}
-
-	//Allocate a temporary buffer to hold file content.
-	pTmpBuff = (BYTE*)KMemAlloc(4096,KMEM_SIZE_TYPE_ANY);
-	if(NULL == pTmpBuff)
-	{
-		goto __TERMINAL;
-	}
-	//Try to read the first 4K bytes from file.
-	if(!ReadFile(hBinFile,
-		4096,
-		pTmpBuff,
-		&dwReadSize))
-	{
-		goto __TERMINAL;
-	}
-	if(dwReadSize <= 4)  //Too short,invalid format.
-	{
-		goto __TERMINAL;
-	}
-	//Verify the validation of the bin file format.
-	if(0xE9909090 != *(DWORD*)pTmpBuff)  //Invalid binary file format.
-	{
-		goto __TERMINAL;
-	}
-	//Format is ok,try to load it.
-	memcpy(pBuffer,pTmpBuff,dwReadSize);  //Copy the first block into target.
-	pBuffer += dwReadSize;     //Adjust the target pointer.
-	while(dwReadSize == 4096)  //File size larger than 4k,continue to load it.
-	{
-		if(!ReadFile(hBinFile,
-			4096,
-			pBuffer,
-			&dwReadSize))
-		{
-			goto __TERMINAL;
-		}
-		pBuffer += dwReadSize;  //Move target pointer.
-	}
-	bResult = TRUE;
-
-__TERMINAL:
-	if(NULL != pTmpBuff)  //Should release the memory.
-	{
-		KMemFree(pTmpBuff,KMEM_SIZE_TYPE_ANY,0);
-	}
-	return bResult;
-}
-
-//A helper routine used to launch the loaded binary module.
-static BOOL ExecuteBinModule(DWORD dwStartAddress,LPVOID pParams)
-{
-	__KERNEL_THREAD_OBJECT*   hKernelThread  = NULL;
-	BOOL                      bResult        = FALSE;
-
-	if(dwStartAddress <= 0x00100000) //Low end 1M memory is reserved.
-	{
-		goto __TERMINAL;
-	}
-	//Create a kernel thread to run the binary module.
-	hKernelThread = KernelThreadManager.CreateKernelThread(
-		(__COMMON_OBJECT*)&KernelThreadManager,
-		0,
-		KERNEL_THREAD_STATUS_READY,
-		PRIORITY_LEVEL_NORMAL,
-		(__KERNEL_THREAD_ROUTINE)dwStartAddress,
-		pParams,
-		NULL,
-		NULL);
-	if(NULL == hKernelThread)  //Can not create the thread.
-	{
-		goto __TERMINAL;
-	}
-	//Switch input focus to the thread.
-	DeviceInputManager.SetFocusThread(
-		(__COMMON_OBJECT*)&DeviceInputManager,
-		(__COMMON_OBJECT*)hKernelThread);
-	hKernelThread->WaitForThisObject((__COMMON_OBJECT*)hKernelThread);  //Block shell to wait module over.
-	//Destroy the module's kernel thread.
-	KernelThreadManager.DestroyKernelThread(
-		(__COMMON_OBJECT*)&KernelThreadManager,
-		(__COMMON_OBJECT*)hKernelThread);
-	//Switch back input focus to shell.
-	DeviceInputManager.SetFocusThread(
-		(__COMMON_OBJECT*)&DeviceInputManager,
-		NULL);
-	bResult = TRUE;
-
-__TERMINAL:
-	return bResult;
+	return S_OK;
 }
 
 //Handler for loadapp command.
-VOID LoadappHandler(__CMD_PARA_OBJ* pCmdParaObj)
-{		
-	CHAR      FullPathName[128]  = {0};  //Full name of binary file.
-	DWORD     dwStartAddr        = 0;       //Load address of the module.
-	HANDLE    hBinFile           = NULL;
-	
+DWORD LoadappHandler(__CMD_PARA_OBJ* pCmdParaObj)
+{	
+	__CMD_PARA_OBJ* pAppParaObj        = NULL;
+	CHAR            FullPathName[128]  = {0};  //Full name of binary file.
+	BYTE            i                  = 0; 
+
 
 	if(pCmdParaObj->byParameterNum < 2)
 	{
-		PrintLine("Please specify both app module name and load address.");
+		PrintLine("Please specify app module's name.");
 		goto __TERMINAL;
 	}
-
-	if((0 == pCmdParaObj->Parameter[0][0]) || (0 == pCmdParaObj->Parameter[1][0]))
-	{
-		PrintLine("Invalid parameter(s).");
-		goto __TERMINAL;
-	}
-
+	
 	//Construct the full path and name.
 	strcpy(FullPathName,"C:\\PTHOUSE\\");
-	strcat(FullPathName,pCmdParaObj->Parameter[0]);
-	if(!Str2Hex(pCmdParaObj->Parameter[1],&dwStartAddr))
-	{
-		PrintLine("Invalid load address.");
-		goto __TERMINAL;
-	}
-	//Try to open the binary file.
-	hBinFile = CreateFile(
-		FullPathName,
-		FILE_ACCESS_READ,
-		0,
-		NULL);
-	if(NULL == hBinFile)
-	{
-		PrintLine("Can not open the specified file in OS root directory.");
-		goto __TERMINAL;
-	}
-	//Try to load and execute it.
-	if(!LoadBinModule(hBinFile,dwStartAddr))
-	{
-		PrintLine("Can not load the specified binary file.");
-		goto __TERMINAL;
-	}
-	if(!ExecuteBinModule(dwStartAddr,NULL))
-	{
-		PrintLine("Can not execute the binary module.");
-		goto __TERMINAL;
-	}
+	strcat(FullPathName,pCmdParaObj->Parameter[1]);
+	
+	//copy params
+	pAppParaObj = CopyParameterObj(pCmdParaObj,1);
+		
+	RunDynamicAppModule(FullPathName,pAppParaObj);
+	
 __TERMINAL:
 
-	if(NULL != hBinFile)  //Destroy it.
-	{
-		CloseFile(hBinFile);
-	}
+	ReleaseParameterObj(pAppParaObj);
 		
-	return;
+	return S_OK;
 }
+
+DWORD RunBatCmdLine(LPSTR pCmdLine)
+{
+	__CMD_PARA_OBJ* pAppParaObj  = NULL;
+	
+	ClearUnVisableChar(pCmdLine);
+
+	pAppParaObj = FormParameterObj(pCmdLine);
+
+	//exec app
+	if(pAppParaObj->byParameterNum >= 2)
+	{
+		LoadappHandler(pAppParaObj);
+	}
+
+	ReleaseParameterObj(pAppParaObj);		
+		
+	return S_OK;
+}
+
+//Handler for Bat command.
+DWORD BatHandler(__CMD_PARA_OBJ* pCmdParaObj)
+{	
+	HANDLE	hBatFile        = NULL;
+	DWORD   dwFileSize      = 0;
+	DWORD   dwReadSize      = 0;
+	LPSTR   pShortName      = NULL;
+	CHAR    szBatFile[128]  = {0};
+	LPSTR   pBatBuf         = NULL;
+	LPSTR   pCurrPos         = NULL;
+	LPSTR   pNextPos         = NULL;
+	DWORD   i                = 0;
+
+
+	//Construct the bat full path and name.
+	strcpy(szBatFile,"C:\\PTHOUSE\\");
+	pShortName = strstr(pCmdParaObj->Parameter[0],"./");
+	if(!pShortName)
+	{
+		PrintLine("error Batfile name.");
+		goto __TERMINAL;
+	}
+
+	pShortName  += strlen("./");
+	strcat(szBatFile,pShortName);
+	
+	hBatFile = CreateFile(szBatFile,FILE_ACCESS_READ,0,NULL);
+	if(hBatFile == NULL)
+	{		
+		_hx_printf("Batfile open  error =%s \r\n",szBatFile);
+		goto __TERMINAL;	
+	}
+
+	dwFileSize = GetFileSize(hBatFile,NULL);
+	pBatBuf    = (LPSTR)_hx_malloc(dwFileSize+1);
+	ReadFile(hBatFile,dwFileSize,pBatBuf,NULL);
+
+	pCurrPos = pBatBuf;
+	pNextPos = strstr(pCurrPos,"\n");
+
+	while(pNextPos)
+	{					
+		*pNextPos = 0; 
+				
+		RunBatCmdLine(pCurrPos);
+		
+		pNextPos ++;
+		pCurrPos = pNextPos;
+		pNextPos = strstr(pCurrPos,"\n");		
+	}
+	
+	if(pCurrPos)
+	{
+		RunBatCmdLine(pCurrPos);
+	}
+
+__TERMINAL:
+
+	if(pBatBuf)
+	{
+		_hx_free(pBatBuf);
+	}
+
+	CloseFile(hBatFile);	
+
+	return S_OK;
+}
+
 
 //Handler for GUI command,it only call LoadappHandler by given
 //the GUI module's name and it's start address after loaded into
 //memory.
-VOID GUIHandler(__CMD_PARA_OBJ* pCmdParaObj)
+DWORD GUIHandler(__CMD_PARA_OBJ* pCmdParaObj)
 {
-	HANDLE	hBinFile = NULL;
-	CHAR    FullPathName[64];  //Full name of binary file.
-	DWORD	dwStartAddr = 0x170000;
+	RunDynamicAppModule("C:\\PTHOUSE\\hcngui.dll",pCmdParaObj);
 
-	strcpy(FullPathName, "C:\\PTHOUSE\\hcngui.bin");
-	//Try to open the binary file.
-	hBinFile = CreateFile(
-		FullPathName,
-		FILE_ACCESS_READ,
-		0,
-		NULL);
-	if(NULL == hBinFile)
-	{
-		PrintLine("Can not open the specified file in OS root directory.");
-		goto __TERMINAL;
-	}
-	//Try to load and execute it.
-	if(!LoadBinModule(hBinFile,dwStartAddr))
-	{
-		PrintLine("Can not load the specified binary file.");
-		goto __TERMINAL;
-	}
-	if(!ExecuteBinModule(dwStartAddr,NULL))
-	{
-		PrintLine("Can not execute the binary module.");
-		goto __TERMINAL;
-	}
+	return S_OK;
 
-__TERMINAL:
-	if(NULL != hBinFile)  //Destroy it.
-	{
-		CloseFile(hBinFile);
-	}
 }

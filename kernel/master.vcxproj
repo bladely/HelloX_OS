@@ -45,7 +45,7 @@
     <IntDir>.\Release\</IntDir>
     <LinkIncremental>false</LinkIncremental>
     <GenerateManifest>false</GenerateManifest>
-    <IncludePath>D:\projects\HelloX\HelloX_OS\kernel\include\bsdstack;D:\Projects\HelloX\HelloX_OS\kernel\lib;D:\Projects\HelloX\HelloX_OS\kernel\include\bsdstack\sys;jvm;network;Lib</IncludePath>
+    <IncludePath>D:\projects\HelloX\HelloX_BSD\kernel\include\bsdstack;D:\projects\HelloX\HelloX_BSD\kernel\include\bsdstack\sys;jvm;network;Lib;drivers</IncludePath>
     <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
     <CodeAnalysisRules />
     <CodeAnalysisRuleAssemblies />
@@ -57,7 +57,6 @@
     <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
     <CodeAnalysisRules />
     <CodeAnalysisRuleAssemblies />
-    <IncludePath>D:\Projects\HelloX\HelloX_OS\kernel\include\bsdstack\sys;D:\Projects\HelloX\HelloX_OS\kernel\jvm;D:\Projects\HelloX\HelloX_OS\kernel\network;D:\Projects\HelloX\HelloX_OS\kernel\lib;D:\Projects\HelloX\HelloX_OS\kernel\include;D:\Projects\HelloX\HelloX_OS\kernel\arch\x86;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
@@ -76,7 +75,7 @@
       <ExceptionHandling>false</ExceptionHandling>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <BufferSecurityCheck>false</BufferSecurityCheck>
-      <EnableEnhancedInstructionSet>NoExtensions</EnableEnhancedInstructionSet>
+      <EnableEnhancedInstructionSet>NotSet</EnableEnhancedInstructionSet>
     </ClCompile>
     <Midl>
       <SuppressStartupBanner>true</SuppressStartupBanner>
@@ -105,6 +104,7 @@
       <AdditionalDependencies>%(AdditionalDependencies)</AdditionalDependencies>
       <EntryPointSymbol>__OS_Entry</EntryPointSymbol>
       <IgnoreSpecificDefaultLibraries>%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
+      <GenerateMapFile>true</GenerateMapFile>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
@@ -153,6 +153,10 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="appldr\AppLoader.C" />
+    <ClCompile Include="appldr\AppLoader_ELF.C" />
+    <ClCompile Include="appldr\AppLoader_PE.C" />
+    <ClCompile Include="appldr\AppLoader_STM32.C" />
     <ClCompile Include="arch\x86\BIOSVGA.C" />
     <ClCompile Include="bsdstack\busdma_machdep.c" />
     <ClCompile Include="bsdstack\dev_emu.c" />
@@ -289,7 +293,7 @@
     <ClCompile Include="lib\math.c" />
     <ClCompile Include="lib\memory.c" />
     <ClCompile Include="lib\pthread.c" />
-    <ClCompile Include="lib\pthread_mutex .c" />
+    <ClCompile Include="lib\pthread_mutex.c" />
     <ClCompile Include="lib\pthread_other.c" />
     <ClCompile Include="lib\sched.c" />
     <ClCompile Include="lib\setjmp.c" />
@@ -306,7 +310,7 @@
     <ClCompile Include="shell\FIBONACCI.C" />
     <ClCompile Include="shell\FS.C" />
     <ClCompile Include="shell\HEDIT.C" />
-    <ClCompile Include="shell\HISCMD .C" />
+    <ClCompile Include="shell\hiscmd.c" />
     <ClCompile Include="shell\HYPERTRM.C" />
     <ClCompile Include="shell\IOCTRL_S.C" />
     <ClCompile Include="shell\SHELL.C" />
@@ -340,18 +344,36 @@
     <ClCompile Include="kernel\STATCPU.C" />
     <ClCompile Include="kernel\SYNOBJ.C" />
     <ClCompile Include="kernel\synobj2.c" />
-    <ClCompile Include="kernel\SYSCALL.C" />
     <ClCompile Include="kernel\SYSTEM.C" />
     <ClCompile Include="kernel\TYPES.C" />
     <ClCompile Include="kernel\VMM.C" />
+    <ClCompile Include="syscall\SYSCALL.C" />
+    <ClCompile Include="syscall\SYSCALL_IO.C" />
+    <ClCompile Include="syscall\SYSCALL_KERNEL.C" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="arch\x86\BIOSVGA.H" />
+    <ClInclude Include="bsdstack\e1000_80003es2lan.h" />
+    <ClInclude Include="bsdstack\e1000_82541.h" />
+    <ClInclude Include="bsdstack\e1000_82543.h" />
+    <ClInclude Include="bsdstack\e1000_82571.h" />
+    <ClInclude Include="bsdstack\e1000_82575.h" />
+    <ClInclude Include="bsdstack\e1000_api.h" />
+    <ClInclude Include="bsdstack\e1000_defines.h" />
+    <ClInclude Include="bsdstack\e1000_hw.h" />
+    <ClInclude Include="bsdstack\e1000_ich8lan.h" />
+    <ClInclude Include="bsdstack\e1000_mac.h" />
+    <ClInclude Include="bsdstack\e1000_manage.h" />
+    <ClInclude Include="bsdstack\e1000_mbx.h" />
+    <ClInclude Include="bsdstack\e1000_nvm.h" />
+    <ClInclude Include="bsdstack\e1000_osdep.h" />
+    <ClInclude Include="bsdstack\e1000_phy.h" />
+    <ClInclude Include="bsdstack\e1000_regs.h" />
+    <ClInclude Include="bsdstack\if_lem.h" />
+    <ClInclude Include="bsdstack\pcireg.h" />
     <ClInclude Include="dispaly\BIOSVGA.H" />
+    <ClInclude Include="drivers\x86\pcnet.h" />
     <ClInclude Include="include\arch\bpstruct.h" />
-    <ClInclude Include="include\bsdstack\ethertype.h" />
-    <ClInclude Include="include\bsdstack\ips_config.h" />
-    <ClInclude Include="include\bsdstack\ip_osal.h" />
     <ClInclude Include="INCLUDE\BUFFMGR.H" />
     <ClInclude Include="include\CharDisplay.H" />
     <ClInclude Include="INCLUDE\COMMOBJ.H" />
@@ -381,7 +403,6 @@
     <ClInclude Include="INCLUDE\RINGBUFF.H" />
     <ClInclude Include="INCLUDE\STATCPU.H" />
     <ClInclude Include="INCLUDE\StdAfx.h" />
-    <ClInclude Include="INCLUDE\SYSCALL.H" />
     <ClInclude Include="include\sysnet.h" />
     <ClInclude Include="INCLUDE\SYSTEM.H" />
     <ClInclude Include="INCLUDE\TYPES.H" />
@@ -445,6 +466,7 @@
     <ClInclude Include="lib\time.h" />
     <ClInclude Include="lib\time_pri.h" />
     <ClInclude Include="lib\unistd.h" />
+    <ClInclude Include="network\ethernet\ethif.h" />
     <ClInclude Include="shell\EXTCMD.H" />
     <ClInclude Include="shell\FDISK.H" />
     <ClInclude Include="shell\FIBONACCI.H" />
@@ -458,7 +480,6 @@
     <ClInclude Include="shell\SYSD_S.H" />
     <ClInclude Include="config\config.h" />
     <ClInclude Include="include\arch\cc.h" />
-    <ClInclude Include="network\nicdrv\ethif.h" />
     <ClInclude Include="include\lwipopts.h" />
     <ClInclude Include="include\lwip\netif.h" />
     <ClInclude Include="include\lwip\opt.h" />
@@ -466,6 +487,9 @@
     <ClInclude Include="include\lwip\sockets.h" />
     <ClInclude Include="include\lwip\sys.h" />
     <ClInclude Include="include\arch\sys_arch.h" />
+    <ClInclude Include="syscall\K_API_DEF.H" />
+    <ClInclude Include="syscall\SYSCALL.H" />
+    <ClInclude Include="syscall\SYSCALL_KERNEL.H" />
   </ItemGroup>
   <ItemGroup>
     <None Include="arch\x86\BOOTSECT.ASM" />

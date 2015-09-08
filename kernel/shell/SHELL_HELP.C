@@ -12,9 +12,10 @@
 //    Lines number              :
 //***********************************************************************/
 
-#include "../include/StdAfx.h"
-#include "../INCLUDE/KAPI.H"
-#include "../include/CharDisplay.h"
+#include "StdAfx.h"
+#include "stdlib.h"
+#include "kapi.h"
+#include "string.h"
 #include "shell.h"
 
 
@@ -46,6 +47,18 @@ static VOID PrintPrompt(SHELL_MSG_INFO*  pShellInfo)
 	CD_PrintString(pShellInfo->pPrompt,FALSE);
 }
 
+VOID ClearUnVisableChar(LPCSTR pszStr)
+{
+	LPSTR    pCmdPos  = (LPSTR)pszStr;
+
+	while(*pCmdPos)
+	{
+		if (*pCmdPos < ' ') *pCmdPos = ' ';
+
+		pCmdPos ++;
+	}
+}
+
 //The following function form the command parameter object link from the command
 //line string.
 __CMD_PARA_OBJ* FormParameterObj(LPCSTR pszCmd)
@@ -66,15 +79,16 @@ __CMD_PARA_OBJ* FormParameterObj(LPCSTR pszCmd)
 		return NULL;
 	}
 	memzero(pObjBuffer,sizeof(__CMD_PARA_OBJ));
+	
 
 	while(*pCmdPos)
 	{
-		if(' ' == *pCmdPos)
-		{
+		if(' ' == *pCmdPos )
+		{			
 			pCmdPos ++;
 			continue; 
 		}    
-
+				
 		// add papam
 		while((' ' != *pCmdPos) && (*pCmdPos) && (byParamPos <= CMD_PARAMETER_LEN))
 		{
@@ -109,6 +123,35 @@ __CMD_PARA_OBJ* FormParameterObj(LPCSTR pszCmd)
 	return pObjBuffer;
 }
 
+__CMD_PARA_OBJ* CopyParameterObj(__CMD_PARA_OBJ* lpParamObj,BYTE nStart)
+{
+	__CMD_PARA_OBJ*  pNewParamObj;
+	INT              i;
+
+	if(lpParamObj == NULL || nStart > lpParamObj->byParameterNum-1)
+	{
+		return NULL;
+	}
+
+	pNewParamObj = (__CMD_PARA_OBJ*)_hx_malloc(sizeof(__CMD_PARA_OBJ));
+	if(NULL == pNewParamObj)
+	{
+		PrintLine("Memory alloc error");
+
+		return NULL;
+	}
+	memzero(pNewParamObj,sizeof(__CMD_PARA_OBJ));
+
+	//copy params
+	pNewParamObj->byParameterNum = lpParamObj->byParameterNum-nStart;
+	for(i=0;i<pNewParamObj->byParameterNum;i++)
+	{
+		pNewParamObj->Parameter[i] = (CHAR*)_hx_malloc(CMD_PARAMETER_LEN+1);
+		strcpy(pNewParamObj->Parameter[i],lpParamObj->Parameter[i+nStart]);
+	}
+
+	return pNewParamObj;
+}
 //
 //Releases the parameter object created by FormParameterObj routine.
 //
@@ -209,7 +252,7 @@ static INT OnExecCommand(SHELL_MSG_INFO*  pShellInfo,const CHAR* pCmdBuf)
 
 static INT OnAnalyseCommands(SHELL_MSG_INFO*  pShellInfo,const CHAR* pCmdBuf)
 {
-	CHAR*  pCmdPos         = pCmdBuf;
+	CHAR*  pCmdPos         = (CHAR*)pCmdBuf;
 	CHAR*  pSubCmd         = NULL;
 	INT    nExecCount      = 1;	
 	INT    nRet            = S_OK;
@@ -259,7 +302,6 @@ static INT OnKeyControl(SHELL_MSG_INFO*  pShellInfo,BYTE   bt )
 			WORD   CursorX                  = 0;
 			WORD   CursorY                  = 0;
 
-			//得到命令输入串
 			CD_GetCursorPos(&CursorX,&CursorY);		
 			CD_GetString(strlen(pShellInfo->pPrompt),CursorY,szCmdBuffer,sizeof(szCmdBuffer));	
 			
@@ -326,17 +368,12 @@ static BOOL OnAutoName(SHELL_MSG_INFO*  pShellInfo)
 	WORD   CursorX                  = 0;
 	WORD   CursorY                  = 0;
 
-	//得到命令输入串
 	CD_GetCursorPos(&CursorX,&CursorY);		
 	CD_GetString(strlen(pShellInfo->pPrompt),CursorY,szUserInput,sizeof(szUserInput));
 
-	//检查是否有匹配项
 	if(strlen(szUserInput) > 0 && pShellInfo->pNameQuery)
 	{	
-		//清空
 		pShellInfo->pNameQuery(NULL,0);
-
-		//逐个询问匹配
 		while(TRUE)
 		{
 			CHAR  szCmdNmae[CMD_MAX_LEN] = {0};
@@ -348,7 +385,6 @@ static BOOL OnAutoName(SHELL_MSG_INFO*  pShellInfo)
 			
 			if(FindSub(szCmdNmae,szUserInput))
 			{	
-				//
 				if(strlen(szCmdNmae) <= strlen(szUserInput))
 				{
 					break;
@@ -442,7 +478,6 @@ static BOOL OnVkKeyControl(SHELL_MSG_INFO*  pShellInfo,BYTE bt)
 	return TRUE;
 }
 
-//shell 输入 循环处理 
 DWORD Shell_Msg_Loop2(const char* pPrompt,__SHELL_CMD_HANDLER pCmdRoute,__SHELL_NAMEQUERY_HANDLER pNameQuery)
 {
 	SHELL_MSG_INFO*  pShellInfo = NULL;
@@ -511,7 +546,6 @@ __TERMINAL:
 	return 0;
 }
 
-//shell 输入 循环处理
 DWORD Shell_Msg_Loop(const char* pPrompt,__SHELL_CMD_HANDLER pCmdRoute,__SHELL_NAMEQUERY_HANDLER pNameQuery)
 {
 	return Shell_Msg_Loop2(pPrompt,pCmdRoute,pNameQuery);	

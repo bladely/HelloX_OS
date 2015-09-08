@@ -13,19 +13,11 @@
 //    Lines number              :
 //***********************************************************************/
 
-#ifndef __STDAFX_H__
-#include "..\INCLUDE\StdAfx.h"
-#endif
+#include <StdAfx.h>
+#include <kapi.h>
+#include <stdio.h>
 
-#ifndef __KAPI_H__
-#include "..\INCLUDE\KAPI.H"
-#endif
-
-#ifndef __MOUSE_H__
-#include "MOUSE.H"
-#endif
-
-#include "..\lib\stdio.h"
+#include "mouse.h"
 
 //This module will be available if and only if the DDF function is enabled.
 #ifdef __CFG_SYS_DDF
