@@ -11,7 +11,7 @@
 #include "syscallsubr.h"
 #include "kselect.h"
 #include "kpoll.h"
-static int sendit(struct thread *td, int s, struct msghdr *mp, int flags);
+static int bsdsendit(struct thread *td, int s, struct msghdr *mp, int flags);
 
 /*
  * Like fget() but loads the underlying socket, or returns an error if
@@ -219,7 +219,7 @@ struct	fileops socketops =
  * MPSAFE
  */
 int
-socket(
+bsdsocket(
     int	domain,
     int	type,
     int	protocol)
@@ -260,7 +260,7 @@ socket(
  */
 /* ARGSUSED */
 int
-bind(int	s,
+bsdbind(int	s,
      const struct sockaddr *name, socklen_t namelen)
 {
     struct sockaddr *sa;
@@ -297,7 +297,7 @@ done2:
  */
 /* ARGSUSED */
 int
-listen(
+bsdlisten(
     int	s,
     int	backlog)
 {
@@ -503,7 +503,7 @@ done2:
  * MPSAFE (accept1() is MPSAFE)
  */
 int
-accept(int	s,
+bsdaccept(int	s,
        struct sockaddr	  *name,
        socklen_t	  *anamelen)
 {
@@ -517,7 +517,7 @@ accept(int	s,
  */
 /* ARGSUSED */
 int
-connect(
+bsdconnect(
     int	s,
     caddr_t	name,
     int	namelen)
@@ -641,7 +641,7 @@ int buflen, type;
 
 
 static int
-sendit(td, s, mp, flags)
+bsdsendit(td, s, mp, flags)
 register struct thread *td;
 int s;
 register struct msghdr *mp;
@@ -650,7 +650,7 @@ int flags;
     struct mbuf *control;
     struct sockaddr *to;
     int error;
-
+	
     if (mp->msg_name != NULL)
     {
         error = getsockaddr(&to, mp->msg_name, mp->msg_namelen);
@@ -665,7 +665,7 @@ int flags;
     {
         to = NULL;
     }
-
+	
     if (mp->msg_control)
     {
         if (mp->msg_controllen < sizeof(struct cmsghdr)
@@ -683,9 +683,9 @@ int flags;
     {
         control = NULL;
     }
-
+	
     error = kern_sendit(td, s, mp, flags, control);
-
+	
 bad:
     if (to)
         FREE(to, M_SONAME);
@@ -705,23 +705,24 @@ struct mbuf *control;
     struct socket *so;
     int i;
     int len, error;
-
+	
     NET_LOCK_GIANT();
     //if ((error = fgetsock(s, &so, NULL)) != 0)
     //	goto bad2;
     so = (struct socket *)s;
-
+	
     auio.uio_iov = mp->msg_iov;
-
+	
     auio.uio_iovcnt = mp->msg_iovlen;
     auio.uio_segflg = UIO_SYSSPACE;//UIO_USERSPACE;LUOYU
     auio.uio_rw = UIO_WRITE;
     auio.uio_td = td;
-
+	
     auio.uio_offset = 0;
     auio.uio_resid = 0;
-
+	
     iov = mp->msg_iov;
+    
     for (i = 0; i < mp->msg_iovlen; i++, iov++)
     {
         if ((auio.uio_resid += iov->iov_len) < 0)
@@ -731,7 +732,7 @@ struct mbuf *control;
         }
     }
     len = auio.uio_resid;
-
+	
     error = so->so_proto->pr_usrreqs->pru_sosend(so, mp->msg_name, &auio,
             0, control, flags, td);
     if (error)
@@ -762,7 +763,7 @@ bad2:
  * MPSAFE
  */
 int
-sendto(int	s,
+bsdsendto(int	s,
        caddr_t	buf,
        size_t	len,
        int	flags,
@@ -780,12 +781,12 @@ sendto(int	s,
     msg.msg_control = 0;
     aiov.iov_base = buf;
     aiov.iov_len = len;
-
-    error = sendit(NULL, s, &msg, flags);
+	
+    error = bsdsendit(NULL, s, &msg, flags);
     return (error);
 }
 int
-send(int s,
+bsdsend(int s,
      caddr_t buf,
      int len,
      int flags)
@@ -793,10 +794,10 @@ send(int s,
 
     //int error;
 
-    return (sendto(s, buf, len, flags, NULL, 0));
+    return (bsdsendto(s, buf, len, flags, NULL, 0));
 }
 static int
-recvit(td, s, mp, namelenp)
+bsdrecvit(td, s, mp, namelenp)
 struct thread *td;
 int s;
 struct msghdr *mp;
@@ -914,7 +915,7 @@ out:
  * MPSAFE
  */
 int
-recvfrom(
+bsdrecvfrom(
     int	s,
     caddr_t	buf,
     size_t	len,
@@ -944,7 +945,7 @@ recvfrom(
     aiov.iov_len = len;
     msg.msg_control = 0;
     msg.msg_flags = flags;
-    error = recvit(NULL, s, &msg, fromlenaddr);
+    error = bsdrecvit(NULL, s, &msg, fromlenaddr);
 done2:
     return(error);
 }
@@ -953,7 +954,7 @@ done2:
  * MPSAFE
  */
 int
-sendmsg(
+bsdsendmsg(
     int	s,
     caddr_t	umsg,
     int	flags)
@@ -968,7 +969,7 @@ sendmsg(
     if (error)
         return (error);
     msg.msg_iov = iov;
-    error = sendit(NULL, s, &msg, flags);
+    error = bsdsendit(NULL, s, &msg, flags);
     free(iov);
     return (error);
 }
@@ -977,7 +978,7 @@ sendmsg(
  * MPSAFE
  */
 int
-recvmsg(
+bsdrecvmsg(
     int	s,
     struct	msghdr *uap_msg,
     int	flags)
@@ -995,7 +996,7 @@ recvmsg(
     msg.msg_flags = flags;
     uiov = msg.msg_iov;
     msg.msg_iov = iov;
-    error = recvit(NULL, s, &msg, NULL);
+    error = bsdrecvit(NULL, s, &msg, NULL);
     if (error == 0)
     {
         msg.msg_iov = uiov;
@@ -1010,7 +1011,7 @@ recvmsg(
  */
 /* ARGSUSED */
 int
-setsockopt(
+bsdsetsockopt(
     int	s,
     int	level,
     int	name,
@@ -1027,7 +1028,7 @@ setsockopt(
  */
 /* ARGSUSED */
 int
-getsockopt(
+bsdgetsockopt(
     int	s,
     int	level,
     int	name,
@@ -1149,7 +1150,7 @@ socklen_t valsize;
 }
 extern struct	fileops socketops;
 
-int ioctl(fd, com, data)
+int bsdioctl(fd, com, data)
 u_int32_t fd;
 u_long com;
 void *data;
@@ -1201,6 +1202,7 @@ int so_read(int fd, void *buf, int nbyte)
     auio.uio_td = NULL;
 
     cnt = nbyte;
+   
     return (socketops.fo_read)(fd, &auio, NULL, 0, NULL);
 }
 u_int		nselcoll;	/* Select collisions since boot */
@@ -1447,7 +1449,7 @@ done_nosellock:
  * MPSAFE
  */
 int
-select(int	nd,
+bsdselect(int	nd,
        fd_set	*in, fd_set *ou, fd_set *ex,
        struct	timeval *utv)
 {

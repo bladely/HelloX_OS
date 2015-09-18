@@ -468,6 +468,21 @@ lem_attach(device_t dev)
     /*
     **  Do interrupt configuration
     */
+    #if 1
+    {
+    	
+		
+	    void *hInterrupt = ConnectInterrupt(
+				lem_intr,
+				dev,
+				10 + INTERRUPT_VECTOR_BASE);
+		if (NULL == hInterrupt)  //Failed to create interrupt object.
+		{
+			return;
+		}
+		printf("%s ConnectInterrupt ok!\n", __FUNCTION__);
+    }
+    #endif
     //error = lem_allocate_irq(adapter);
     //if (error)
     //	goto err_rx_struct;

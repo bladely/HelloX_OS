@@ -75,7 +75,7 @@
       <ExceptionHandling>false</ExceptionHandling>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <BufferSecurityCheck>false</BufferSecurityCheck>
-      <EnableEnhancedInstructionSet>NotSet</EnableEnhancedInstructionSet>
+      <EnableEnhancedInstructionSet>NoExtensions</EnableEnhancedInstructionSet>
     </ClCompile>
     <Midl>
       <SuppressStartupBanner>true</SuppressStartupBanner>
@@ -235,6 +235,7 @@
     <ClCompile Include="drivers\x86\IDEHD.C" />
     <ClCompile Include="drivers\x86\KEYBRD.C" />
     <ClCompile Include="drivers\x86\MOUSE.C" />
+    <ClCompile Include="drivers\x86\pcnet.c" />
     <ClCompile Include="jvm\access.c" />
     <ClCompile Include="jvm\alloc.c" />
     <ClCompile Include="jvm\cast.c" />

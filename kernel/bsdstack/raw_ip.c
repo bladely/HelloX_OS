@@ -199,7 +199,7 @@ rip_output(struct mbuf *m, struct socket *so, u_long dst)
     int error;
     struct inpcb *inp = sotoinpcb(so);
     int flags = (so->so_options & SO_DONTROUTE) | IP_ALLOWBROADCAST;
-    printf("enter rip_output\n");
+    
     /*
      * If the user handed us a complete IP packet, use it.
      * Otherwise, allocate an mbuf for a header and fill it in.

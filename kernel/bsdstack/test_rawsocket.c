@@ -41,7 +41,7 @@ static int g_BfdSndSocketId = -1;
 static int g_BfdRecvSocketId = -1;
 
 int
-recvfrom(
+bsdrecvfrom(
     int	s,
     caddr_t	buf,
     size_t	len,
@@ -67,7 +67,7 @@ static uint32_t __create_icmp_send_socket__r()
     if (g_IcmpSndSocketId >= 0)
         return SUCCESS_EC;
 
-    g_IcmpSndSocketId = socket(AF_INET, SOCK_RAW, IPPROTO_ICMP);
+    g_IcmpSndSocketId = bsdsocket(AF_INET, SOCK_RAW, IPPROTO_ICMP);
     if (g_IcmpSndSocketId < 0)
     {
         g_IcmpSndSocketId = -1;
@@ -78,7 +78,7 @@ static uint32_t __create_icmp_send_socket__r()
     optval = 1;
     optlevel = IPPROTO_IP;
     option   = IP_HDRINCL;
-    rc = setsockopt(g_IcmpSndSocketId, optlevel, option, (char *)&optval, sizeof(optval));
+    rc = bsdsetsockopt(g_IcmpSndSocketId, optlevel, option, (char *)&optval, sizeof(optval));
     if (rc < 0)
     {
         __delete_icmp_send_socket__r();
@@ -100,7 +100,7 @@ static uint32_t __create_icmp_recv_socket__r()
         return SUCCESS_EC;
 
 
-    g_IcmpRecvSocketId = socket(PF_INET, SOCK_RAW, IPPROTO_ICMP);
+    g_IcmpRecvSocketId = bsdsocket(PF_INET, SOCK_RAW, IPPROTO_ICMP);
     if (g_IcmpRecvSocketId < 0)
     {
         g_IcmpRecvSocketId = -1;
@@ -126,7 +126,7 @@ static uint32_t __create_bfd_send_socket__r()
     if (g_BfdSndSocketId >= 0)
         return SUCCESS_EC;
 
-    g_BfdSndSocketId = socket(AF_INET, SOCK_RAW, IPPROTO_UDP);
+    g_BfdSndSocketId = bsdsocket(AF_INET, SOCK_RAW, IPPROTO_UDP);
     if (g_BfdSndSocketId < 0)
     {
         g_BfdSndSocketId = -1;
@@ -137,7 +137,7 @@ static uint32_t __create_bfd_send_socket__r()
     optval = 1;
     optlevel = IPPROTO_IP;
     option   = IP_HDRINCL;
-    rc = setsockopt(g_BfdSndSocketId, optlevel, option, (char *)&optval, sizeof(optval));
+    rc = bsdsetsockopt(g_BfdSndSocketId, optlevel, option, (char *)&optval, sizeof(optval));
     if (rc < 0)
     {
         __delete_bfd_send_socket__r();
@@ -162,7 +162,7 @@ static uint32_t __create_bfd_recv_socket__r()
     if (g_BfdRecvSocketId >= 0)
         return SUCCESS_EC;
 
-    g_BfdRecvSocketId = socket(PF_INET, SOCK_DGRAM, IPPROTO_UDP);
+    g_BfdRecvSocketId = bsdsocket(PF_INET, SOCK_DGRAM, IPPROTO_UDP);
     if (g_BfdRecvSocketId < 0)
     {
         g_BfdRecvSocketId = -1;
@@ -171,7 +171,7 @@ static uint32_t __create_bfd_recv_socket__r()
     in.sin_family = AF_INET;
     in.sin_port = htons(BFD_PORT);
     in.sin_addr.s_addr = INADDR_ANY;
-    nRetValue = bind(g_BfdRecvSocketId, (struct sockaddr *)&in, sizeof(in));
+    nRetValue = bsdbind(g_BfdRecvSocketId, (struct sockaddr *)&in, sizeof(in));
     if (nRetValue < 0)
     {
         __delete_bfd_recv_socket__r();
@@ -185,9 +185,9 @@ static uint32_t __create_bfd_recv_socket__r()
     /* Set the IP_RECVDSTADDR option (BSD). */
     opt = 1;
 #if defined(IP_RECVDSTADDR)
-    nRetValue = setsockopt(g_BfdRecvSocketId, IPPROTO_IP, IP_RECVDSTADDR, &opt, sizeof(opt));
+    nRetValue = bsdsetsockopt(g_BfdRecvSocketId, IPPROTO_IP, IP_RECVDSTADDR, &opt, sizeof(opt));
 #elif defined(IP_PKTINFO)
-    nRetValue = setsockopt(g_BfdRecvSocketId, IPPROTO_IP, IP_PKTINFO, &opt, sizeof(opt));
+    nRetValue = bsdsetsockopt(g_BfdRecvSocketId, IPPROTO_IP, IP_PKTINFO, &opt, sizeof(opt));
 #endif
     if (nRetValue < 0)
     {
@@ -278,7 +278,7 @@ int fnSocketRecv (struct icmp *packet, int socket, unsigned long *ip_address)
     memset(&from, 0x00, sizeof(from));
     from_len = sizeof(from);
 
-    recv_len = recvfrom(socket, recv_buf, sizeof(recv_buf),
+    recv_len = bsdrecvfrom(socket, recv_buf, sizeof(recv_buf),
                         MSG_DONTWAIT, (struct sockaddr *) & (from), &(from_len));
 
     if (recv_len <= 0)
@@ -472,7 +472,7 @@ int send_icmp_raw_packet( unsigned long srcip, unsigned long dstip,
     /* Initialize the ICMP header */
     init_icmp_header(&sendbuf[iphdrlen], buf, payload_len);
 
-    rc = sendto(g_IcmpSndSocketId,
+    rc = bsdsendto(g_IcmpSndSocketId,
                 sendbuf,
                 allsize,
                 0,
@@ -560,7 +560,7 @@ void *icmp_recv_thread (void *arg)
             Sleep(1000);
             continue;
         }
-        recv_len = recvfrom(g_IcmpRecvSocketId, buff, 512, 0, (struct sockaddr *)&from, &fl);
+        recv_len = bsdrecvfrom(g_IcmpRecvSocketId, buff, 512, 0, (struct sockaddr *)&from, &fl);
         if (recv_len <= 0)
         {
             if (recv_len != 0)
@@ -806,7 +806,7 @@ int send_mhop_raw_packet( unsigned long srcip, unsigned long dstip,
     /* Copy the payload to the end of the header */
     memcpy(&sendbuf[iphdrlen + udphdrlen], buf, bufsize);
 
-    rc = sendto(g_BfdSndSocketId,
+    rc = bsdsendto(g_BfdSndSocketId,
                 sendbuf,
                 allsize,
                 0,
@@ -900,7 +900,7 @@ int mhop_recvmsg(int sockfd, void *buf, size_t len, int flags,
 
 
     /* Receive one packet. */
-    err = recvmsg(sockfd, &msgh, flags);
+    err = bsdrecvmsg(sockfd, &msgh, flags);
     if (err < 0)
     {
         return -1;

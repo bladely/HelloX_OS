@@ -97,7 +97,7 @@ int set_lookbackIpAddr(int cfgId)
 
     sin->sin_addr.s_addr = bsd_inet_addr("255.0.0.0");
 
-    if (ioctl(cfgId, SIOCAIFADDR, &ifra) < 0)
+    if (bsdioctl(cfgId, SIOCAIFADDR, &ifra) < 0)
     {
         _hx_printf("%s %d\n", __FUNCTION__, __LINE__);
         return 0;
@@ -148,7 +148,7 @@ int set_ipAddr(int cfgId, char *devName, char if_index, char *ipAddr)
     sin->sin_family = AF_INET;
     sin->sin_len = sizeof(struct sockaddr_in);
     sin->sin_addr.s_addr = bsd_inet_addr("255.255.255.0");
-    if (ioctl(cfgId, SIOCAIFADDR, &ifra) < 0)
+    if (bsdioctl(cfgId, SIOCAIFADDR, &ifra) < 0)
     {
 
         exit(6);
@@ -166,7 +166,7 @@ void get_ip(int cfgId, char *devName, int if_index)
 
     sprintf(if_name, "%s%d", devName, if_index);
     strcpy(ifr.ifr_name, if_name);
-    if((ioctl(cfgId, SIOCGIFADDR, (caddr_t)&ifr, sizeof(struct ifreq))) < 0)
+    if((bsdioctl(cfgId, SIOCGIFADDR, (caddr_t)&ifr, sizeof(struct ifreq))) < 0)
         return;
     sa = (struct sockaddr *) & (ifr.ifr_addr);
     switch(sa->sa_family)
@@ -191,7 +191,7 @@ int get_netmask(int cfgId, char *devName, int if_index)
     sprintf(if_name, "%s%d", devName, if_index);
     strcpy(ifr.ifr_name, if_name);
 
-    if(ioctl(cfgId, SIOCGIFNETMASK, &ifr) < 0)
+    if(bsdioctl(cfgId, SIOCGIFNETMASK, &ifr) < 0)
     {
         printf("ioctl SIOCGIFNETMASK error");
         return -1;
@@ -564,7 +564,7 @@ void show_ip_route(char *ipaddr)
         printf("Input IP address\n");
         return;
     }
-    sockfd = socket(AF_ROUTE, SOCK_RAW, 0); /* need superuser privileges */
+    sockfd = bsdsocket(AF_ROUTE, SOCK_RAW, 0); /* need superuser privileges */
 #define rtm m_rtmsg.m_rtm
     rtm.rtm_version = RTM_VERSION;
     rtm.rtm_type = RTM_GET;
@@ -676,10 +676,10 @@ int BISConfig()
     int cfgId;
     lo_clone_create(0);
 
-    cfgId = socket(AF_INET, SOCK_DGRAM, IPPROTO_IP);
+    cfgId = bsdsocket(AF_INET, SOCK_DGRAM, IPPROTO_IP);
 
     set_lookbackIpAddr(cfgId);
-    set_ipAddr(cfgId, "em", 0, TEST_IP_ADDR);
+    set_ipAddr(cfgId, "pcn", 0, TEST_IP_ADDR);
     so_close(cfgId);
 
     // Just for test
@@ -694,11 +694,11 @@ void show_ip_interface()
 {
 
     int cfgId;
-    cfgId = socket(AF_INET, SOCK_DGRAM, IPPROTO_IP);
+    cfgId = bsdsocket(AF_INET, SOCK_DGRAM, IPPROTO_IP);
     get_ip(cfgId, "lo", 0);
     /* the following functions is for test ioctl, write, read and route */
-    get_ip(cfgId, "em", 0);
-    get_netmask(cfgId, "em", 0);
+    get_ip(cfgId, "pcn", 0);
+    get_netmask(cfgId, "pcn", 0);
     //get_route(ifCfg->ipaddr);
 
     so_close(cfgId);
@@ -1661,7 +1661,7 @@ int add_static_route()
     char dst[] = "10.0.2.0/24";
     char gw[] = "10.0.2.2";
     char *argv1[4] = {cmd, opn, dst, gw};/* because we will modify dst */
-    cfgId = socket(AF_ROUTE, SOCK_RAW, 0);
+    cfgId = bsdsocket(AF_ROUTE, SOCK_RAW, 0);
     newroute(cfgId, 4, argv1);
     so_close(cfgId);
     return 0;

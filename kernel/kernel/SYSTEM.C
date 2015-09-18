@@ -635,8 +635,8 @@ __RETFROMINT:
 		if (IN_SYSINITIALIZATION())  //It's a abnormal case.
 		{
 
-			_hx_sprintf(strError, "Warning: Interrupt[%d] raised in sys initialization.", ucVector);
-			PrintLine(strError);
+			//_hx_sprintf(strError, "Warning: Interrupt[%d] raised in sys initialization.", ucVector);
+			//PrintLine(strError);
 		}
 		else
 		{

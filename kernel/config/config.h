@@ -191,7 +191,7 @@
 //#define __CFG_NET_IPv4
 
 //Include PCNet driver in OS.
-#define __CFG_NET_PCNET
+//#define __CFG_NET_PCNET
 
 //Include BSD IPv4 network protocol in OS.
 #define __CFG_BSD_NET

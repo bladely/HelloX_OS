@@ -532,23 +532,3 @@ BOOL PciBusDriver(__DEVICE_MANAGER* lpDevMgr)
 	PciScanBus(lpDevMgr,NULL,0);
 	return TRUE;
 }
-void PciMatchDriver()
-{
-	DWORD busNum = 0;
-	for (; busNum < MAX_BUS_NUM; busNum ++)
-	{
-		__SYSTEM_BUS *sysBus = &DeviceManager.SystemBus[busNum];
-		if (sysBus->dwBusType == BUS_TYPE_PCI)
-		{
-			__PHYSICAL_DEVICE *pPhyDevList = sysBus->lpDevListHdr;
-			__PHYSICAL_DEVICE *pPhyDev = pPhyDevList;
-			for ( ; pPhyDev != NULL; )
-			{
-				InitE1000(pPhyDev);
-				
-				pPhyDev = pPhyDev->lpNext;
-			}
-		}
-		
-	}
-}

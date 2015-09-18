@@ -16,9 +16,9 @@
 
 extern int so_read(int fd, void *buf, int nbyte);
 extern in_addr_t inet_addr(const char *cp);
-extern int accept(int	s, struct sockaddr	  *name,	socklen_t	  *anamelen);
-extern int connect(int	s,		caddr_t	name,		int	namelen);
-extern int bind(int	s,		const struct sockaddr *name, socklen_t namelen);
+extern int bsdaccept(int	s, struct sockaddr	  *name,	socklen_t	  *anamelen);
+extern int bsdconnect(int	s,		caddr_t	name,		int	namelen);
+extern int bsdbind(int	s,		const struct sockaddr *name, socklen_t namelen);
 #define MAX_PING_PKT_LEN 100
 void recv_echo_reply(int sockfd)
 {
@@ -34,12 +34,12 @@ void recv_echo_reply(int sockfd)
             printf("read failed %d\n", n);
             return;
         }
-
+		
         ip = (struct ip *)buf;
         if (ip->ip_p != IPPROTO_ICMP)
         {
             printf("protocol error.rn");
-            exit(1);
+            return;
         }
         icmp = (struct icmp *)(buf + sizeof(struct ip));
         if (icmp->icmp_type == ICMP_ECHOREPLY)
@@ -47,7 +47,7 @@ void recv_echo_reply(int sockfd)
             if (icmp->icmp_id != 0)
             {
                 printf("not this process.rn\n");
-                exit(1);
+                return;
             }
             else
             {
@@ -81,13 +81,14 @@ void send_echo_req(int sockfd, struct sockaddr_in *dstaddr)
     icmp->icmp_id = 0;
     icmp->icmp_seq = 1;
     icmp->icmp_cksum = cal_chksum((uint16_t *) icmp, sizeof(struct icmp));
-
-    if (len = sendto(sockfd, buf, MAX_PING_PKT_LEN, 0, (struct sockaddr *)dstaddr, dstlen) == -1)
+	
+    if (len = bsdsendto(sockfd, buf, MAX_PING_PKT_LEN, 0, (struct sockaddr *)dstaddr, dstlen) == -1)
     {
         printf("sendto failed %d\n", len);
     }
     else
     {
+    	
         struct in_addr *ipaddr = &dstaddr->sin_addr;
         char netaddr[INET_ADDRSTRLEN];
         //ipaddr->s_addr = ntohl(ipaddr->s_addr);
@@ -103,17 +104,17 @@ void test_ping(char *ipAddr)
     int icmpSocketId = -1;
     printf("Start Testing ping %s....\n", ipAddr);
 
-    icmpSocketId = socket(AF_INET, SOCK_RAW, IPPROTO_ICMP);
-
+    icmpSocketId = bsdsocket(AF_INET, SOCK_RAW, IPPROTO_ICMP);
 
     bzero(&dst, sizeof(dst));
     dst.sin_family = AF_INET;
 
     dst.sin_addr.s_addr = bsd_inet_addr(ipAddr);
-
+	
     send_echo_req(icmpSocketId, &dst);
-    //return;
-    Sleep(1000);
+    
+
+    //Sleep(1000);
     //ISleep(1000);
     recv_echo_reply(icmpSocketId);
     so_close(icmpSocketId);
@@ -134,19 +135,19 @@ int test_tcp_server(unsigned short port)
     local.sin_family = AF_INET; //Address family
     local.sin_addr.s_addr = INADDR_ANY; //Wild card IP address
     local.sin_port = htons(port);//(u_short)TCP_SERVER_PORT); //port to use//the socket function creates our SOCKET
-    server = socket(AF_INET, SOCK_STREAM, 0);
+    server = bsdsocket(AF_INET, SOCK_STREAM, 0);
 
     if(server == -1)
     {
         return -1;
     }
 
-    if (bind(server, (struct sockaddr *)&local, sizeof(local)) != 0)
+    if (bsdbind(server, (struct sockaddr *)&local, sizeof(local)) != 0)
     {
         return -1;
     }
 
-    if(listen(server, 10) != 0)
+    if(bsdlisten(server, 10) != 0)
     {
         return -1;
     }
@@ -155,12 +156,12 @@ int test_tcp_server(unsigned short port)
     {
         char temp[1222] = {0};
         int n = 0;
-        client = accept(server, (struct sockaddr *)&from, &fromlen);
+        client = bsdaccept(server, (struct sockaddr *)&from, &fromlen);
 
         sprintf(temp, "Your IP is %s\n", bsd_inet_ntoa(from.sin_addr));
 
         //we simply send this string to the client
-        n = send(client, temp, strlen(temp), 0);
+        n = bsdsend(client, temp, strlen(temp), 0);
         //printf("Connection from %s\n", inet_ntoa(from.sin_addr));
         printf("send %d bytes OK\n", n);
         //close the client socket
@@ -177,7 +178,7 @@ int test_tcp_client(char *ipaddr, unsigned short port)
     int clen;
     struct sockaddr_in server_addr;
     char buf[TCP_MAX_MSG];
-    if((ssock = socket(PF_INET, SOCK_STREAM, IPPROTO_TCP)) < 0)
+    if((ssock = bsdsocket(PF_INET, SOCK_STREAM, IPPROTO_TCP)) < 0)
     {
         perror("socket error:");
         exit(1);
@@ -187,7 +188,7 @@ int test_tcp_client(char *ipaddr, unsigned short port)
     server_addr.sin_family     = AF_INET;
     server_addr.sin_addr.s_addr = bsd_inet_addr(ipaddr);
     server_addr.sin_port       = htons(port);//htons(TCP_SERVER_PORT);
-    if (connect(ssock, (struct sockaddr *)&server_addr, clen) < 0)
+    if (bsdconnect(ssock, (struct sockaddr *)&server_addr, clen) < 0)
     {
         perror("connect error:");
         return (1);

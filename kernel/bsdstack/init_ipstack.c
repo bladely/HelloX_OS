@@ -63,7 +63,7 @@ void BISStartup()
     	ifCfg = ifCfg->next;
     	i ++;
     }*/
-    PciMatchDriver();
+    
     uma_startup(NULL);
     mbuf_init(NULL);
     domaininit(NULL);
@@ -78,7 +78,6 @@ void BISStartup()
     route_init();
     arp_init();
 
-    BISConfig();
-    //test_ping("192.168.56.1");
+    
 }
 

@@ -106,6 +106,7 @@ struct pcnet_uncached_priv {
 };
 
 typedef struct pcnet_priv {
+	struct ifnet	*ifp;
 	/* If the structure is available,only is a internal flag. */
 	int    available;
 	struct pcnet_uncached_priv *uc;
@@ -125,7 +126,7 @@ typedef struct pcnet_priv {
 	/* The corresponding physical device. */
 	__PHYSICAL_DEVICE* pPhyDev;
 	/* The ethernet interface object of this interface. */
-	__ETHERNET_INTERFACE* pEthInt;
+	//__ETHERNET_INTERFACE* pEthInt;
 	/* Interrupt object of this NIC. */
 	LPVOID hInterrupt;
 } pcnet_priv_t;

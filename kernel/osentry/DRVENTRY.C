@@ -53,7 +53,10 @@
 #include "mrvlwifi/sdio_drv.h"
 #endif
 #endif
-
+#ifdef __CFG_BSD_NET
+#include "../bsdstack/if_e1000.h"
+#include "../drivers/x86/pcnet.h"
+#endif
 //
 //Driver entry array for all inline device drivers.
 //Inline device drivers means these drivers' source code is put together
@@ -109,6 +112,10 @@ __DRIVER_ENTRY_ARRAY DriverEntryArray[] = {
 #ifdef __CFG_DRV_SDIO //Only available under STM32.
 	//SDIO driver.
 	{SDIODriverEntry,"SDIO_DRV"},
+#endif
+#ifdef __CFG_BSD_NET
+	//{E1000_Drv_Initialize, "E1000_DRV"},
+	{PCNet_Drv_Initialize, "PCNET_DRV"},
 #endif
 	//Terminator of the driver entry array.
 	{ NULL, NULL }
